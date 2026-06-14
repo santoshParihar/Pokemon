@@ -3,6 +3,12 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 
+public enum CardCanvasSide
+{
+    FrontSide,
+    BackSide
+}
+
 [ExecuteAlways]
 public class CardUIController : MonoBehaviour
 {
@@ -31,6 +37,7 @@ public class CardUIController : MonoBehaviour
     [Header("Canvas & Transform Setup")]
     [SerializeField] private Canvas worldSpaceCanvas;
     [SerializeField] private RectTransform canvasRect;
+    [SerializeField] private CardCanvasSide canvasSide = CardCanvasSide.FrontSide;
 
     [Header("UI Text Fields")]
     [SerializeField] private TextMeshProUGUI nameText;
@@ -180,8 +187,8 @@ public class CardUIController : MonoBehaviour
 
         // Put them on the MeshRenderer
         List<Material> mats = new List<Material>();
-        mats.Add(instancedBackMaterial != null ? instancedBackMaterial : baseBackMaterial);   // Index 0: Back face
-        mats.Add(instancedFrontMaterial != null ? instancedFrontMaterial : baseFrontMaterial); // Index 1: Front face
+        mats.Add(instancedFrontMaterial != null ? instancedFrontMaterial : baseFrontMaterial); // Index 0: Front face (+Z)
+        mats.Add(instancedBackMaterial != null ? instancedBackMaterial : baseBackMaterial);   // Index 1: Back face (-Z)
         mats.Add(instancedEdgeMaterial != null ? instancedEdgeMaterial : baseEdgeMaterial);   // Index 2: Edge
 
         meshRenderer.sharedMaterials = mats.ToArray();
@@ -191,13 +198,13 @@ public class CardUIController : MonoBehaviour
     {
         if (worldSpaceCanvas == null || canvasRect == null) return;
 
-        // Move the canvas slightly behind the card thickness (on local -Z side)
-        float zOffset = -(cardThickness * 0.5f) - 0.0015f; // Add a tiny cushion to avoid Z-fighting
+        // Determine direction and orientation based on canvasSide selection
+        float sign = (canvasSide == CardCanvasSide.FrontSide) ? -1.0f : 1.0f;
+        float zOffset = (cardThickness * 0.5f * sign) + (0.0015f * sign);
         canvasRect.localPosition = new Vector3(0f, 0f, zOffset);
         
-        // Rotate the Canvas by 0 degrees so it faces OUTWARDS (away from the card's -Z side)
-        // Unity UI elements on Canvas face the negative Z direction by default.
-        canvasRect.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        float yRotation = (canvasSide == CardCanvasSide.FrontSide) ? 0f : 180f;
+        canvasRect.localRotation = Quaternion.Euler(0f, yRotation, 0f);
 
         // Adjust Canvas scale according to card width/height and RectTransform pixel width/height (assumes 700x980 pixel resolution)
         float pixelsW = canvasRect.rect.width;

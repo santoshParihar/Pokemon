@@ -6,6 +6,12 @@ using System.IO;
 using System.Collections.Generic;
 using TMPro;
 
+public enum CardDefaultFacing
+{
+    BackSide,
+    FrontSide
+}
+
 public class CardEditorHelper : EditorWindow
 {
     // Default parameters
@@ -14,6 +20,8 @@ public class CardEditorHelper : EditorWindow
     private float cardThickness = 0.02f;
     private float cornerRadius = 0.08f;
     private int cornerSegments = 8;
+    private CardDefaultFacing defaultFacing = CardDefaultFacing.BackSide;
+    private CardCanvasSide canvasSide = CardCanvasSide.FrontSide;
 
     [MenuItem("Pokemon TCG/Card Creator Window")]
     public static void ShowWindow()
@@ -42,17 +50,29 @@ public class CardEditorHelper : EditorWindow
         cornerSegments = EditorGUILayout.IntSlider("Corner Segments", cornerSegments, 2, 32);
         GUILayout.EndVertical();
 
+        GUILayout.Space(5);
+        GUILayout.Label("Default Rotation Settings", EditorStyles.boldLabel);
+        GUILayout.BeginVertical("box");
+        defaultFacing = (CardDefaultFacing)EditorGUILayout.EnumPopup("Spawn Facing", defaultFacing);
+        GUILayout.EndVertical();
+
+        GUILayout.Space(5);
+        GUILayout.Label("Canvas Placement Settings", EditorStyles.boldLabel);
+        GUILayout.BeginVertical("box");
+        canvasSide = (CardCanvasSide)EditorGUILayout.EnumPopup("Canvas Side", canvasSide);
+        GUILayout.EndVertical();
+
         GUILayout.Space(15);
         
         GUI.backgroundColor = new Color(0.35f, 0.75f, 0.35f);
         if (GUILayout.Button("Bake Card & Generate Prefab", GUILayout.Height(40)))
         {
-            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments);
+            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide);
         }
         GUI.backgroundColor = Color.white;
     }
 
-    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments)
+    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide)
     {
         // 1. Setup/Find Shaders (Unlit for card faces, Lit for card edges)
         Shader faceShader = Shader.Find("Universal Render Pipeline/Unlit");
@@ -260,13 +280,20 @@ public class CardEditorHelper : EditorWindow
         meshFilter.sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshAssetPath);
 
         MeshRenderer renderer = cardObj.AddComponent<MeshRenderer>();
-        renderer.sharedMaterials = new Material[] { backMat, frontMat, edgeMat };
+        renderer.sharedMaterials = new Material[] { frontMat, backMat, edgeMat };
 
         CardUIController uiController = cardObj.AddComponent<CardUIController>();
         cardObj.AddComponent<CardRotator>();
 
-        // Default rotation is identity; backMat is at index 0 (Submesh 0, +Z) to face camera by default
-        cardObj.transform.rotation = Quaternion.identity;
+        // Set default rotation dynamically based on the chosen dropdown option
+        if (defaultFacing == CardDefaultFacing.BackSide)
+        {
+            cardObj.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        else
+        {
+            cardObj.transform.rotation = Quaternion.identity;
+        }
 
         // Set dimensions on UI Controller so it can align the Canvas
         var cardWidthField = typeof(CardUIController).GetField("cardWidth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -276,6 +303,9 @@ public class CardEditorHelper : EditorWindow
         cardWidthField?.SetValue(uiController, width);
         cardHeightField?.SetValue(uiController, height);
         cardThicknessField?.SetValue(uiController, thickness);
+
+        var canvasSideField = typeof(CardUIController).GetField("canvasSide", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (canvasSideField != null) canvasSideField.SetValue(uiController, canvasSide);
 
         // Set Materials on UI Controller
         var baseFrontField = typeof(CardUIController).GetField("baseFrontMaterial", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -329,10 +359,13 @@ public class CardEditorHelper : EditorWindow
         
         RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
         canvasRect.sizeDelta = new Vector2(700, 980);
-        canvasRect.localPosition = new Vector3(0, 0, -(thickness * 0.5f) - 0.0015f);
         
-        // Set localRotation to Euler(0, 0, 0) so UI elements face outward from the back (local -Z) face correctly
-        canvasRect.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        float sign = (canvasSide == CardCanvasSide.FrontSide) ? -1.0f : 1.0f;
+        float zOffset = (thickness * 0.5f * sign) + (0.0015f * sign);
+        canvasRect.localPosition = new Vector3(0, 0, zOffset);
+        
+        float yRotation = (canvasSide == CardCanvasSide.FrontSide) ? 0f : 180f;
+        canvasRect.localRotation = Quaternion.Euler(0f, yRotation, 0f);
         canvasRect.localScale = new Vector3(width / 700.0f, height / 980.0f, 1f);
 
         // Assign Canvas Fields on UI Controller
@@ -351,8 +384,8 @@ public class CardEditorHelper : EditorWindow
         headerRect.offsetMin = new Vector2(40, 0);
         headerRect.offsetMax = new Vector2(-40, -30);
 
-        TextMeshProUGUI nameTMP = CreateTextElement(headerObj, "NameText", "Pokemon Name", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(250, 60), 38, TextAlignmentOptions.Left);
-        TextMeshProUGUI hpTMP = CreateTextElement(headerObj, "HPText", "120 HP", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0, 0), new Vector2(250, 60), 38, TextAlignmentOptions.Right);
+        TextMeshProUGUI nameTMP = CreateTextElement(headerObj, "NameText", "Pokemon Name", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(125f, 0f), new Vector2(250, 60), 38, TextAlignmentOptions.Left);
+        TextMeshProUGUI hpTMP = CreateTextElement(headerObj, "HPText", "120 HP", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-125f, 0f), new Vector2(250, 60), 38, TextAlignmentOptions.Right);
 
         // Type info (under name or in background)
         TextMeshProUGUI typeTMP = CreateTextElement(headerObj, "TypeText", "Grass", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, -20), new Vector2(100, 30), 18, TextAlignmentOptions.Center);
@@ -487,6 +520,16 @@ public class CardEditorHelper : EditorWindow
         string cardPrefabPath = $"{prefabsFolder}/PokemonCard.prefab";
         GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardObj, cardPrefabPath);
         DestroyImmediate(cardObj);
+
+        // Destroy existing instances in the active scene to avoid duplicates/stale objects
+        GameObject[] existingCards = GameObject.FindObjectsOfType<GameObject>();
+        foreach (var card in existingCards)
+        {
+            if (card.name == "3D Pokemon Card" && card.scene.IsValid())
+            {
+                Undo.DestroyObjectImmediate(card);
+            }
+        }
 
         // Instantiate in active scene for user
         GameObject sceneInstance = PrefabUtility.InstantiatePrefab(cardPrefab) as GameObject;
