@@ -22,6 +22,7 @@ public class CardEditorHelper : EditorWindow
     private int cornerSegments = 8;
     private CardDefaultFacing defaultFacing = CardDefaultFacing.BackSide;
     private CardCanvasSide canvasSide = CardCanvasSide.FrontSide;
+    private Texture2D customBackTexture = null;
 
     [MenuItem("Pokemon TCG/Card Creator Window")]
     public static void ShowWindow()
@@ -62,17 +63,23 @@ public class CardEditorHelper : EditorWindow
         canvasSide = (CardCanvasSide)EditorGUILayout.EnumPopup("Canvas Side", canvasSide);
         GUILayout.EndVertical();
 
+        GUILayout.Space(5);
+        GUILayout.Label("Custom Material Settings", EditorStyles.boldLabel);
+        GUILayout.BeginVertical("box");
+        customBackTexture = (Texture2D)EditorGUILayout.ObjectField("Back Texture (Override)", customBackTexture, typeof(Texture2D), false);
+        GUILayout.EndVertical();
+
         GUILayout.Space(15);
         
         GUI.backgroundColor = new Color(0.35f, 0.75f, 0.35f);
         if (GUILayout.Button("Bake Card & Generate Prefab", GUILayout.Height(40)))
         {
-            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide);
+            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture);
         }
         GUI.backgroundColor = Color.white;
     }
 
-    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide)
+    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture)
     {
         // 1. Setup/Find Shaders (Unlit for card faces, Lit for card edges)
         Shader faceShader = Shader.Find("Universal Render Pipeline/Unlit");
@@ -127,7 +134,7 @@ public class CardEditorHelper : EditorWindow
         if (backMat == null)
         {
             backMat = new Material(faceShader);
-            Texture2D cardBackTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
+            Texture2D cardBackTex = customBackTexture != null ? customBackTexture : AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
             if (cardBackTex != null)
             {
                 backMat.mainTexture = cardBackTex;
@@ -137,6 +144,10 @@ public class CardEditorHelper : EditorWindow
         else
         {
             backMat.shader = faceShader;
+            if (customBackTexture != null)
+            {
+                backMat.mainTexture = customBackTexture;
+            }
         }
 
         Material edgeMat = AssetDatabase.LoadAssetAtPath<Material>($"{matFolder}/CardEdge.mat");
@@ -322,8 +333,16 @@ public class CardEditorHelper : EditorWindow
 
         if (backTexField != null)
         {
-            OptimizeTextureSettings("Assets/Game Assets/Textures/card-back.png");
-            Texture2D cardBackTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
+            Texture2D cardBackTex = null;
+            if (customBackTexture != null)
+            {
+                cardBackTex = customBackTexture;
+            }
+            else
+            {
+                OptimizeTextureSettings("Assets/Game Assets/Textures/card-back.png");
+                cardBackTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
+            }
             backTexField.SetValue(uiController, cardBackTex);
         }
 

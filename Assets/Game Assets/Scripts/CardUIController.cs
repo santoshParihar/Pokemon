@@ -33,6 +33,7 @@ public class CardUIController : MonoBehaviour
     }
     [SerializeField] private List<TypeTextureMapping> typeBackgrounds = new List<TypeTextureMapping>();
     [SerializeField] private Texture2D cardBackTexture;
+    [SerializeField] private Texture2D defaultFrontTexture;
 
     [Header("Canvas & Transform Setup")]
     [SerializeField] private Canvas worldSpaceCanvas;
@@ -150,14 +151,25 @@ public class CardUIController : MonoBehaviour
     {
         if (meshRenderer == null) return;
 
-        // Find the correct texture for the card type
+        // Find the correct texture for the card type (override with custom background or default front texture if assigned)
         Texture2D frontTex = null;
-        foreach (var mapping in typeBackgrounds)
+        if (cardData.customBackgroundSprite != null)
         {
-            if (mapping.type == cardData.cardType)
+            frontTex = cardData.customBackgroundSprite.texture;
+        }
+        else if (defaultFrontTexture != null)
+        {
+            frontTex = defaultFrontTexture;
+        }
+        else
+        {
+            foreach (var mapping in typeBackgrounds)
             {
-                frontTex = mapping.backgroundTexture;
-                break;
+                if (mapping.type == cardData.cardType)
+                {
+                    frontTex = mapping.backgroundTexture;
+                    break;
+                }
             }
         }
 

@@ -22,6 +22,7 @@ public class PokemonCardData : ScriptableObject
     public int hp = 60;
     public PokemonType cardType = PokemonType.Grass;
     public Sprite pokemonSprite;
+    public Sprite customBackgroundSprite;
 
     [Header("Attack 1")]
     public string attack1Name = "Tackle";
