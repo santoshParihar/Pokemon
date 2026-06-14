@@ -428,6 +428,12 @@ public class CardEditorHelper : EditorWindow
             artImg.color = Color.white;
         }
 
+        // Add Outline component by default to match the desired neumorphic/drop-shadow border style
+        Outline artOutline = artObj.AddComponent<Outline>();
+        artOutline.effectColor = Color.black;
+        artOutline.effectDistance = new Vector2(0f, 10f);
+        artOutline.useGraphicAlpha = true;
+
         // Attacks Container
         GameObject attacksPanelObj = new GameObject("AttacksPanel", typeof(RectTransform));
         attacksPanelObj.transform.SetParent(canvasObj.transform, false);
