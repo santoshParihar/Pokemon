@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91774fcf222464551a6a77d44639de3b, type: 3}
+  m_Name: BulbasaurData
+  m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
+  pokemonName: Bulbasaur
+  hp: 70
+  cardType: 0
+  pokemonSprite: {fileID: 0}
+  attack1Name: Tackle
+  attack1CostText: C
+  attack1Damage: 10
+  attack1Description: A simple tackle attack.
+  attack2Name: Vine Whip
+  attack2CostText: G C
+  attack2Damage: 30
+  attack2Description: Whips the opponent with thin vines.
+  weakness: 1
+  resistance: 2
+  retreatCost: 1
+  rarityStars: 2

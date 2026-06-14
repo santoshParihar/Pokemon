@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91774fcf222464551a6a77d44639de3b, type: 3}
+  m_Name: SquirtleData
+  m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
+  pokemonName: Squirtle
+  hp: 60
+  cardType: 2
+  pokemonSprite: {fileID: 0}
+  attack1Name: Bubble
+  attack1CostText: W
+  attack1Damage: 10
+  attack1Description: Flip a coin. If heads, the Defending Pokemon is now Paralyzed.
+  attack2Name: Water Gun
+  attack2CostText: W C
+  attack2Damage: 30
+  attack2Description: Shoots a burst of high pressure water.
+  weakness: 3
+  resistance: 9
+  retreatCost: 1
+  rarityStars: 1
