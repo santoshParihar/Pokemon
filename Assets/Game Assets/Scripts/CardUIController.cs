@@ -44,6 +44,7 @@ public class CardUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI typeText;
+    [SerializeField] private TextMeshProUGUI pokedexClassText;
     
     [Header("UI Attack Fields")]
     [SerializeField] private TextMeshProUGUI attack1Name;
@@ -64,6 +65,14 @@ public class CardUIController : MonoBehaviour
     [Header("UI Text Icon Replacements (ASCII *)")]
     [SerializeField] private TextMeshProUGUI retreatText;
     [SerializeField] private TextMeshProUGUI rarityText;
+
+    [Header("UI Stats Badge Fields")]
+    [SerializeField] private TextMeshProUGUI badgeStageTmp;
+    [SerializeField] private TextMeshProUGUI badgeCPTmp;
+    [SerializeField] private TextMeshProUGUI badgeRetreatTmp;
+    [SerializeField] private TextMeshProUGUI badgeWeakTmp;
+    [SerializeField] private TextMeshProUGUI badgeResistTmp;
+    [SerializeField] private TextMeshProUGUI badgeRarityTmp;
 
     private MeshRenderer meshRenderer;
 
@@ -108,6 +117,7 @@ public class CardUIController : MonoBehaviour
         if (nameText != null) nameText.text = cardData.pokemonName;
         if (hpText != null) hpText.text = $"{cardData.hp} HP";
         if (typeText != null) typeText.text = cardData.cardType.ToString();
+        if (pokedexClassText != null) pokedexClassText.text = cardData.pokedexClass;
 
         if (pokemonImage != null)
         {
@@ -141,6 +151,43 @@ public class CardUIController : MonoBehaviour
         {
             int stars = Mathf.Clamp(cardData.rarityStars, 1, 5);
             rarityText.text = new string('*', stars);
+        }
+
+        // Populate the new modern rounded stats badges
+        if (badgeStageTmp != null)
+        {
+            badgeStageTmp.text = $"<color=#1E222B><b>{cardData.stage}</b></color>";
+        }
+
+        if (badgeCPTmp != null)
+        {
+            int dynamicCP = cardData.hp * 5 + cardData.attack1Damage * 3 + cardData.attack2Damage * 4;
+            badgeCPTmp.text = $"<color=#1E222B><b>CP {dynamicCP}</b></color>";
+        }
+
+        if (badgeRetreatTmp != null)
+        {
+            int cost = Mathf.Clamp(cardData.retreatCost, 0, 5);
+            string retreatStars = new string('*', cost);
+            if (cost == 0) retreatStars = "None";
+            badgeRetreatTmp.text = $"<color=#1E222B><b>{retreatStars}</b></color>";
+        }
+
+        if (badgeWeakTmp != null)
+        {
+            badgeWeakTmp.text = $"<color=#1E222B><b>{cardData.weakness.ToString()}</b></color>";
+        }
+
+        if (badgeResistTmp != null)
+        {
+            badgeResistTmp.text = $"<color=#1E222B><b>{cardData.resistance.ToString()}</b></color>";
+        }
+
+        if (badgeRarityTmp != null)
+        {
+            int stars = Mathf.Clamp(cardData.rarityStars, 1, 5);
+            string rarityStars = new string('*', stars);
+            badgeRarityTmp.text = $"<color=#1E222B><b>{rarityStars}</b></color>";
         }
 
         // 3. Align the World Canvas to Card Front

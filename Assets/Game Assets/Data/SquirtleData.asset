@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
   pokemonName: Squirtle
   hp: 60
+  stage: Basic
+  pokedexNo: '#007'
+  pokedexClass: "Tiny Turtle Pok\xE9mon"
   cardType: 2
   pokemonSprite: {fileID: 21300000, guid: 9c400c884406244d0a3701194d689cd0, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: 2134e11edd3224d979f4edce886a906b, type: 3}

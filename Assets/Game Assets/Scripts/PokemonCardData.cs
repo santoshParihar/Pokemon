@@ -20,6 +20,9 @@ public class PokemonCardData : ScriptableObject
     [Header("Basic Information")]
     public string pokemonName = "Bulbasaur";
     public int hp = 60;
+    public string stage = "Basic";
+    public string pokedexNo = "#001";
+    public string pokedexClass = "Seed Pokémon";
     public PokemonType cardType = PokemonType.Grass;
     public Sprite pokemonSprite;
     public Sprite customBackgroundSprite;

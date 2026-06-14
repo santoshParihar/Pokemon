@@ -169,6 +169,9 @@ public class CardEditorHelper : EditorWindow
             charmanderData = ScriptableObject.CreateInstance<PokemonCardData>();
             charmanderData.pokemonName = "Charmander";
             charmanderData.hp = 60;
+            charmanderData.stage = "Basic";
+            charmanderData.pokedexNo = "#004";
+            charmanderData.pokedexClass = "Lizard Pokémon";
             charmanderData.cardType = PokemonType.Fire;
             charmanderData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
@@ -189,6 +192,13 @@ public class CardEditorHelper : EditorWindow
             
             AssetDatabase.CreateAsset(charmanderData, $"{dataFolder}/CharmanderData.asset");
         }
+        else
+        {
+            charmanderData.stage = "Basic";
+            charmanderData.pokedexNo = "#004";
+            charmanderData.pokedexClass = "Lizard Pokémon";
+            EditorUtility.SetDirty(charmanderData);
+        }
 
         PokemonCardData bulbasaurData = AssetDatabase.LoadAssetAtPath<PokemonCardData>($"{dataFolder}/BulbasaurData.asset");
         if (bulbasaurData == null)
@@ -196,6 +206,9 @@ public class CardEditorHelper : EditorWindow
             bulbasaurData = ScriptableObject.CreateInstance<PokemonCardData>();
             bulbasaurData.pokemonName = "Bulbasaur";
             bulbasaurData.hp = 70;
+            bulbasaurData.stage = "Basic";
+            bulbasaurData.pokedexNo = "#001";
+            bulbasaurData.pokedexClass = "Seed Pokémon";
             bulbasaurData.cardType = PokemonType.Grass;
             bulbasaurData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
@@ -216,6 +229,13 @@ public class CardEditorHelper : EditorWindow
             
             AssetDatabase.CreateAsset(bulbasaurData, $"{dataFolder}/BulbasaurData.asset");
         }
+        else
+        {
+            bulbasaurData.stage = "Basic";
+            bulbasaurData.pokedexNo = "#001";
+            bulbasaurData.pokedexClass = "Seed Pokémon";
+            EditorUtility.SetDirty(bulbasaurData);
+        }
 
         PokemonCardData squirtleData = AssetDatabase.LoadAssetAtPath<PokemonCardData>($"{dataFolder}/SquirtleData.asset");
         if (squirtleData == null)
@@ -223,6 +243,9 @@ public class CardEditorHelper : EditorWindow
             squirtleData = ScriptableObject.CreateInstance<PokemonCardData>();
             squirtleData.pokemonName = "Squirtle";
             squirtleData.hp = 60;
+            squirtleData.stage = "Basic";
+            squirtleData.pokedexNo = "#007";
+            squirtleData.pokedexClass = "Tiny Turtle Pokémon";
             squirtleData.cardType = PokemonType.Water;
             squirtleData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
@@ -242,6 +265,13 @@ public class CardEditorHelper : EditorWindow
             squirtleData.rarityStars = 1;
             
             AssetDatabase.CreateAsset(squirtleData, $"{dataFolder}/SquirtleData.asset");
+        }
+        else
+        {
+            squirtleData.stage = "Basic";
+            squirtleData.pokedexNo = "#007";
+            squirtleData.pokedexClass = "Tiny Turtle Pokémon";
+            EditorUtility.SetDirty(squirtleData);
         }
 
         AssetDatabase.SaveAssets();
@@ -398,17 +428,109 @@ public class CardEditorHelper : EditorWindow
         GameObject headerObj = new GameObject("HeaderPanel", typeof(RectTransform));
         headerObj.transform.SetParent(canvasObj.transform, false);
         RectTransform headerRect = headerObj.GetComponent<RectTransform>();
-        headerRect.anchorMin = new Vector2(0f, 0.9f);
+        headerRect.anchorMin = new Vector2(0f, 0.88f);
         headerRect.anchorMax = new Vector2(1f, 1f);
         headerRect.offsetMin = new Vector2(40, 0);
-        headerRect.offsetMax = new Vector2(-40, -30);
+        headerRect.offsetMax = new Vector2(-40, -20);
 
-        TextMeshProUGUI nameTMP = CreateTextElement(headerObj, "NameText", "Pokemon Name", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(125f, 0f), new Vector2(250, 60), 38, TextAlignmentOptions.Left);
-        TextMeshProUGUI hpTMP = CreateTextElement(headerObj, "HPText", "120 HP", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-125f, 0f), new Vector2(250, 60), 38, TextAlignmentOptions.Right);
+        // Container for Name + Type Badge on the left
+        GameObject nameContainerObj = new GameObject("NameAndTypeContainer", typeof(RectTransform));
+        nameContainerObj.transform.SetParent(headerObj.transform, false);
+        RectTransform nameContainerRect = nameContainerObj.GetComponent<RectTransform>();
+        nameContainerRect.anchorMin = new Vector2(0f, 0.35f); // Updated from 0.4f to align with HP text Y anchors
+        nameContainerRect.anchorMax = new Vector2(0.7f, 1f);
+        nameContainerRect.offsetMin = Vector2.zero;
+        nameContainerRect.offsetMax = Vector2.zero;
 
-        // Type info (under name or in background)
-        TextMeshProUGUI typeTMP = CreateTextElement(headerObj, "TypeText", "Grass", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, -20), new Vector2(100, 30), 18, TextAlignmentOptions.Center);
-        typeTMP.color = Color.gray;
+        // Add HorizontalLayoutGroup to NameAndTypeContainer
+        HorizontalLayoutGroup hlGroup = nameContainerObj.AddComponent<HorizontalLayoutGroup>();
+        hlGroup.spacing = 15;
+        hlGroup.childAlignment = TextAnchor.MiddleLeft;
+        hlGroup.childControlWidth = true;
+        hlGroup.childControlHeight = false;
+        hlGroup.childForceExpandWidth = false;
+        hlGroup.childForceExpandHeight = false;
+
+        // Name text inside the layout group
+        GameObject nameTextObj = new GameObject("NameText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        nameTextObj.transform.SetParent(nameContainerObj.transform, false);
+        TextMeshProUGUI nameTMP = nameTextObj.GetComponent<TextMeshProUGUI>();
+        nameTMP.text = "Pokemon Name";
+        nameTMP.fontSize = 42; // Increased from 38
+        nameTMP.alignment = TextAlignmentOptions.MidlineLeft; // Centered vertical alignment to match HP text
+        nameTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f); // #1E222B - premium dark slate
+        nameTMP.fontStyle = FontStyles.Bold;
+        // Add ContentSizeFitter so the Horizontal Layout Group can wrap it properly
+        ContentSizeFitter sizeFitter = nameTextObj.AddComponent<ContentSizeFitter>();
+        sizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // Type badge inside the layout group
+        GameObject typeBadgeObj = new GameObject("TypeBadge", typeof(RectTransform), typeof(Image));
+        typeBadgeObj.transform.SetParent(nameContainerObj.transform, false);
+        RectTransform typeBadgeRect = typeBadgeObj.GetComponent<RectTransform>();
+
+        Sprite badgeBgSprite = GetOrCreateBadgeSprite();
+        Image typeBadgeImg = typeBadgeObj.GetComponent<Image>();
+        typeBadgeImg.sprite = badgeBgSprite; // Use the rounded rect badge background!
+        typeBadgeImg.type = Image.Type.Sliced;
+        typeBadgeImg.color = new Color(0.18f, 0.22f, 0.29f, 1f); // #2D323E - dark slate pill background
+
+        // Add HorizontalLayoutGroup to TypeBadge for internal padding
+        HorizontalLayoutGroup badgeHL = typeBadgeObj.AddComponent<HorizontalLayoutGroup>();
+        badgeHL.padding = new RectOffset(24, 24, 8, 8); // Increased horizontal padding from 20 to 24
+        badgeHL.childAlignment = TextAnchor.MiddleCenter;
+        badgeHL.childControlWidth = true;
+        badgeHL.childControlHeight = true;
+        badgeHL.childForceExpandWidth = false;
+        badgeHL.childForceExpandHeight = false;
+
+        // Add ContentSizeFitter to TypeBadge so it sizes dynamically based on text length
+        ContentSizeFitter badgeFitter = typeBadgeObj.AddComponent<ContentSizeFitter>();
+        badgeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        badgeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // Type text inside the badge
+        GameObject typeTextObj = new GameObject("TypeText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        typeTextObj.transform.SetParent(typeBadgeObj.transform, false);
+
+        TextMeshProUGUI typeTMP = typeTextObj.GetComponent<TextMeshProUGUI>();
+        typeTMP.text = "Water";
+        typeTMP.fontSize = 24; // Increased from 20 for better readability
+        typeTMP.alignment = TextAlignmentOptions.Center;
+        typeTMP.color = Color.white; // White text on dark pill background
+        typeTMP.fontStyle = FontStyles.Bold;
+
+        // Pokedex classification text under the name container
+        GameObject pokedexClassObj = new GameObject("PokedexClassText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        pokedexClassObj.transform.SetParent(headerObj.transform, false);
+        RectTransform pokedexClassRect = pokedexClassObj.GetComponent<RectTransform>();
+        pokedexClassRect.anchorMin = new Vector2(0f, 0f);
+        pokedexClassRect.anchorMax = new Vector2(0.7f, 0.35f); // Updated from 0.4f to match upper row adjustment
+        pokedexClassRect.offsetMin = new Vector2(0, 0);
+        pokedexClassRect.offsetMax = new Vector2(0, 0);
+
+        TextMeshProUGUI pokedexClassTMP = pokedexClassObj.GetComponent<TextMeshProUGUI>();
+        pokedexClassTMP.text = "Lizard Pokémon";
+        pokedexClassTMP.fontSize = 26; // Increased from 22 for better legibility
+        pokedexClassTMP.alignment = TextAlignmentOptions.MidlineLeft; // Midline aligned
+        pokedexClassTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f); // #1E222B - premium dark slate for high visibility
+        pokedexClassTMP.fontStyle = FontStyles.Italic; // Changed to Italic style for authentic Pokedex classification look
+
+        // HPText on the top right
+        GameObject hpTextObj = new GameObject("HPText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        hpTextObj.transform.SetParent(headerObj.transform, false);
+        RectTransform hpTextRect = hpTextObj.GetComponent<RectTransform>();
+        hpTextRect.anchorMin = new Vector2(0.7f, 0.35f); // Changed from 0f to 0.35f to match name Y anchors
+        hpTextRect.anchorMax = new Vector2(1f, 1f);
+        hpTextRect.offsetMin = Vector2.zero;
+        hpTextRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI hpTMP = hpTextObj.GetComponent<TextMeshProUGUI>();
+        hpTMP.text = "120 HP";
+        hpTMP.fontSize = 42; // Increased from 38 to match name text size
+        hpTMP.alignment = TextAlignmentOptions.MidlineRight; // Midline aligned right to match name midline vertical level
+        hpTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f); // #1E222B - premium dark slate
+        hpTMP.fontStyle = FontStyles.Bold;
 
         // Sprite Image Panel
         GameObject artObj = new GameObject("ArtworkPanel", typeof(RectTransform), typeof(Image));
@@ -416,8 +538,8 @@ public class CardEditorHelper : EditorWindow
         RectTransform artRect = artObj.GetComponent<RectTransform>();
         artRect.anchorMin = new Vector2(0.5f, 0.5f);
         artRect.anchorMax = new Vector2(0.5f, 0.5f);
-        artRect.anchoredPosition = new Vector3(0, 150, 0);
-        artRect.sizeDelta = new Vector2(580, 380);
+        artRect.anchoredPosition = new Vector3(0, 170, 0); // Shifted down from 200 to 140
+        artRect.sizeDelta = new Vector2(610, 340); // Increased size from 580x320 to 610x340
         
         Image artImg = artObj.GetComponent<Image>();
         artImg.color = new Color(0.9f, 0.9f, 0.9f, 0.6f);
@@ -434,12 +556,115 @@ public class CardEditorHelper : EditorWindow
         artOutline.effectDistance = new Vector2(0f, 10f);
         artOutline.useGraphicAlpha = true;
 
+        // Stats Panel (modern rounded badges)
+        GameObject statsPanelObj = new GameObject("StatsPanel", typeof(RectTransform));
+        statsPanelObj.transform.SetParent(canvasObj.transform, false);
+        RectTransform statsRect = statsPanelObj.GetComponent<RectTransform>();
+        statsRect.anchorMin = new Vector2(0.5f, 0.5f);
+        statsRect.anchorMax = new Vector2(0.5f, 0.5f);
+        statsRect.anchoredPosition = new Vector3(0, -115, 0); // Shifted down from -60 to -115
+        statsRect.sizeDelta = new Vector2(610, 110); // Increased from 580x90 to fit larger badges
+
+        Sprite weakSprite = GetOrConvertSprite("Assets/Game Assets/Textures/weak.png");
+        Sprite shieldSprite = GetOrConvertSprite("Assets/Game Assets/Textures/shield.png");
+
+        Sprite chevronSprite = GetOrCreateShapeSprite("chevron", 
+            new Vector2[] { new Vector2(0.5f, 0.85f), new Vector2(0.8f, 0.60f), new Vector2(0.7f, 0.50f), new Vector2(0.5f, 0.68f), new Vector2(0.3f, 0.50f), new Vector2(0.2f, 0.60f) },
+            new Vector2[] { new Vector2(0.5f, 0.55f), new Vector2(0.8f, 0.30f), new Vector2(0.7f, 0.20f), new Vector2(0.5f, 0.38f), new Vector2(0.3f, 0.20f), new Vector2(0.2f, 0.30f) }
+        );
+        Sprite lightningSprite = GetOrCreateShapeSprite("lightning", 
+            new Vector2[] { new Vector2(0.55f, 0.90f), new Vector2(0.80f, 0.52f), new Vector2(0.52f, 0.52f), new Vector2(0.65f, 0.10f), new Vector2(0.25f, 0.48f), new Vector2(0.48f, 0.48f) }
+        );
+        Sprite retreatSprite = GetOrCreateShapeSprite("retreat", 
+            new Vector2[] { new Vector2(0.20f, 0.20f), new Vector2(0.65f, 0.20f), new Vector2(0.48f, 0.37f), new Vector2(0.85f, 0.74f), new Vector2(0.74f, 0.85f), new Vector2(0.37f, 0.48f), new Vector2(0.20f, 0.65f) }
+        );
+        
+        // Define Star shape
+        Vector2[] starPoly = new Vector2[10];
+        for (int i = 0; i < 10; i++)
+        {
+            float angle = i * Mathf.PI / 5.0f - Mathf.PI / 2.0f;
+            float r = (i % 2 == 0) ? 0.42f : 0.18f;
+            starPoly[i] = new Vector2(0.5f + r * Mathf.Cos(angle), 0.5f + r * Mathf.Sin(angle));
+        }
+        Sprite starIconSprite = GetOrCreateShapeSprite("star_icon", starPoly);
+
+        // Helper to create a badge
+        System.Func<string, Vector2, Vector2, Sprite, TextMeshProUGUI> createBadge = (badgeName, anchoredPos, sizeDelta, iconSprite) =>
+        {
+            GameObject badgeObj = new GameObject(badgeName, typeof(RectTransform), typeof(Image));
+            badgeObj.transform.SetParent(statsPanelObj.transform, false);
+            
+            RectTransform bRect = badgeObj.GetComponent<RectTransform>();
+            bRect.anchorMin = new Vector2(0.5f, 0.5f);
+            bRect.anchorMax = new Vector2(0.5f, 0.5f);
+            bRect.anchoredPosition = anchoredPos;
+            bRect.sizeDelta = sizeDelta;
+
+            Image img = badgeObj.GetComponent<Image>();
+            img.sprite = badgeBgSprite;
+            img.type = Image.Type.Sliced;
+            img.color = Color.white;
+
+            // Create text child
+            GameObject txtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            txtObj.transform.SetParent(badgeObj.transform, false);
+
+            RectTransform tRect = txtObj.GetComponent<RectTransform>();
+            tRect.anchorMin = Vector2.zero;
+            tRect.anchorMax = Vector2.one;
+
+            TextMeshProUGUI tmp = txtObj.GetComponent<TextMeshProUGUI>();
+            tmp.fontSize = 24; // Increased from 20 for better visibility
+            tmp.color = new Color(0.36f, 0.39f, 0.44f, 1f); // #5C6370 - beautiful gray for label
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.text = badgeName;
+
+            if (iconSprite != null)
+            {
+                // Create icon child
+                GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconObj.transform.SetParent(badgeObj.transform, false);
+
+                RectTransform iconRect = iconObj.GetComponent<RectTransform>();
+                iconRect.anchorMin = new Vector2(0f, 0.5f);
+                iconRect.anchorMax = new Vector2(0f, 0.5f);
+                iconRect.anchoredPosition = new Vector2(24, 0); // Position slightly in from left edge
+                iconRect.sizeDelta = new Vector2(24, 24); // Increased from 20x20 for scale
+
+                Image iconImg = iconObj.GetComponent<Image>();
+                iconImg.sprite = iconSprite;
+                iconImg.color = new Color(0.18f, 0.22f, 0.29f, 1f); // Cohesive slate/dark grey text color
+
+                tRect.offsetMin = new Vector2(56, 0); // Padding left to make space for the icon (increased from 52)
+                tRect.offsetMax = new Vector2(-10, 0); // Padding right
+                tmp.alignment = TextAlignmentOptions.Left; // Left alignment works better when there is an icon
+            }
+            else
+            {
+                tRect.offsetMin = new Vector2(10, 0); // Padding left
+                tRect.offsetMax = new Vector2(-10, 0); // Padding right
+                tmp.alignment = TextAlignmentOptions.Center; // Center alignment is best for text-only
+            }
+
+            return tmp;
+        };
+
+        Vector2 badgeSize = new Vector2(195, 48); // Increased size from 180x38 to look bolder and larger
+        TextMeshProUGUI badgeStageTmp = createBadge("Badge_Stage", new Vector2(-205, 28), badgeSize, chevronSprite);
+        TextMeshProUGUI badgeCPTmp = createBadge("Badge_CP", new Vector2(0, 28), badgeSize, lightningSprite);
+        TextMeshProUGUI badgeRetreatTmp = createBadge("Badge_Retreat", new Vector2(205, 28), badgeSize, retreatSprite);
+
+        TextMeshProUGUI badgeWeakTmp = createBadge("Badge_Weakness", new Vector2(-205, -28), badgeSize, weakSprite);
+        TextMeshProUGUI badgeResistTmp = createBadge("Badge_Resistance", new Vector2(0, -28), badgeSize, shieldSprite);
+        TextMeshProUGUI badgeRarityTmp = createBadge("Badge_Rarity", new Vector2(205, -28), badgeSize, starIconSprite);
+
         // Attacks Container
         GameObject attacksPanelObj = new GameObject("AttacksPanel", typeof(RectTransform));
         attacksPanelObj.transform.SetParent(canvasObj.transform, false);
         RectTransform attacksRect = attacksPanelObj.GetComponent<RectTransform>();
-        attacksRect.anchorMin = new Vector2(0f, 0.15f);
-        attacksRect.anchorMax = new Vector2(1f, 0.45f);
+        attacksRect.anchorMin = new Vector2(0f, 0.03f); // Shifted down from 0.06 to 0.03
+        attacksRect.anchorMax = new Vector2(1f, 0.26f); // Shifted down from 0.34 to 0.26
         attacksRect.offsetMin = new Vector2(40, 0);
         attacksRect.offsetMax = new Vector2(-40, 0);
 
@@ -452,10 +677,10 @@ public class CardEditorHelper : EditorWindow
         atk1Rect.offsetMin = Vector2.zero;
         atk1Rect.offsetMax = Vector2.zero;
 
-        TextMeshProUGUI atk1CostTMP = CreateTextElement(atk1Obj, "Atk1Cost", "G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 20), new Vector2(100, 40), 24, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk1NameTMP = CreateTextElement(atk1Obj, "Atk1Name", "Attack One", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(150, 20), new Vector2(250, 40), 28, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk1DmgTMP = CreateTextElement(atk1Obj, "Atk1Damage", "30", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 20), new Vector2(100, 40), 28, TextAlignmentOptions.Right);
-        TextMeshProUGUI atk1DescTMP = CreateTextElement(atk1Obj, "Atk1Description", "Deals 30 damage.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 30), 18, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk1CostTMP = CreateTextElement(atk1Obj, "Atk1Cost", "G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 22), new Vector2(110, 45), 28, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk1NameTMP = CreateTextElement(atk1Obj, "Atk1Name", "Attack One", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(165, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk1DmgTMP = CreateTextElement(atk1Obj, "Atk1Damage", "30", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 22), new Vector2(110, 45), 32, TextAlignmentOptions.Right);
+        TextMeshProUGUI atk1DescTMP = CreateTextElement(atk1Obj, "Atk1Description", "Deals 30 damage.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 32), 20, TextAlignmentOptions.Left);
 
         // Attack 2 elements
         GameObject atk2Obj = new GameObject("Attack2", typeof(RectTransform));
@@ -466,39 +691,16 @@ public class CardEditorHelper : EditorWindow
         atk2Rect.offsetMin = Vector2.zero;
         atk2Rect.offsetMax = Vector2.zero;
 
-        TextMeshProUGUI atk2CostTMP = CreateTextElement(atk2Obj, "Atk2Cost", "G G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 20), new Vector2(100, 40), 24, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk2NameTMP = CreateTextElement(atk2Obj, "Atk2Name", "Attack Two", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(150, 20), new Vector2(250, 40), 28, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk2DmgTMP = CreateTextElement(atk2Obj, "Atk2Damage", "70", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 20), new Vector2(100, 40), 28, TextAlignmentOptions.Right);
-        TextMeshProUGUI atk2DescTMP = CreateTextElement(atk2Obj, "Atk2Description", "Discard an energy card.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 30), 18, TextAlignmentOptions.Left);
-
-        // Footer: Weakness, Resistance, Retreat, Rarity
-        GameObject footerObj = new GameObject("FooterPanel", typeof(RectTransform));
-        footerObj.transform.SetParent(canvasObj.transform, false);
-        RectTransform footerRect = footerObj.GetComponent<RectTransform>();
-        footerRect.anchorMin = new Vector2(0f, 0f);
-        footerRect.anchorMax = new Vector2(1f, 0.15f);
-        footerRect.offsetMin = new Vector2(40, 20);
-        footerRect.offsetMax = new Vector2(-40, 0);
-
-        // Weakness Section
-        CreateTextElement(footerObj, "WeaknessLabel", "Weakness", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(50, 30), new Vector2(100, 25), 16, TextAlignmentOptions.Left);
-        TextMeshProUGUI weakValTMP = CreateTextElement(footerObj, "WeaknessText", "x2 Fire", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(50, 5), new Vector2(100, 25), 18, TextAlignmentOptions.Left);
-
-        // Resistance Section
-        CreateTextElement(footerObj, "ResistanceLabel", "Resistance", new Vector2(0.33f, 0.5f), new Vector2(0.33f, 0.5f), new Vector2(50, 30), new Vector2(100, 25), 16, TextAlignmentOptions.Center);
-        TextMeshProUGUI resistValTMP = CreateTextElement(footerObj, "ResistanceText", "-30 Water", new Vector2(0.33f, 0.5f), new Vector2(0.33f, 0.5f), new Vector2(50, 5), new Vector2(100, 25), 18, TextAlignmentOptions.Center);
-
-        // Retreat Cost Section (ASCII * based layout)
-        CreateTextElement(footerObj, "RetreatLabel", "Retreat", new Vector2(0.66f, 0.5f), new Vector2(0.66f, 0.5f), new Vector2(50, 30), new Vector2(100, 25), 16, TextAlignmentOptions.Center);
-        TextMeshProUGUI retreatValTMP = CreateTextElement(footerObj, "RetreatText", "*", new Vector2(0.66f, 0.5f), new Vector2(0.66f, 0.5f), new Vector2(50, 5), new Vector2(100, 25), 18, TextAlignmentOptions.Center);
-
-        // Rarity Stars Section (ASCII * based layout)
-        TextMeshProUGUI rarityValTMP = CreateTextElement(footerObj, "RarityText", "*", new Vector2(1.0f, 0.5f), new Vector2(1.0f, 0.5f), new Vector2(-40, 5), new Vector2(100, 25), 18, TextAlignmentOptions.Right);
+        TextMeshProUGUI atk2CostTMP = CreateTextElement(atk2Obj, "Atk2Cost", "G G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 22), new Vector2(110, 45), 28, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk2NameTMP = CreateTextElement(atk2Obj, "Atk2Name", "Attack Two", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(165, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk2DmgTMP = CreateTextElement(atk2Obj, "Atk2Damage", "70", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 22), new Vector2(110, 45), 32, TextAlignmentOptions.Right);
+        TextMeshProUGUI atk2DescTMP = CreateTextElement(atk2Obj, "Atk2Description", "Discard an energy card.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 32), 20, TextAlignmentOptions.Left);
 
         // 8. Bind UI components to UI Controller
         var nameTextField = typeof(CardUIController).GetField("nameText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var hpTextField = typeof(CardUIController).GetField("hpText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var typeTextField = typeof(CardUIController).GetField("typeText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var pokedexClassTextField = typeof(CardUIController).GetField("pokedexClassText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var pokemonImageField = typeof(CardUIController).GetField("pokemonImage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         
         var attack1NameField = typeof(CardUIController).GetField("attack1Name", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -511,15 +713,17 @@ public class CardEditorHelper : EditorWindow
         var attack2DamageField = typeof(CardUIController).GetField("attack2Damage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var attack2DescField = typeof(CardUIController).GetField("attack2Description", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        var weaknessTextField = typeof(CardUIController).GetField("weaknessText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var resistanceTextField = typeof(CardUIController).GetField("resistanceText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        
-        var retreatTextField = typeof(CardUIController).GetField("retreatText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var rarityTextField = typeof(CardUIController).GetField("rarityText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeStageField = typeof(CardUIController).GetField("badgeStageTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeCPField = typeof(CardUIController).GetField("badgeCPTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeRetreatField = typeof(CardUIController).GetField("badgeRetreatTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeWeakField = typeof(CardUIController).GetField("badgeWeakTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeResistField = typeof(CardUIController).GetField("badgeResistTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var badgeRarityField = typeof(CardUIController).GetField("badgeRarityTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         nameTextField?.SetValue(uiController, nameTMP);
         hpTextField?.SetValue(uiController, hpTMP);
         typeTextField?.SetValue(uiController, typeTMP);
+        pokedexClassTextField?.SetValue(uiController, pokedexClassTMP);
         pokemonImageField?.SetValue(uiController, artImg);
 
         attack1NameField?.SetValue(uiController, atk1NameTMP);
@@ -532,13 +736,12 @@ public class CardEditorHelper : EditorWindow
         attack2DamageField?.SetValue(uiController, atk2DmgTMP);
         attack2DescField?.SetValue(uiController, atk2DescTMP);
 
-        weaknessTextField?.SetValue(uiController, weakValTMP);
-        resistanceTextField?.SetValue(uiController, resistValTMP);
-
-        retreatTextField?.SetValue(uiController, retreatValTMP);
-        rarityTextField?.SetValue(uiController, rarityValTMP);
-
-        // Bind default Card Data (Charmander)
+        badgeStageField?.SetValue(uiController, badgeStageTmp);
+        badgeCPField?.SetValue(uiController, badgeCPTmp);
+        badgeRetreatField?.SetValue(uiController, badgeRetreatTmp);
+        badgeWeakField?.SetValue(uiController, badgeWeakTmp);
+        badgeResistField?.SetValue(uiController, badgeResistTmp);
+        badgeRarityField?.SetValue(uiController, badgeRarityTmp);
         uiController.SetCardData(charmanderData);
 
         // 9. Save Card Prefab
@@ -761,6 +964,153 @@ public class CardEditorHelper : EditorWindow
                 importer.SaveAndReimport();
             }
         }
+    }
+
+    private static Sprite GetOrCreateBadgeSprite()
+    {
+        string dir = "Assets/Game Assets/Textures";
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string path = $"{dir}/BadgeBackground.png";
+        
+        bool exists = File.Exists(path);
+        if (!exists)
+        {
+            // Create a 64x64 rounded rectangle texture
+            int size = 64;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            Color bgColor = new Color(0.95f, 0.96f, 0.97f, 1f); // #f2f4f7
+            float radius = 16f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float cx = x < radius ? radius : (x >= size - radius ? size - radius - 1 : x);
+                    float cy = y < radius ? radius : (y >= size - radius ? size - radius - 1 : y);
+                    float dx = x - cx;
+                    float dy = y - cy;
+                    if (dx * dx + dy * dy <= radius * radius)
+                    {
+                        tex.SetPixel(x, y, bgColor);
+                    }
+                    else if (x >= radius && x < size - radius || y >= radius && y < size - radius)
+                    {
+                        tex.SetPixel(x, y, bgColor);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+
+            byte[] bytes = tex.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
+            DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        }
+
+        // Configure sprite with 9-slicing (doing this regardless to ensure correctness)
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            bool needsReimport = false;
+            if (importer.textureType != TextureImporterType.Sprite)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                needsReimport = true;
+            }
+            Vector4 targetBorder = new Vector4(16f, 16f, 16f, 16f);
+            if (importer.spriteBorder != targetBorder)
+            {
+                importer.spriteBorder = targetBorder;
+                needsReimport = true;
+            }
+            if (needsReimport)
+            {
+                importer.SaveAndReimport();
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            }
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    private static bool IsPointInPolygon(Vector2 p, Vector2[] poly)
+    {
+        bool inside = false;
+        for (int i = 0, j = poly.Length - 1; i < poly.Length; j = i++)
+        {
+            if (((poly[i].y > p.y) != (poly[j].y > p.y)) &&
+                (p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x))
+            {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+    private static Sprite GetOrCreateShapeSprite(string filename, params Vector2[][] polygons)
+    {
+        string dir = "Assets/Game Assets/Textures";
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string path = $"{dir}/{filename}.png";
+        
+        bool exists = File.Exists(path);
+        if (!exists)
+        {
+            int size = 64;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    Vector2 p = new Vector2((float)x / size, (float)y / size);
+                    bool inAny = false;
+                    foreach (var poly in polygons)
+                    {
+                        if (IsPointInPolygon(p, poly))
+                        {
+                            inAny = true;
+                            break;
+                        }
+                    }
+                    tex.SetPixel(x, y, inAny ? Color.white : Color.clear);
+                }
+            }
+            tex.Apply();
+
+            byte[] bytes = tex.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
+            DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        }
+
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            bool needsReimport = false;
+            if (importer.textureType != TextureImporterType.Sprite)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                needsReimport = true;
+            }
+            if (needsReimport)
+            {
+                importer.SaveAndReimport();
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            }
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
     private static TextMeshProUGUI CreateTextElement(GameObject parent, string name, string text, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size, float fontSize, TextAlignmentOptions alignment)
