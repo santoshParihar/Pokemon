@@ -54,9 +54,13 @@ public class CardEditorHelper : EditorWindow
 
     public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments)
     {
-        // 1. Setup/Find Materials
-        Shader cardShader = Shader.Find("Universal Render Pipeline/Lit");
-        if (cardShader == null) cardShader = Shader.Find("Standard");
+        // 1. Setup/Find Shaders (Unlit for card faces, Lit for card edges)
+        Shader faceShader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (faceShader == null) faceShader = Shader.Find("Unlit/Texture");
+        if (faceShader == null) faceShader = Shader.Find("Standard");
+
+        Shader edgeShader = Shader.Find("Universal Render Pipeline/Lit");
+        if (edgeShader == null) edgeShader = Shader.Find("Standard");
 
         // Create folders if they do not exist
         string matFolder = "Assets/Game Assets/Materials";
@@ -91,14 +95,18 @@ public class CardEditorHelper : EditorWindow
         Material frontMat = AssetDatabase.LoadAssetAtPath<Material>($"{matFolder}/CardFront.mat");
         if (frontMat == null)
         {
-            frontMat = new Material(cardShader);
+            frontMat = new Material(faceShader);
             AssetDatabase.CreateAsset(frontMat, $"{matFolder}/CardFront.mat");
+        }
+        else
+        {
+            frontMat.shader = faceShader;
         }
 
         Material backMat = AssetDatabase.LoadAssetAtPath<Material>($"{matFolder}/CardBack.mat");
         if (backMat == null)
         {
-            backMat = new Material(cardShader);
+            backMat = new Material(faceShader);
             Texture2D cardBackTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
             if (cardBackTex != null)
             {
@@ -106,13 +114,21 @@ public class CardEditorHelper : EditorWindow
             }
             AssetDatabase.CreateAsset(backMat, $"{matFolder}/CardBack.mat");
         }
+        else
+        {
+            backMat.shader = faceShader;
+        }
 
         Material edgeMat = AssetDatabase.LoadAssetAtPath<Material>($"{matFolder}/CardEdge.mat");
         if (edgeMat == null)
         {
-            edgeMat = new Material(cardShader);
+            edgeMat = new Material(edgeShader);
             edgeMat.color = new Color(0.9f, 0.85f, 0.75f); // Soft paper/gold-ish edge
             AssetDatabase.CreateAsset(edgeMat, $"{matFolder}/CardEdge.mat");
+        }
+        else
+        {
+            edgeMat.shader = edgeShader;
         }
 
         // 2. Create Sample Pokemon Card Data assets
@@ -244,8 +260,13 @@ public class CardEditorHelper : EditorWindow
         meshFilter.sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshAssetPath);
 
         MeshRenderer renderer = cardObj.AddComponent<MeshRenderer>();
+        renderer.sharedMaterials = new Material[] { backMat, frontMat, edgeMat };
+
         CardUIController uiController = cardObj.AddComponent<CardUIController>();
         cardObj.AddComponent<CardRotator>();
+
+        // Default rotation is identity; backMat is at index 0 (Submesh 0, +Z) to face camera by default
+        cardObj.transform.rotation = Quaternion.identity;
 
         // Set dimensions on UI Controller so it can align the Canvas
         var cardWidthField = typeof(CardUIController).GetField("cardWidth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -271,6 +292,7 @@ public class CardEditorHelper : EditorWindow
 
         if (backTexField != null)
         {
+            OptimizeTextureSettings("Assets/Game Assets/Textures/card-back.png");
             Texture2D cardBackTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Game Assets/Textures/card-back.png");
             backTexField.SetValue(uiController, cardBackTex);
         }
@@ -287,7 +309,9 @@ public class CardEditorHelper : EditorWindow
 
             for (int i = 0; i < types.Length; i++)
             {
-                Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/Game Assets/Textures/Property 1={textureNames[i]}.png");
+                string texPath = $"Assets/Game Assets/Textures/Property 1={textureNames[i]}.png";
+                OptimizeTextureSettings(texPath);
+                Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
                 if (tex != null)
                 {
                     mappingList.Add(new CardUIController.TypeTextureMapping { type = types[i], backgroundTexture = tex });
@@ -305,8 +329,10 @@ public class CardEditorHelper : EditorWindow
         
         RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
         canvasRect.sizeDelta = new Vector2(700, 980);
-        canvasRect.localPosition = new Vector3(0, 0, (thickness * 0.5f) + 0.0015f);
-        canvasRect.localRotation = Quaternion.identity;
+        canvasRect.localPosition = new Vector3(0, 0, -(thickness * 0.5f) - 0.0015f);
+        
+        // Set localRotation to Euler(0, 0, 0) so UI elements face outward from the back (local -Z) face correctly
+        canvasRect.localRotation = Quaternion.Euler(0f, 0f, 0f);
         canvasRect.localScale = new Vector3(width / 700.0f, height / 980.0f, 1f);
 
         // Assign Canvas Fields on UI Controller
@@ -631,6 +657,7 @@ public class CardEditorHelper : EditorWindow
 
     private static Sprite GetOrConvertSprite(string path)
     {
+        OptimizeTextureSettings(path);
         Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         if (sprite == null)
         {
@@ -643,6 +670,29 @@ public class CardEditorHelper : EditorWindow
             }
         }
         return sprite;
+    }
+
+    private static void OptimizeTextureSettings(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            bool modified = false;
+            if (importer.filterMode != FilterMode.Trilinear)
+            {
+                importer.filterMode = FilterMode.Trilinear;
+                modified = true;
+            }
+            if (importer.anisoLevel < 8)
+            {
+                importer.anisoLevel = 8;
+                modified = true;
+            }
+            if (modified)
+            {
+                importer.SaveAndReimport();
+            }
+        }
     }
 
     private static TextMeshProUGUI CreateTextElement(GameObject parent, string name, string text, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size, float fontSize, TextAlignmentOptions alignment)

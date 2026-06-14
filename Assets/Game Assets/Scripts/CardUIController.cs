@@ -180,9 +180,9 @@ public class CardUIController : MonoBehaviour
 
         // Put them on the MeshRenderer
         List<Material> mats = new List<Material>();
-        mats.Add(instancedFrontMaterial != null ? instancedFrontMaterial : baseFrontMaterial);
-        mats.Add(instancedBackMaterial != null ? instancedBackMaterial : baseBackMaterial);
-        mats.Add(instancedEdgeMaterial != null ? instancedEdgeMaterial : baseEdgeMaterial);
+        mats.Add(instancedBackMaterial != null ? instancedBackMaterial : baseBackMaterial);   // Index 0: Back face
+        mats.Add(instancedFrontMaterial != null ? instancedFrontMaterial : baseFrontMaterial); // Index 1: Front face
+        mats.Add(instancedEdgeMaterial != null ? instancedEdgeMaterial : baseEdgeMaterial);   // Index 2: Edge
 
         meshRenderer.sharedMaterials = mats.ToArray();
     }
@@ -191,10 +191,13 @@ public class CardUIController : MonoBehaviour
     {
         if (worldSpaceCanvas == null || canvasRect == null) return;
 
-        // Move the canvas slightly in front of the card thickness
-        float zOffset = (cardThickness * 0.5f) + 0.0015f; // Add a tiny cushion to avoid Z-fighting
+        // Move the canvas slightly behind the card thickness (on local -Z side)
+        float zOffset = -(cardThickness * 0.5f) - 0.0015f; // Add a tiny cushion to avoid Z-fighting
         canvasRect.localPosition = new Vector3(0f, 0f, zOffset);
-        canvasRect.localRotation = Quaternion.identity;
+        
+        // Rotate the Canvas by 0 degrees so it faces OUTWARDS (away from the card's -Z side)
+        // Unity UI elements on Canvas face the negative Z direction by default.
+        canvasRect.localRotation = Quaternion.Euler(0f, 0f, 0f);
 
         // Adjust Canvas scale according to card width/height and RectTransform pixel width/height (assumes 700x980 pixel resolution)
         float pixelsW = canvasRect.rect.width;

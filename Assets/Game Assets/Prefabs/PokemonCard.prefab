@@ -246,7 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardUIController
   cardData: {fileID: 11400000, guid: 2e130c3edbed9460682ab04f5482366f, type: 2}
   cardWidth: 1
-  cardHeight: 1.5
+  cardHeight: 1.4
   cardThickness: 0.02
   baseFrontMaterial: {fileID: 2100000, guid: a2cdfccd323164dec8e708a9f571b95b, type: 2}
   baseBackMaterial: {fileID: 2100000, guid: a11d1c069f61440648452fc2cb38984e, type: 2}
@@ -1507,8 +1507,8 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3893165951989368986}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.0115}
-  m_LocalScale: {x: 0.0014285714, y: 0.0015306122, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.0115}
+  m_LocalScale: {x: 0.0014285714, y: 0.0014285714, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7828815261180770611}
