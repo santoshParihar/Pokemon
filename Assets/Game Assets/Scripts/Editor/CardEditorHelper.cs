@@ -339,7 +339,7 @@ public class CardEditorHelper : EditorWindow
 
             squirtleData.weakness = PokemonType.Lightning;
             squirtleData.weaknessValue = "×2";
-            squirtleData.resistance = PokemonType.Normal;
+                squirtleData.resistance = PokemonType.Normal;
             squirtleData.resistanceValue = "";
             squirtleData.hasResistance = false;
             squirtleData.retreatCost = 1;
@@ -349,49 +349,47 @@ public class CardEditorHelper : EditorWindow
 
         AssetDatabase.SaveAssets();
 
-        // 3. Generate Card Mesh
-        Mesh tempMesh = GenerateMesh(width, height, thickness, cornerRadius, cornerSegments);
+        // Determine which Pokémon data to use for naming
+        PokemonCardData dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
+        string pokemonNameSanitized = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");
 
-        // 4. Bake and Save the Mesh Asset Locally
-        string meshAssetPath = $"{meshFolder}/CardMesh.asset";
-        Mesh savedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshAssetPath);
+        // 3. Bake and Save the Mesh Asset Locally (checks and reuses the Pokémon's own specific mesh asset if dimensions match)
+        Mesh savedMesh = null;
+        string specificMeshPath = $"{meshFolder}/{pokemonNameSanitized}_mesh.asset";
         
+        Mesh specificMesh = AssetDatabase.LoadAssetAtPath<Mesh>(specificMeshPath);
+        if (specificMesh != null)
+        {
+            float eps = 0.005f;
+            if (Mathf.Abs(specificMesh.bounds.size.x - width) < eps &&
+                Mathf.Abs(specificMesh.bounds.size.y - height) < eps &&
+                Mathf.Abs(specificMesh.bounds.size.z - thickness) < eps)
+            {
+                savedMesh = specificMesh;
+            }
+        }
+
+        // If no matching mesh exists (either doesn't exist yet, or dimensions changed), generate and save a new one
         if (savedMesh == null)
         {
+            Mesh tempMesh = GenerateMesh(width, height, thickness, cornerRadius, cornerSegments);
             savedMesh = Instantiate(tempMesh);
-            savedMesh.name = "CardMesh";
+            savedMesh.name = $"{pokemonNameSanitized}_mesh";
             savedMesh.hideFlags = HideFlags.None;
-            AssetDatabase.CreateAsset(savedMesh, meshAssetPath);
+            AssetDatabase.CreateAsset(savedMesh, specificMeshPath);
+            DestroyImmediate(tempMesh);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            // Reload reference to ensure it links correctly to the saved asset
+            savedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(specificMeshPath);
         }
-        else
-        {
-            // Overwrite geometry in existing mesh to preserve scene and prefab links
-            savedMesh.Clear();
-            savedMesh.vertices = tempMesh.vertices;
-            savedMesh.normals = tempMesh.normals;
-            savedMesh.uv = tempMesh.uv;
-            savedMesh.subMeshCount = tempMesh.subMeshCount;
-            for (int i = 0; i < tempMesh.subMeshCount; i++)
-            {
-                savedMesh.SetTriangles(tempMesh.GetTriangles(i), i);
-            }
-            savedMesh.RecalculateBounds();
-            savedMesh.RecalculateTangents();
-            EditorUtility.SetDirty(savedMesh);
-        }
-        
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
 
-        // Destroy temp mesh
-        DestroyImmediate(tempMesh);
-
-        // 5. Create the Main Card GameObject
-        GameObject cardObj = new GameObject("3D Pokemon Card");
+        // 5. Create the Main Card GameObject named uniquely
+        GameObject cardObj = new GameObject($"{pokemonNameSanitized} Card");
         
         // Attach Components
         MeshFilter meshFilter = cardObj.AddComponent<MeshFilter>();
-        meshFilter.sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshAssetPath);
+        meshFilter.sharedMesh = savedMesh;
 
         MeshRenderer renderer = cardObj.AddComponent<MeshRenderer>();
         renderer.sharedMaterials = new Material[] { frontMat, backMat, edgeMat };
@@ -830,19 +828,20 @@ public class CardEditorHelper : EditorWindow
         badgeResistField?.SetValue(uiController, badgeResistTmp);
         badgeRarityField?.SetValue(uiController, badgeRarityTmp);
 
-        PokemonCardData dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
+        dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
         uiController.SetCardData(dataToUse);
 
-        // 9. Save Card Prefab
-        string cardPrefabPath = $"{prefabsFolder}/PokemonCard.prefab";
+        // 9. Save Card Prefab (uniquely named based on Pokemon name)
+        string pokemonPrefabName = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");
+        string cardPrefabPath = $"{prefabsFolder}/{pokemonPrefabName}Card.prefab";
         GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardObj, cardPrefabPath);
         DestroyImmediate(cardObj);
 
-        // Destroy existing instances in the active scene to avoid duplicates/stale objects
+        // Destroy existing instances of THIS specific card in the active scene to avoid duplicate spawns of the same Pokemon card
         GameObject[] existingCards = GameObject.FindObjectsOfType<GameObject>();
         foreach (var card in existingCards)
         {
-            if (card.name == "3D Pokemon Card" && card.scene.IsValid())
+            if (card.name == $"{pokemonPrefabName} Card" && card.scene.IsValid())
             {
                 Undo.DestroyObjectImmediate(card);
             }
