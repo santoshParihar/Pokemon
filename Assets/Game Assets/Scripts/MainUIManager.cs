@@ -35,8 +35,12 @@ public class MainUIManager : MonoBehaviour
 
     [Header("Detail Inspect Overlay")]
     [SerializeField] private GameObject inspectOverlay;
-    [SerializeField] private Card2DUIController inspectOverlayCardController;
     [SerializeField] private Button inspectOverlayCloseButton;
+    [SerializeField] private Transform inspect3DAnchor;
+    [SerializeField] private float inspectCardScale = 1f;
+    [SerializeField] private List<GameObject> card3DPrefabs = new List<GameObject>();
+
+    private GameObject spawned3DInspectCard;
 
     [Header("State")]
     [SerializeField] private Tab activeTab = Tab.Collection;
@@ -46,7 +50,6 @@ public class MainUIManager : MonoBehaviour
     private void Awake()
     {
         SetupUI();
-        SwitchToTab(activeTab);
         SetupInspectOverlayClose();
     }
 
@@ -71,10 +74,26 @@ public class MainUIManager : MonoBehaviour
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 PokemonCardData data = AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
-                if (data != null)
+                if (data != null && !cardsData.Contains(data))
                 {
                     cardsData.Add(data);
                 }
+            }
+        }
+        else
+        {
+            // Enforce uniqueness to clean up duplicates already serialized in the Inspector/Scene
+            List<PokemonCardData> uniqueList = new List<PokemonCardData>();
+            foreach (var data in cardsData)
+            {
+                if (data != null && !uniqueList.Contains(data))
+                {
+                    uniqueList.Add(data);
+                }
+            }
+            if (uniqueList.Count != cardsData.Count)
+            {
+                cardsData = uniqueList;
             }
         }
 
@@ -115,6 +134,16 @@ public class MainUIManager : MonoBehaviour
         {
             inspectOverlayCloseButton.onClick.RemoveAllListeners();
             inspectOverlayCloseButton.onClick.AddListener(HideInspectOverlay);
+        }
+
+        if (inspectOverlay != null)
+        {
+            Button overlayBtn = inspectOverlay.GetComponent<Button>();
+            if (overlayBtn != null)
+            {
+                overlayBtn.onClick.RemoveAllListeners();
+                overlayBtn.onClick.AddListener(HideInspectOverlay);
+            }
         }
     }
 
@@ -191,9 +220,12 @@ public class MainUIManager : MonoBehaviour
 
         if (gridContentContainer == null || card2DPrefab == null || cardsData.Count == 0) return;
 
+        HashSet<PokemonCardData> uniqueCards = new HashSet<PokemonCardData>();
         foreach (var data in cardsData)
         {
             if (data == null) continue;
+            if (uniqueCards.Contains(data)) continue;
+            uniqueCards.Add(data);
 
             // Create cell container to prevent GridLayoutGroup from overriding card prefab size and breaking absolute positions
             GameObject cellObj = new GameObject("CardCell", typeof(RectTransform));
@@ -253,41 +285,109 @@ public class MainUIManager : MonoBehaviour
 
     private void ClearSpawnedCards()
     {
-        if (Application.isPlaying)
+        // 1. Clear tracked list references
+        foreach (var card in spawnedCards)
         {
-            foreach (var card in spawnedCards)
+            if (card != null)
             {
-                if (card != null) Destroy(card);
+                if (Application.isPlaying) Destroy(card);
+                else DestroyImmediate(card);
             }
-            spawnedCards.Clear();
         }
-        else
+        spawnedCards.Clear();
+
+        // 2. Clear any children physically under the container to prevent [ExecuteAlways] duplicate leaks
+        if (gridContentContainer != null)
         {
-            if (gridContentContainer != null)
+            List<GameObject> children = new List<GameObject>();
+            for (int i = 0; i < gridContentContainer.childCount; i++)
             {
-                List<GameObject> children = new List<GameObject>();
-                for (int i = 0; i < gridContentContainer.childCount; i++)
+                Transform child = gridContentContainer.GetChild(i);
+                if (child != null)
                 {
-                    children.Add(gridContentContainer.GetChild(i).gameObject);
-                }
-                foreach (var child in children)
-                {
-                    DestroyImmediate(child);
+                    children.Add(child.gameObject);
                 }
             }
-            spawnedCards.Clear();
+            foreach (var child in children)
+            {
+                if (child != null)
+                {
+                    if (Application.isPlaying) Destroy(child);
+                    else DestroyImmediate(child);
+                }
+            }
         }
     }
 
     public void ShowInspectOverlay(PokemonCardData data)
     {
+        // 1. Clean up any existing inspect card
+        if (spawned3DInspectCard != null)
+        {
+            Destroy(spawned3DInspectCard);
+        }
+
+        // 2. Open dark overlay panel
         if (inspectOverlay != null)
         {
             inspectOverlay.SetActive(true);
         }
-        if (inspectOverlayCardController != null)
+
+        // 3. Find and instantiate matching 3D card prefab
+        if (inspect3DAnchor != null && card3DPrefabs.Count > 0)
         {
-            inspectOverlayCardController.SetCardData(data);
+            GameObject matchingPrefab = null;
+            foreach (var prefab in card3DPrefabs)
+            {
+                if (prefab == null) continue;
+                CardUIController controller = prefab.GetComponent<CardUIController>();
+                if (controller != null)
+                {
+                    // Match by name
+                    var dataField = typeof(CardUIController).GetField("cardData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    PokemonCardData prefabData = dataField?.GetValue(controller) as PokemonCardData;
+                    if (prefabData != null && prefabData.pokemonName == data.pokemonName)
+                    {
+                        matchingPrefab = prefab;
+                        break;
+                    }
+                }
+            }
+
+            if (matchingPrefab != null)
+            {
+                if (Application.isPlaying)
+                {
+                    spawned3DInspectCard = Instantiate(matchingPrefab, inspect3DAnchor);
+                }
+                else
+                {
+                    #if UNITY_EDITOR
+                    spawned3DInspectCard = PrefabUtility.InstantiatePrefab(matchingPrefab, inspect3DAnchor) as GameObject;
+                    #else
+                    spawned3DInspectCard = Instantiate(matchingPrefab, inspect3DAnchor);
+                    #endif
+                }
+
+                if (spawned3DInspectCard != null)
+                {
+                    spawned3DInspectCard.transform.localPosition = Vector3.zero;
+                    spawned3DInspectCard.transform.localRotation = Quaternion.identity;
+                    // Scale up slightly for close-up inspection
+                    spawned3DInspectCard.transform.localScale = new Vector3(inspectCardScale, inspectCardScale, inspectCardScale);
+
+                    // Add/Configure CardRotator for slow auto-spinning
+                    CardRotator rotator = spawned3DInspectCard.GetComponent<CardRotator>();
+                    if (rotator == null)
+                    {
+                        rotator = spawned3DInspectCard.AddComponent<CardRotator>();
+                    }
+                    rotator.enabled = true;
+                    rotator.autoSpin = true;
+                    rotator.spinAxis = new Vector3(0f, 1f, 0f);
+                    rotator.spinSpeed = 15f; // Slow, premium rotation speed
+                }
+            }
         }
     }
 
@@ -297,10 +397,21 @@ public class MainUIManager : MonoBehaviour
         {
             inspectOverlay.SetActive(false);
         }
+
+        if (spawned3DInspectCard != null)
+        {
+            if (Application.isPlaying) Destroy(spawned3DInspectCard);
+            else DestroyImmediate(spawned3DInspectCard);
+            spawned3DInspectCard = null;
+        }
     }
 
     private void SetupUI()
     {
         if (mainCanvas == null) mainCanvas = FindObjectOfType<Canvas>();
+        if (mainCanvas != null && mainCanvas.renderMode == RenderMode.ScreenSpaceCamera && mainCanvas.worldCamera == null)
+        {
+            mainCanvas.worldCamera = Camera.main;
+        }
     }
 }

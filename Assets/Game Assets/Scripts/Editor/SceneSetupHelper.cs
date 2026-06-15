@@ -35,12 +35,15 @@ public class SceneSetupHelper
         {
             GameObject canvasObj = new GameObject("Main Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvas = canvasObj.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            
-            CanvasScaler scaler = canvasObj.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920);
         }
+        canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        canvas.worldCamera = cam;
+        canvas.planeDistance = 5.0f;
+        
+        CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+        if (scaler == null) scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080, 1920);
 
         // Clean existing Main UI panels
         Transform oldHeader = canvas.transform.Find("MainHeaderPanel");
@@ -273,30 +276,14 @@ public class SceneSetupHelper
 
         Button overlayBgBtn = overlayObj.GetComponent<Button>();
  
-        // Large Card Container
-        GameObject cardContainerObj = new GameObject("CardContainer", typeof(RectTransform));
-        cardContainerObj.transform.SetParent(overlayObj.transform, false);
-        RectTransform containerRect = cardContainerObj.GetComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.5f, 0.5f);
-        containerRect.anchorMax = new Vector2(0.5f, 0.5f);
-        containerRect.anchoredPosition = new Vector2(0, 30);
-        containerRect.sizeDelta = new Vector2(700, 980);
-
-        // Instantiate the 2D card inside the container to show high-res details
-        GameObject overlayCardInst = PrefabUtility.InstantiatePrefab(card2DPrefabAsset, cardContainerObj.transform) as GameObject;
-        overlayCardInst.name = "LargePokemonCard";
-        RectTransform overlayCardRect = overlayCardInst.GetComponent<RectTransform>();
-        overlayCardRect.anchorMin = Vector2.zero;
-        overlayCardRect.anchorMax = Vector2.one;
-        overlayCardRect.offsetMin = Vector2.zero;
-        overlayCardRect.offsetMax = Vector2.zero;
-        overlayCardRect.localScale = Vector3.one;
-
-        // Disable standard click on the details overlay version of the card
-        Button overlayCardBtn = overlayCardInst.GetComponent<Button>();
-        if (overlayCardBtn != null) overlayCardBtn.enabled = false;
-
-        Card2DUIController overlayCardController = overlayCardInst.GetComponent<Card2DUIController>();
+        // Create 3D inspect anchor right in front of camera
+        GameObject inspectAnchorObj = GameObject.Find("Inspect3DAnchor");
+        if (inspectAnchorObj == null)
+        {
+            inspectAnchorObj = new GameObject("Inspect3DAnchor");
+        }
+        inspectAnchorObj.transform.position = new Vector3(0f, 0.4f, -2.0f); // 2.5 units in front of Camera
+        inspectAnchorObj.transform.rotation = Quaternion.identity;
 
         // Close Button
         GameObject closeBtnObj = new GameObject("CloseButton", typeof(RectTransform), typeof(Image), typeof(Button));
@@ -358,7 +345,8 @@ public class SceneSetupHelper
         var card2DPrefabField = typeof(MainUIManager).GetField("card2DPrefab", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var gridContentContainerField = typeof(MainUIManager).GetField("gridContentContainer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var inspectOverlayField = typeof(MainUIManager).GetField("inspectOverlay", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var inspectOverlayCardControllerField = typeof(MainUIManager).GetField("inspectOverlayCardController", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var inspect3DAnchorField = typeof(MainUIManager).GetField("inspect3DAnchor", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var card3DPrefabsField = typeof(MainUIManager).GetField("card3DPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var inspectOverlayCloseButtonField = typeof(MainUIManager).GetField("inspectOverlayCloseButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
  
         mainCanvasField?.SetValue(uiManager, canvas);
@@ -373,8 +361,25 @@ public class SceneSetupHelper
         card2DPrefabField?.SetValue(uiManager, card2DPrefabAsset);
         gridContentContainerField?.SetValue(uiManager, contentRect);
         inspectOverlayField?.SetValue(uiManager, overlayObj);
-        inspectOverlayCardControllerField?.SetValue(uiManager, overlayCardController);
+        inspect3DAnchorField?.SetValue(uiManager, inspectAnchorObj.transform);
         inspectOverlayCloseButtonField?.SetValue(uiManager, closeBtn);
+
+        // Populate card3DPrefabs list from Assets automatically
+        if (card3DPrefabsField != null)
+        {
+            List<GameObject> prefabsList = new List<GameObject>();
+            string[] prefabs = AssetDatabase.FindAssets("t:Prefab", new string[] { "Assets/Game Assets/Prefabs" });
+            foreach (var guid in prefabs)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (go != null && go.GetComponent<CardUIController>() != null)
+                {
+                    prefabsList.Add(go);
+                }
+            }
+            card3DPrefabsField.SetValue(uiManager, prefabsList);
+        }
 
         // Populate cardsData list
         var cardsDataField = typeof(MainUIManager).GetField("cardsData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
