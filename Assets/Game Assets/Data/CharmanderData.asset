@@ -20,15 +20,19 @@ MonoBehaviour:
   cardType: 1
   pokemonSprite: {fileID: 21300000, guid: a704d46a4c386487da64c49f9dfb9a16, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: ed16e2f3143cd40a39dc0e4110c95ef1, type: 3}
-  attack1Name: Scratch
-  attack1CostText: C
-  attack1Damage: 10
-  attack1Description: Hard fingernails scratch the opponent.
-  attack2Name: Ember
-  attack2CostText: F C
-  attack2Damage: 30
-  attack2Description: Discard 1 Fire Energy attached to this Pokemon.
+  attack1Name: Ember
+  attack1CostText: F C
+  attack1Damage: 30
+  attack1Description: Discard 1 Fire Energy attached to this Pokemon.
+  ability:
+    hasAbility: 1
+    abilityName: Roaring Resolve
+    abilityDescription: "Once during your turn, you may attach a Fire Energy card
+      from your hand to this Pok\xE9mon."
   weakness: 2
+  weaknessValue: "\xD72"
   resistance: 9
+  resistanceValue: 
+  hasResistance: 0
   retreatCost: 1
   rarityStars: 1

@@ -1,0 +1,277 @@
+{
+  "data": {
+    "id": "me3-2",
+    "name": "Ariados",
+    "number": "2",
+    "printed_number": "002/088",
+    "rarity": "Common",
+    "rarity_code": "C",
+    "rules": [],
+    "artist": "svlt",
+    "language_code": "EN",
+    "translation": null,
+    "expansion_sort_order": 2,
+    "supertype": "Pokémon",
+    "hp": "110",
+    "regulation_mark": "J",
+    "flavor_text": null,
+    "release_date": "2026/03/27",
+    "language": "English",
+    "tags": [],
+    "expansion": {
+      "id": "me3",
+      "name": "Perfect Order",
+      "code": "POR",
+      "total": 124,
+      "printed_total": 88,
+      "release_date": "2026/03/27",
+      "logo": "https://images.scrydex.com/pokemon/me3-logo/logo",
+      "symbol": "https://images.scrydex.com/pokemon/me3-symbol/symbol",
+      "language_code": "EN",
+      "translation": null,
+      "series": "Mega Evolution",
+      "is_online_only": false,
+      "ptcgo_code": "POR",
+      "language": "English"
+    },
+    "images": [
+      {
+        "type": "front",
+        "small": "https://images.scrydex.com/pokemon/me3-2/small",
+        "medium": "https://images.scrydex.com/pokemon/me3-2/medium",
+        "large": "https://images.scrydex.com/pokemon/me3-2/large"
+      }
+    ],
+    "subtypes": [
+      "Stage 1"
+    ],
+    "types": [
+      "Grass"
+    ],
+    "evolves_from": [
+      "Spinarak"
+    ],
+    "abilities": [],
+    "attacks": [
+      {
+        "cost": [
+          "Grass"
+        ],
+        "converted_energy_cost": 1,
+        "name": "Poison Ring",
+        "text": "Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat.",
+        "damage": "50"
+      }
+    ],
+    "weaknesses": [
+      {
+        "type": "Fire",
+        "value": "×2"
+      }
+    ],
+    "resistances": [],
+    "retreat_cost": [
+      "Colorless"
+    ],
+    "converted_retreat_cost": 1,
+    "national_pokedex_numbers": [
+      168
+    ],
+    "legalities": [
+      {
+        "format": "Standard",
+        "status": "Legal"
+      },
+      {
+        "format": "Unlimited",
+        "status": "Legal"
+      },
+      {
+        "format": "Expanded",
+        "status": "Legal"
+      },
+      {
+        "format": "Gym Leader Challenge",
+        "status": "Legal"
+      }
+    ],
+    "variants": [
+      {
+        "name": "normal",
+        "images": [],
+        "marketplaces": [
+          {
+            "name": "tcgplayer",
+            "purchase_url": "https://scrydex.com/pokemon/cards/me3-2/purchase?type=tcgplayer&variant=normal",
+            "product_id": "684398"
+          }
+        ],
+        "pop_reports": [
+          {
+            "company": "PSA",
+            "total": 1,
+            "grade_total": 1,
+            "qualified_grade_total": 0,
+            "half_grade_total": 0,
+            "grades": [
+              {
+                "grade": "8",
+                "count": 1
+              }
+            ]
+          }
+        ],
+        "prices": [
+          {
+            "condition": "NM",
+            "grade": null,
+            "company": null,
+            "is_perfect": false,
+            "is_signed": false,
+            "is_error": false,
+            "type": "raw",
+            "low": 0.01,
+            "mid": null,
+            "high": null,
+            "market": 0.09,
+            "currency": "USD",
+            "source_currency": "USD",
+            "trends": {
+              "days_1": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_7": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_14": {
+                "price_change": 0.04,
+                "percent_change": 80
+              },
+              "days_30": {
+                "price_change": 0.03,
+                "percent_change": 50
+              }
+            }
+          },
+          {
+            "condition": "LP",
+            "grade": null,
+            "company": null,
+            "is_perfect": false,
+            "is_signed": false,
+            "is_error": false,
+            "type": "raw",
+            "low": 0.02,
+            "mid": null,
+            "high": null,
+            "market": 0.07,
+            "currency": "USD",
+            "source_currency": "USD",
+            "trends": {
+              "days_1": {
+                "price_change": -0.01,
+                "percent_change": -12.5
+              },
+              "days_7": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_14": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_30": {
+                "price_change": -0.02,
+                "percent_change": -22.22
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "reverseHolofoil",
+        "images": [],
+        "marketplaces": [
+          {
+            "name": "tcgplayer",
+            "purchase_url": "https://scrydex.com/pokemon/cards/me3-2/purchase?type=tcgplayer&variant=reverseHolofoil",
+            "product_id": "684398"
+          }
+        ],
+        "pop_reports": [],
+        "prices": [
+          {
+            "condition": "NM",
+            "grade": null,
+            "company": null,
+            "is_perfect": false,
+            "is_signed": false,
+            "is_error": false,
+            "type": "raw",
+            "low": 0.01,
+            "mid": null,
+            "high": null,
+            "market": 0.21,
+            "currency": "USD",
+            "source_currency": "USD",
+            "trends": {
+              "days_1": {
+                "price_change": -0.01,
+                "percent_change": -4.55
+              },
+              "days_7": {
+                "price_change": 0.03,
+                "percent_change": 16.67
+              },
+              "days_14": {
+                "price_change": -0.01,
+                "percent_change": -4.55
+              },
+              "days_30": {
+                "price_change": 0,
+                "percent_change": 0
+              }
+            }
+          },
+          {
+            "condition": "LP",
+            "grade": null,
+            "company": null,
+            "is_perfect": false,
+            "is_signed": false,
+            "is_error": false,
+            "type": "raw",
+            "low": 0.05,
+            "mid": null,
+            "high": null,
+            "market": 0.17,
+            "currency": "USD",
+            "source_currency": "USD",
+            "trends": {
+              "days_1": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_7": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_14": {
+                "price_change": 0,
+                "percent_change": 0
+              },
+              "days_30": {
+                "price_change": 0.01,
+                "percent_change": 6.25
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+200 OK
+latency: 24ms

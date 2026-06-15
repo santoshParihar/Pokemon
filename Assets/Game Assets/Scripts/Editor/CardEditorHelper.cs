@@ -23,6 +23,7 @@ public class CardEditorHelper : EditorWindow
     private CardDefaultFacing defaultFacing = CardDefaultFacing.BackSide;
     private CardCanvasSide canvasSide = CardCanvasSide.FrontSide;
     private Texture2D customBackTexture = null;
+    private PokemonCardData selectedCardData = null;
 
     [MenuItem("Pokemon TCG/Card Creator Window")]
     public static void ShowWindow()
@@ -69,17 +70,23 @@ public class CardEditorHelper : EditorWindow
         customBackTexture = (Texture2D)EditorGUILayout.ObjectField("Back Texture (Override)", customBackTexture, typeof(Texture2D), false);
         GUILayout.EndVertical();
 
+        GUILayout.Space(5);
+        GUILayout.Label("Card Data Settings", EditorStyles.boldLabel);
+        GUILayout.BeginVertical("box");
+        selectedCardData = (PokemonCardData)EditorGUILayout.ObjectField("Card Data Asset", selectedCardData, typeof(PokemonCardData), false);
+        GUILayout.EndVertical();
+
         GUILayout.Space(15);
         
         GUI.backgroundColor = new Color(0.35f, 0.75f, 0.35f);
         if (GUILayout.Button("Bake Card & Generate Prefab", GUILayout.Height(40)))
         {
-            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture);
+            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, selectedCardData);
         }
         GUI.backgroundColor = Color.white;
     }
 
-    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture)
+    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture, PokemonCardData selectedCardData)
     {
         // 1. Setup/Find Shaders (Unlit for card faces, Lit for card edges)
         Shader faceShader = Shader.Find("Universal Render Pipeline/Unlit");
@@ -175,18 +182,20 @@ public class CardEditorHelper : EditorWindow
             charmanderData.cardType = PokemonType.Fire;
             charmanderData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
-            charmanderData.attack1Name = "Scratch";
-            charmanderData.attack1CostText = "C";
-            charmanderData.attack1Damage = 10;
-            charmanderData.attack1Description = "Hard fingernails scratch the opponent.";
+            charmanderData.attack1Name = "Ember";
+            charmanderData.attack1CostText = "F C";
+            charmanderData.attack1Damage = 30;
+            charmanderData.attack1Description = "Discard 1 Fire Energy attached to this Pokemon.";
             
-            charmanderData.attack2Name = "Ember";
-            charmanderData.attack2CostText = "F C";
-            charmanderData.attack2Damage = 30;
-            charmanderData.attack2Description = "Discard 1 Fire Energy attached to this Pokemon.";
+            charmanderData.ability.hasAbility = true;
+            charmanderData.ability.abilityName = "Roaring Resolve";
+            charmanderData.ability.abilityDescription = "Once during your turn, you may attach a Fire Energy card from your hand to this Pokémon.";
             
             charmanderData.weakness = PokemonType.Water;
+            charmanderData.weaknessValue = "×2";
             charmanderData.resistance = PokemonType.Normal;
+            charmanderData.resistanceValue = "";
+            charmanderData.hasResistance = false;
             charmanderData.retreatCost = 1;
             charmanderData.rarityStars = 1;
             
@@ -194,9 +203,29 @@ public class CardEditorHelper : EditorWindow
         }
         else
         {
+            charmanderData.pokemonName = "Charizard";
+            charmanderData.hp = 60;
             charmanderData.stage = "Basic";
             charmanderData.pokedexNo = "#004";
             charmanderData.pokedexClass = "Lizard Pokémon";
+            charmanderData.cardType = PokemonType.Fire;
+
+            charmanderData.attack1Name = "Ember";
+            charmanderData.attack1CostText = "F C";
+            charmanderData.attack1Damage = 30;
+            charmanderData.attack1Description = "Discard 1 Fire Energy attached to this Pokemon.";
+            
+            charmanderData.ability.hasAbility = true;
+            charmanderData.ability.abilityName = "Roaring Resolve";
+            charmanderData.ability.abilityDescription = "Once during your turn, you may attach a Fire Energy card from your hand to this Pokémon.";
+
+            charmanderData.weakness = PokemonType.Water;
+            charmanderData.weaknessValue = "×2";
+            charmanderData.resistance = PokemonType.Normal;
+            charmanderData.resistanceValue = "";
+            charmanderData.hasResistance = false;
+            charmanderData.retreatCost = 1;
+            charmanderData.rarityStars = 1;
             EditorUtility.SetDirty(charmanderData);
         }
 
@@ -212,18 +241,20 @@ public class CardEditorHelper : EditorWindow
             bulbasaurData.cardType = PokemonType.Grass;
             bulbasaurData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
-            bulbasaurData.attack1Name = "Tackle";
-            bulbasaurData.attack1CostText = "C";
-            bulbasaurData.attack1Damage = 10;
-            bulbasaurData.attack1Description = "A simple tackle attack.";
+            bulbasaurData.attack1Name = "Vine Whip";
+            bulbasaurData.attack1CostText = "G C";
+            bulbasaurData.attack1Damage = 30;
+            bulbasaurData.attack1Description = "Whips the opponent with thin vines.";
             
-            bulbasaurData.attack2Name = "Vine Whip";
-            bulbasaurData.attack2CostText = "G C";
-            bulbasaurData.attack2Damage = 30;
-            bulbasaurData.attack2Description = "Whips the opponent with thin vines.";
+            bulbasaurData.ability.hasAbility = true;
+            bulbasaurData.ability.abilityName = "Photosynthesis";
+            bulbasaurData.ability.abilityDescription = "Once during your turn, you may attach a Grass Energy card from your hand to this Pokémon.";
             
             bulbasaurData.weakness = PokemonType.Fire;
+            bulbasaurData.weaknessValue = "×2";
             bulbasaurData.resistance = PokemonType.Water;
+            bulbasaurData.resistanceValue = "-30";
+            bulbasaurData.hasResistance = true;
             bulbasaurData.retreatCost = 1;
             bulbasaurData.rarityStars = 2;
             
@@ -231,9 +262,29 @@ public class CardEditorHelper : EditorWindow
         }
         else
         {
+            bulbasaurData.pokemonName = "Bulbasaur";
+            bulbasaurData.hp = 70;
             bulbasaurData.stage = "Basic";
             bulbasaurData.pokedexNo = "#001";
             bulbasaurData.pokedexClass = "Seed Pokémon";
+            bulbasaurData.cardType = PokemonType.Grass;
+
+            bulbasaurData.attack1Name = "Vine Whip";
+            bulbasaurData.attack1CostText = "G C";
+            bulbasaurData.attack1Damage = 30;
+            bulbasaurData.attack1Description = "Whips the opponent with thin vines.";
+            
+            bulbasaurData.ability.hasAbility = true;
+            bulbasaurData.ability.abilityName = "Photosynthesis";
+            bulbasaurData.ability.abilityDescription = "Once during your turn, you may attach a Grass Energy card from your hand to this Pokémon.";
+
+            bulbasaurData.weakness = PokemonType.Fire;
+            bulbasaurData.weaknessValue = "×2";
+            bulbasaurData.resistance = PokemonType.Water;
+            bulbasaurData.resistanceValue = "-30";
+            bulbasaurData.hasResistance = true;
+            bulbasaurData.retreatCost = 1;
+            bulbasaurData.rarityStars = 2;
             EditorUtility.SetDirty(bulbasaurData);
         }
 
@@ -249,18 +300,20 @@ public class CardEditorHelper : EditorWindow
             squirtleData.cardType = PokemonType.Water;
             squirtleData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
             
-            squirtleData.attack1Name = "Bubble";
-            squirtleData.attack1CostText = "W";
-            squirtleData.attack1Damage = 10;
-            squirtleData.attack1Description = "Flip a coin. If heads, the Defending Pokemon is now Paralyzed.";
+            squirtleData.attack1Name = "Water Gun";
+            squirtleData.attack1CostText = "W C";
+            squirtleData.attack1Damage = 30;
+            squirtleData.attack1Description = "Shoots a burst of high pressure water.";
             
-            squirtleData.attack2Name = "Water Gun";
-            squirtleData.attack2CostText = "W C";
-            squirtleData.attack2Damage = 30;
-            squirtleData.attack2Description = "Shoots a burst of high pressure water.";
+            squirtleData.ability.hasAbility = true;
+            squirtleData.ability.abilityName = "Shell Shield";
+            squirtleData.ability.abilityDescription = "As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks.";
             
             squirtleData.weakness = PokemonType.Lightning;
+            squirtleData.weaknessValue = "×2";
             squirtleData.resistance = PokemonType.Normal;
+            squirtleData.resistanceValue = "";
+            squirtleData.hasResistance = false;
             squirtleData.retreatCost = 1;
             squirtleData.rarityStars = 1;
             
@@ -268,9 +321,29 @@ public class CardEditorHelper : EditorWindow
         }
         else
         {
+            squirtleData.pokemonName = "Squirtle";
+            squirtleData.hp = 60;
             squirtleData.stage = "Basic";
             squirtleData.pokedexNo = "#007";
             squirtleData.pokedexClass = "Tiny Turtle Pokémon";
+            squirtleData.cardType = PokemonType.Water;
+
+            squirtleData.attack1Name = "Water Gun";
+            squirtleData.attack1CostText = "W C";
+            squirtleData.attack1Damage = 30;
+            squirtleData.attack1Description = "Shoots a burst of high pressure water.";
+            
+            squirtleData.ability.hasAbility = true;
+            squirtleData.ability.abilityName = "Shell Shield";
+            squirtleData.ability.abilityDescription = "As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks.";
+
+            squirtleData.weakness = PokemonType.Lightning;
+            squirtleData.weaknessValue = "×2";
+            squirtleData.resistance = PokemonType.Normal;
+            squirtleData.resistanceValue = "";
+            squirtleData.hasResistance = false;
+            squirtleData.retreatCost = 1;
+            squirtleData.rarityStars = 1;
             EditorUtility.SetDirty(squirtleData);
         }
 
@@ -615,7 +688,9 @@ public class CardEditorHelper : EditorWindow
             tRect.anchorMax = Vector2.one;
 
             TextMeshProUGUI tmp = txtObj.GetComponent<TextMeshProUGUI>();
-            tmp.fontSize = 24; // Increased from 20 for better visibility
+            tmp.fontSizeMin = 14;
+            tmp.fontSizeMax = 24;
+            tmp.enableAutoSizing = true;
             tmp.color = new Color(0.36f, 0.39f, 0.44f, 1f); // #5C6370 - beautiful gray for label
             tmp.fontStyle = FontStyles.Bold;
             tmp.text = badgeName;
@@ -659,42 +734,54 @@ public class CardEditorHelper : EditorWindow
         TextMeshProUGUI badgeResistTmp = createBadge("Badge_Resistance", new Vector2(0, -28), badgeSize, shieldSprite);
         TextMeshProUGUI badgeRarityTmp = createBadge("Badge_Rarity", new Vector2(205, -28), badgeSize, starIconSprite);
 
-        // Attacks Container
+        // Attacks Container (Empty transparent panel parent)
         GameObject attacksPanelObj = new GameObject("AttacksPanel", typeof(RectTransform));
         attacksPanelObj.transform.SetParent(canvasObj.transform, false);
         RectTransform attacksRect = attacksPanelObj.GetComponent<RectTransform>();
         attacksRect.anchorMin = new Vector2(0f, 0.03f); // Shifted down from 0.06 to 0.03
-        attacksRect.anchorMax = new Vector2(1f, 0.26f); // Shifted down from 0.34 to 0.26
-        attacksRect.offsetMin = new Vector2(40, 0);
-        attacksRect.offsetMax = new Vector2(-40, 0);
+        attacksRect.anchorMax = new Vector2(1f, 0.30f); // Shifted down from 0.34 to 0.26
+        attacksRect.offsetMin = new Vector2(50.5f, 0);
+        attacksRect.offsetMax = new Vector2(-50.5f, 0);
 
-        // Attack 1 elements
-        GameObject atk1Obj = new GameObject("Attack1", typeof(RectTransform));
+        // Attack 1 elements (Slot 1 Container with individual background card image)
+        GameObject atk1Obj = new GameObject("Attack1", typeof(RectTransform), typeof(UnityEngine.UI.Image));
         atk1Obj.transform.SetParent(attacksPanelObj.transform, false);
         RectTransform atk1Rect = atk1Obj.GetComponent<RectTransform>();
         atk1Rect.anchorMin = new Vector2(0, 0.5f);
         atk1Rect.anchorMax = new Vector2(1, 1);
-        atk1Rect.offsetMin = Vector2.zero;
-        atk1Rect.offsetMax = Vector2.zero;
+        atk1Rect.offsetMin = new Vector2(0, 5); // 5px bottom spacing gap
+        atk1Rect.offsetMax = new Vector2(0, -5); // 5px top spacing gap
 
-        TextMeshProUGUI atk1CostTMP = CreateTextElement(atk1Obj, "Atk1Cost", "G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 22), new Vector2(110, 45), 28, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk1NameTMP = CreateTextElement(atk1Obj, "Atk1Name", "Attack One", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(165, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
+        UnityEngine.UI.Image panel1Img = atk1Obj.GetComponent<UnityEngine.UI.Image>();
+        panel1Img.sprite = badgeBgSprite;
+        panel1Img.type = UnityEngine.UI.Image.Type.Sliced;
+        panel1Img.color = new Color(1f, 1f, 1f, 0.45f); // 45% translucent soft white card background
+
+        TextMeshProUGUI atk1CostTMP = CreateTextElement(atk1Obj, "Atk1Cost", "G", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(25, 32), new Vector2(250, 36), 28, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk1NameTMP = CreateTextElement(atk1Obj, "Atk1Name", "Attack One", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(180, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
         TextMeshProUGUI atk1DmgTMP = CreateTextElement(atk1Obj, "Atk1Damage", "30", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 22), new Vector2(110, 45), 32, TextAlignmentOptions.Right);
-        TextMeshProUGUI atk1DescTMP = CreateTextElement(atk1Obj, "Atk1Description", "Deals 30 damage.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 32), 20, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk1DescTMP = CreateTextElement(atk1Obj, "Atk1Description", "Deals 30 damage.", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(25, 14), new Vector2(530, 70), 22, TextAlignmentOptions.Left, FontStyles.Bold);
+        atk1DescTMP.rectTransform.pivot = new Vector2(0f, 1f);
 
-        // Attack 2 elements
-        GameObject atk2Obj = new GameObject("Attack2", typeof(RectTransform));
+        // Attack 2 elements (Slot 2 Container with individual background card image)
+        GameObject atk2Obj = new GameObject("Attack2", typeof(RectTransform), typeof(UnityEngine.UI.Image));
         atk2Obj.transform.SetParent(attacksPanelObj.transform, false);
         RectTransform atk2Rect = atk2Obj.GetComponent<RectTransform>();
         atk2Rect.anchorMin = new Vector2(0, 0);
         atk2Rect.anchorMax = new Vector2(1, 0.5f);
-        atk2Rect.offsetMin = Vector2.zero;
-        atk2Rect.offsetMax = Vector2.zero;
+        atk2Rect.offsetMin = new Vector2(0, 5); // 5px bottom spacing gap
+        atk2Rect.offsetMax = new Vector2(0, -5); // 5px top spacing gap
 
-        TextMeshProUGUI atk2CostTMP = CreateTextElement(atk2Obj, "Atk2Cost", "G G C", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(50, 22), new Vector2(110, 45), 28, TextAlignmentOptions.Left);
-        TextMeshProUGUI atk2NameTMP = CreateTextElement(atk2Obj, "Atk2Name", "Attack Two", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(165, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
+        UnityEngine.UI.Image panel2Img = atk2Obj.GetComponent<UnityEngine.UI.Image>();
+        panel2Img.sprite = badgeBgSprite;
+        panel2Img.type = UnityEngine.UI.Image.Type.Sliced;
+        panel2Img.color = new Color(1f, 1f, 1f, 0.45f); // 45% translucent soft white card background
+
+        TextMeshProUGUI atk2CostTMP = CreateTextElement(atk2Obj, "Atk2Cost", "G G", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(25, 32), new Vector2(250, 36), 28, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk2NameTMP = CreateTextElement(atk2Obj, "Atk2Name", "Attack Two", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(180, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
         TextMeshProUGUI atk2DmgTMP = CreateTextElement(atk2Obj, "Atk2Damage", "70", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 22), new Vector2(110, 45), 32, TextAlignmentOptions.Right);
-        TextMeshProUGUI atk2DescTMP = CreateTextElement(atk2Obj, "Atk2Description", "Discard an energy card.", new Vector2(0, 0), new Vector2(1, 0.5f), new Vector2(50, -10), new Vector2(-100, 32), 20, TextAlignmentOptions.Left);
+        TextMeshProUGUI atk2DescTMP = CreateTextElement(atk2Obj, "Atk2Description", "Discard an energy card.", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(25, 14), new Vector2(530, 70), 22, TextAlignmentOptions.Left, FontStyles.Bold);
+        atk2DescTMP.rectTransform.pivot = new Vector2(0f, 1f);
 
         // 8. Bind UI components to UI Controller
         var nameTextField = typeof(CardUIController).GetField("nameText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -742,7 +829,9 @@ public class CardEditorHelper : EditorWindow
         badgeWeakField?.SetValue(uiController, badgeWeakTmp);
         badgeResistField?.SetValue(uiController, badgeResistTmp);
         badgeRarityField?.SetValue(uiController, badgeRarityTmp);
-        uiController.SetCardData(charmanderData);
+
+        PokemonCardData dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
+        uiController.SetCardData(dataToUse);
 
         // 9. Save Card Prefab
         string cardPrefabPath = $"{prefabsFolder}/PokemonCard.prefab";
@@ -1113,7 +1202,7 @@ public class CardEditorHelper : EditorWindow
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
-    private static TextMeshProUGUI CreateTextElement(GameObject parent, string name, string text, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size, float fontSize, TextAlignmentOptions alignment)
+    private static TextMeshProUGUI CreateTextElement(GameObject parent, string name, string text, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPos, Vector2 size, float fontSize, TextAlignmentOptions alignment, FontStyles fontStyle = FontStyles.Bold)
     {
         GameObject textObj = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
         textObj.transform.SetParent(parent.transform, false);
@@ -1121,6 +1210,15 @@ public class CardEditorHelper : EditorWindow
         RectTransform rect = textObj.GetComponent<RectTransform>();
         rect.anchorMin = anchorMin;
         rect.anchorMax = anchorMax;
+        
+        // Auto-assign pivot based on alignment
+        if (alignment == TextAlignmentOptions.Left)
+            rect.pivot = new Vector2(0f, 0.5f);
+        else if (alignment == TextAlignmentOptions.Right)
+            rect.pivot = new Vector2(1f, 0.5f);
+        else
+            rect.pivot = new Vector2(0.5f, 0.5f);
+
         rect.anchoredPosition = anchoredPos;
         rect.sizeDelta = size;
 
@@ -1129,7 +1227,7 @@ public class CardEditorHelper : EditorWindow
         tmp.fontSize = fontSize;
         tmp.alignment = alignment;
         tmp.color = Color.black;
-        tmp.fontStyle = FontStyles.Bold;
+        tmp.fontStyle = fontStyle;
 
         return tmp;
     }

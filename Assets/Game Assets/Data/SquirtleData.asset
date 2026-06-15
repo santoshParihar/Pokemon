@@ -20,15 +20,19 @@ MonoBehaviour:
   cardType: 2
   pokemonSprite: {fileID: 21300000, guid: 9c400c884406244d0a3701194d689cd0, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: 2134e11edd3224d979f4edce886a906b, type: 3}
-  attack1Name: Bubble
-  attack1CostText: W
-  attack1Damage: 10
-  attack1Description: Flip a coin. If heads, the Defending Pokemon is now Paralyzed.
-  attack2Name: Water Gun
-  attack2CostText: W C
-  attack2Damage: 30
-  attack2Description: Shoots a burst of high pressure water.
+  attack1Name: Water Gun
+  attack1CostText: W C
+  attack1Damage: 30
+  attack1Description: Shoots a burst of high pressure water.
+  ability:
+    hasAbility: 1
+    abilityName: Shell Shield
+    abilityDescription: "As long as this Pok\xE9mon is on your Bench, prevent all
+      damage done to this Pok\xE9mon by attacks."
   weakness: 3
+  weaknessValue: "\xD72"
   resistance: 9
+  resistanceValue: 
+  hasResistance: 0
   retreatCost: 1
   rarityStars: 1

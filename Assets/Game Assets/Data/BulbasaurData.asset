@@ -20,15 +20,19 @@ MonoBehaviour:
   cardType: 0
   pokemonSprite: {fileID: 21300000, guid: 78dfbad78623b48a0a92cba74cb3eaa6, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: 7e4b76c0d6230451f8fa2c703c87a349, type: 3}
-  attack1Name: Tackle
-  attack1CostText: C
-  attack1Damage: 10
-  attack1Description: A simple tackle attack.
-  attack2Name: Vine Whip
-  attack2CostText: G C
-  attack2Damage: 30
-  attack2Description: Whips the opponent with thin vines.
+  attack1Name: Vine Whip
+  attack1CostText: G C
+  attack1Damage: 30
+  attack1Description: Whips the opponent with thin vines.
+  ability:
+    hasAbility: 1
+    abilityName: Photosynthesis
+    abilityDescription: "Once during your turn, you may attach a Grass Energy card
+      from your hand to this Pok\xE9mon."
   weakness: 1
+  weaknessValue: "\xD72"
   resistance: 2
+  resistanceValue: -30
+  hasResistance: 1
   retreatCost: 1
   rarityStars: 2

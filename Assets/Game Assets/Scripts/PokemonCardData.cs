@@ -14,6 +14,15 @@ public enum PokemonType
     Normal
 }
 
+[System.Serializable]
+public struct PokemonAbility
+{
+    public bool hasAbility;
+    public string abilityName;
+    [TextArea(2, 5)]
+    public string abilityDescription;
+}
+
 [CreateAssetMenu(fileName = "NewPokemonCard", menuName = "Pokemon TCG/Pokemon Card Data")]
 public class PokemonCardData : ScriptableObject
 {
@@ -34,16 +43,17 @@ public class PokemonCardData : ScriptableObject
     [TextArea(2, 5)]
     public string attack1Description = "A basic tackle attack.";
 
-    [Header("Attack 2")]
-    public string attack2Name = "Vine Whip";
-    public string attack2CostText = "G C";
-    public int attack2Damage = 30;
-    [TextArea(2, 5)]
-    public string attack2Description = "Whip the target with vines.";
+
+
+    [Header("Ability")]
+    public PokemonAbility ability;
 
     [Header("Stats & Rarity")]
     public PokemonType weakness = PokemonType.Fire;
+    public string weaknessValue = "×2";
     public PokemonType resistance = PokemonType.Water;
+    public string resistanceValue = "-30";
+    public bool hasResistance = false;
     [Range(0, 4)]
     public int retreatCost = 1;
     [Range(1, 5)]
