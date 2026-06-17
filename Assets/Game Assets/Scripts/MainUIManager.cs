@@ -10,6 +10,7 @@ using UnityEditor;
 [ExecuteAlways]
 public class MainUIManager : MonoBehaviour
 {
+    // Public so PackOpeningController can reference Tab.Collection
     public enum Tab
     {
         Collection,
@@ -32,6 +33,10 @@ public class MainUIManager : MonoBehaviour
     [SerializeField] private GameObject card2DPrefab;
     [SerializeField] private Transform gridContentContainer;
     [SerializeField] private List<PokemonCardData> cardsData = new List<PokemonCardData>();
+
+    [Header("Empty Collection State")]
+    [Tooltip("Optional label shown when the player owns no cards yet.")]
+    [SerializeField] private GameObject emptyCollectionHint; // e.g. 'Open a pack to get your first cards!'
 
     [Header("Detail Inspect Overlay")]
     [SerializeField] private GameObject inspectOverlay;
@@ -220,8 +225,26 @@ public class MainUIManager : MonoBehaviour
 
         if (gridContentContainer == null || card2DPrefab == null || cardsData.Count == 0) return;
 
+        // ── At runtime: only show cards the player actually owns.
+        // ── In the Editor (not playing): show the full pool for design purposes.
+        List<PokemonCardData> displayCards;
+        if (Application.isPlaying)
+        {
+            displayCards = PlayerCollection.GetOwnedCards(cardsData);
+        }
+        else
+        {
+            displayCards = cardsData;
+        }
+
+        // Show / hide the empty-state hint
+        if (emptyCollectionHint != null)
+            emptyCollectionHint.SetActive(Application.isPlaying && displayCards.Count == 0);
+
+        if (displayCards.Count == 0) return;
+
         HashSet<PokemonCardData> uniqueCards = new HashSet<PokemonCardData>();
-        foreach (var data in cardsData)
+        foreach (var data in displayCards)
         {
             if (data == null) continue;
             if (uniqueCards.Contains(data)) continue;

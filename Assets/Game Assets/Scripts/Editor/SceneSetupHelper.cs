@@ -932,5 +932,441 @@ public class SceneSetupHelper
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    //  Pack Opening UI Setup
+    // ═════════════════════════════════════════════════════════════════════════
+
+    [MenuItem("Pokemon TCG/Setup Pack Opening UI")]
+    public static void SetupPackOpeningUI()
+    {
+        // ── Find / require Canvas ────────────────────────────────────────────
+        Canvas canvas = Object.FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("[PackOpeningSetup] No Canvas found. Run 'Setup Main Scene UI' first.");
+            return;
+        }
+
+        // ── Destroy any existing pack overlay so we start clean ──────────────
+        Transform oldOverlay = canvas.transform.Find("PackOverlayPanel");
+        if (oldOverlay != null) Object.DestroyImmediate(oldOverlay.gameObject);
+
+        // Replace the placeholder StorePanel content ─────────────────────────
+        Transform storePanelTf = canvas.transform.Find("StorePanel");
+        if (storePanelTf == null)
+        {
+            Debug.LogError("[PackOpeningSetup] StorePanel not found. Run 'Setup Main Scene UI' first.");
+            return;
+        }
+        GameObject storePanelObj = storePanelTf.gameObject;
+
+        // Clear previous store content
+        List<Transform> storeChildren = new List<Transform>();
+        for (int i = 0; i < storePanelObj.transform.childCount; i++)
+            storeChildren.Add(storePanelObj.transform.GetChild(i));
+        foreach (var child in storeChildren) Object.DestroyImmediate(child.gameObject);
+
+        // ────────────────────────────────────────────────────────────────────
+        //  STORE PANEL CONTENT
+        // ────────────────────────────────────────────────────────────────────
+
+        // Pack art image (centred, takes up most of the panel height)
+        Sprite packArtSprite = GetOrCreatePackArtSprite();
+
+        GameObject packArtObj = new GameObject("PackArtImage", typeof(RectTransform), typeof(Image));
+        packArtObj.transform.SetParent(storePanelObj.transform, false);
+        RectTransform packArtRt = packArtObj.GetComponent<RectTransform>();
+        packArtRt.anchorMin = new Vector2(0.5f, 0.5f);
+        packArtRt.anchorMax = new Vector2(0.5f, 0.5f);
+        packArtRt.pivot     = new Vector2(0.5f, 0.5f);
+        packArtRt.anchoredPosition = new Vector2(0f, 120f);
+        packArtRt.sizeDelta        = new Vector2(480f, 660f);
+        Image packArtImg = packArtObj.GetComponent<Image>();
+        packArtImg.sprite = packArtSprite;
+        packArtImg.preserveAspect = true;
+
+        // Shimmer overlay (child of pack art)
+        GameObject shimmerObj = new GameObject("PackShimmerOverlay", typeof(RectTransform), typeof(Image));
+        shimmerObj.transform.SetParent(packArtObj.transform, false);
+        RectTransform shimmerRt = shimmerObj.GetComponent<RectTransform>();
+        shimmerRt.anchorMin = Vector2.zero;
+        shimmerRt.anchorMax = Vector2.one;
+        shimmerRt.offsetMin = shimmerRt.offsetMax = Vector2.zero;
+        Image shimmerImg = shimmerObj.GetComponent<Image>();
+        shimmerImg.color = new Color(1f, 1f, 1f, 0f);
+
+        // Pack name label
+        GameObject packNameObj = new GameObject("PackNameLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        packNameObj.transform.SetParent(storePanelObj.transform, false);
+        RectTransform packNameRt = packNameObj.GetComponent<RectTransform>();
+        packNameRt.anchorMin = new Vector2(0.1f, 0.72f);
+        packNameRt.anchorMax = new Vector2(0.9f, 0.82f);
+        packNameRt.offsetMin = packNameRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI packNameTMP = packNameObj.GetComponent<TextMeshProUGUI>();
+        packNameTMP.text      = "Kanto Starter Pack";
+        packNameTMP.fontSize  = 44;
+        packNameTMP.fontStyle = FontStyles.Bold;
+        packNameTMP.alignment = TextAlignmentOptions.Center;
+        packNameTMP.color     = Color.white;
+
+        // Open pack button
+        Sprite badgeSprite = GetOrCreateBadgeSprite();
+        GameObject openBtnObj = new GameObject("OpenPackButton", typeof(RectTransform), typeof(Image), typeof(Button));
+        openBtnObj.transform.SetParent(storePanelObj.transform, false);
+        RectTransform openBtnRt = openBtnObj.GetComponent<RectTransform>();
+        openBtnRt.anchorMin = new Vector2(0.15f, 0.13f);
+        openBtnRt.anchorMax = new Vector2(0.85f, 0.21f);
+        openBtnRt.offsetMin = openBtnRt.offsetMax = Vector2.zero;
+        Image openBtnImg = openBtnObj.GetComponent<Image>();
+        openBtnImg.sprite = badgeSprite;
+        openBtnImg.type   = Image.Type.Sliced;
+        openBtnImg.color  = new Color(0.95f, 0.75f, 0.1f, 1f); // Gold
+
+        GameObject openBtnTxtObj = new GameObject("ButtonText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        openBtnTxtObj.transform.SetParent(openBtnObj.transform, false);
+        RectTransform openBtnTxtRt = openBtnTxtObj.GetComponent<RectTransform>();
+        openBtnTxtRt.anchorMin = Vector2.zero;
+        openBtnTxtRt.anchorMax = Vector2.one;
+        openBtnTxtRt.offsetMin = openBtnTxtRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI openBtnTMP = openBtnTxtObj.GetComponent<TextMeshProUGUI>();
+        openBtnTMP.text      = "✨  Open Free Pack";
+        openBtnTMP.fontSize  = 36;
+        openBtnTMP.fontStyle = FontStyles.Bold;
+        openBtnTMP.alignment = TextAlignmentOptions.Center;
+        openBtnTMP.color     = new Color(0.1f, 0.08f, 0.02f, 1f);
+        Navigation noneNav = new Navigation { mode = Navigation.Mode.None };
+        openBtnObj.GetComponent<Button>().navigation = noneNav;
+
+        // Cooldown timer label
+        GameObject cooldownObj = new GameObject("CooldownTimerLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        cooldownObj.transform.SetParent(storePanelObj.transform, false);
+        RectTransform cooldownRt = cooldownObj.GetComponent<RectTransform>();
+        cooldownRt.anchorMin = new Vector2(0.1f, 0.07f);
+        cooldownRt.anchorMax = new Vector2(0.9f, 0.13f);
+        cooldownRt.offsetMin = cooldownRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI cooldownTMP = cooldownObj.GetComponent<TextMeshProUGUI>();
+        cooldownTMP.text      = "Pack ready!";
+        cooldownTMP.fontSize  = 28;
+        cooldownTMP.alignment = TextAlignmentOptions.Center;
+        cooldownTMP.color     = new Color(0.55f, 0.6f, 0.7f, 1f);
+
+        // Empty collection hint (shown when player has no cards yet)
+        GameObject emptyHintObj = new GameObject("EmptyCollectionHint", typeof(RectTransform), typeof(TextMeshProUGUI));
+        // This belongs on CollectionPanel, not StorePanel
+        Transform colPanelTf = canvas.transform.Find("CollectionPanel");
+        if (colPanelTf != null)
+        {
+            emptyHintObj.transform.SetParent(colPanelTf, false);
+        }
+        else
+        {
+            emptyHintObj.transform.SetParent(storePanelObj.transform, false);
+        }
+        RectTransform emptyHintRt = emptyHintObj.GetComponent<RectTransform>();
+        emptyHintRt.anchorMin = new Vector2(0.05f, 0.4f);
+        emptyHintRt.anchorMax = new Vector2(0.95f, 0.6f);
+        emptyHintRt.offsetMin = emptyHintRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI emptyHintTMP = emptyHintObj.GetComponent<TextMeshProUGUI>();
+        emptyHintTMP.text      = "Open a pack in the <b>Store</b> tab to get your first cards! ✨";
+        emptyHintTMP.fontSize  = 36;
+        emptyHintTMP.alignment = TextAlignmentOptions.Center;
+        emptyHintTMP.color     = new Color(0.55f, 0.6f, 0.7f, 1f);
+        emptyHintTMP.enableWordWrapping = true;
+        emptyHintObj.SetActive(false); // hidden until runtime logic enables it
+
+        // ────────────────────────────────────────────────────────────────────
+        //  PACK OVERLAY PANEL  (sort order above everything else)
+        // ────────────────────────────────────────────────────────────────────
+
+        GameObject overlayPanelObj = new GameObject("PackOverlayPanel",
+            typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(CanvasGroup));
+        overlayPanelObj.transform.SetParent(canvas.transform, false);
+
+        // Own Canvas so we can set sort order high
+        Canvas overlayCanvas = overlayPanelObj.GetComponent<Canvas>();
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder    = 50;
+
+        CanvasGroup overlayCG = overlayPanelObj.GetComponent<CanvasGroup>();
+        overlayCG.alpha            = 0f;
+        overlayCG.interactable     = false;
+        overlayCG.blocksRaycasts   = false;
+
+        RectTransform overlayRt = overlayPanelObj.GetComponent<RectTransform>();
+        overlayRt.anchorMin = Vector2.zero;
+        overlayRt.anchorMax = Vector2.one;
+        overlayRt.offsetMin = overlayRt.offsetMax = Vector2.zero;
+
+        // Dark background
+        GameObject darkBgObj = new GameObject("DarkBackground", typeof(RectTransform), typeof(Image));
+        darkBgObj.transform.SetParent(overlayPanelObj.transform, false);
+        RectTransform darkBgRt = darkBgObj.GetComponent<RectTransform>();
+        darkBgRt.anchorMin = Vector2.zero;
+        darkBgRt.anchorMax = Vector2.one;
+        darkBgRt.offsetMin = darkBgRt.offsetMax = Vector2.zero;
+        darkBgObj.GetComponent<Image>().color = new Color(0.04f, 0.04f, 0.06f, 0.95f);
+
+        // Pack rip image (the booster art shown in overlay centre)
+        GameObject packRipObj = new GameObject("PackRipImage", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+        packRipObj.transform.SetParent(overlayPanelObj.transform, false);
+        RectTransform packRipRt = packRipObj.GetComponent<RectTransform>();
+        packRipRt.anchorMin = new Vector2(0.5f, 0.5f);
+        packRipRt.anchorMax = new Vector2(0.5f, 0.5f);
+        packRipRt.pivot     = new Vector2(0.5f, 0.5f);
+        packRipRt.anchoredPosition = new Vector2(0f, 80f);
+        packRipRt.sizeDelta        = new Vector2(460f, 640f);
+        Image packRipImgComp = packRipObj.GetComponent<Image>();
+        packRipImgComp.sprite         = packArtSprite;
+        packRipImgComp.preserveAspect = true;
+        CanvasGroup packRipCGComp = packRipObj.GetComponent<CanvasGroup>();
+        packRipCGComp.alpha = 1f;
+        packRipObj.SetActive(false); // Hidden until ceremony starts
+
+        // Card reveal container (centred, above mid screen)
+        GameObject cardRevealObj = new GameObject("CardRevealContainer", typeof(RectTransform));
+        cardRevealObj.transform.SetParent(overlayPanelObj.transform, false);
+        RectTransform cardRevealRt = cardRevealObj.GetComponent<RectTransform>();
+        cardRevealRt.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRevealRt.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRevealRt.pivot     = new Vector2(0.5f, 0.5f);
+        cardRevealRt.anchoredPosition = new Vector2(0f, 60f);
+        cardRevealRt.sizeDelta        = new Vector2(1000f, 700f);
+
+        // Glow burst (fullscreen flash, normally hidden)
+        GameObject glowObj = new GameObject("GlowBurstImage", typeof(RectTransform), typeof(Image));
+        glowObj.transform.SetParent(overlayPanelObj.transform, false);
+        RectTransform glowRt = glowObj.GetComponent<RectTransform>();
+        glowRt.anchorMin = Vector2.zero;
+        glowRt.anchorMax = Vector2.one;
+        glowRt.offsetMin = glowRt.offsetMax = Vector2.zero;
+        glowObj.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+        glowObj.SetActive(false);
+
+        // Summary panel
+        GameObject summaryObj = new GameObject("SummaryPanel", typeof(RectTransform), typeof(Image));
+        summaryObj.transform.SetParent(overlayPanelObj.transform, false);
+        RectTransform summaryRt = summaryObj.GetComponent<RectTransform>();
+        summaryRt.anchorMin = new Vector2(0.1f, 0.18f);
+        summaryRt.anchorMax = new Vector2(0.9f, 0.75f);
+        summaryRt.offsetMin = summaryRt.offsetMax = Vector2.zero;
+        Image summaryBg = summaryObj.GetComponent<Image>();
+        summaryBg.sprite = badgeSprite;
+        summaryBg.type   = Image.Type.Sliced;
+        summaryBg.color  = new Color(0.12f, 0.15f, 0.22f, 0.97f);
+
+        // Summary label
+        GameObject summaryLabelObj = new GameObject("SummaryLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        summaryLabelObj.transform.SetParent(summaryObj.transform, false);
+        RectTransform summaryLabelRt = summaryLabelObj.GetComponent<RectTransform>();
+        summaryLabelRt.anchorMin = new Vector2(0f, 0.3f);
+        summaryLabelRt.anchorMax = Vector2.one;
+        summaryLabelRt.offsetMin = new Vector2(30f, 0f);
+        summaryLabelRt.offsetMax = new Vector2(-30f, -20f);
+        TextMeshProUGUI summaryTMP = summaryLabelObj.GetComponent<TextMeshProUGUI>();
+        summaryTMP.text      = "<b>Cards Received!</b>";
+        summaryTMP.fontSize  = 34;
+        summaryTMP.alignment = TextAlignmentOptions.Center;
+        summaryTMP.color     = Color.white;
+        summaryTMP.enableWordWrapping = true;
+
+        // Add to Collection button
+        GameObject addBtnObj = new GameObject("AddToCollectionButton", typeof(RectTransform), typeof(Image), typeof(Button));
+        addBtnObj.transform.SetParent(summaryObj.transform, false);
+        RectTransform addBtnRt = addBtnObj.GetComponent<RectTransform>();
+        addBtnRt.anchorMin = new Vector2(0.1f, 0.05f);
+        addBtnRt.anchorMax = new Vector2(0.9f, 0.27f);
+        addBtnRt.offsetMin = addBtnRt.offsetMax = Vector2.zero;
+        Image addBtnImg = addBtnObj.GetComponent<Image>();
+        addBtnImg.sprite = badgeSprite;
+        addBtnImg.type   = Image.Type.Sliced;
+        addBtnImg.color  = new Color(0.2f, 0.7f, 0.35f, 1f); // Green
+        addBtnObj.GetComponent<Button>().navigation = noneNav;
+
+        GameObject addBtnTxtObj = new GameObject("ButtonText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        addBtnTxtObj.transform.SetParent(addBtnObj.transform, false);
+        RectTransform addBtnTxtRt = addBtnTxtObj.GetComponent<RectTransform>();
+        addBtnTxtRt.anchorMin = Vector2.zero;
+        addBtnTxtRt.anchorMax = Vector2.one;
+        addBtnTxtRt.offsetMin = addBtnTxtRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI addBtnTMP = addBtnTxtObj.GetComponent<TextMeshProUGUI>();
+        addBtnTMP.text      = "Add to Collection →";
+        addBtnTMP.fontSize  = 34;
+        addBtnTMP.fontStyle = FontStyles.Bold;
+        addBtnTMP.alignment = TextAlignmentOptions.Center;
+        addBtnTMP.color     = Color.white;
+
+        summaryObj.SetActive(false); // Hidden until reveal is done
+
+        // Fix materials
+        foreach (var img in overlayPanelObj.GetComponentsInChildren<Image>(true))
+            img.material = Canvas.GetDefaultCanvasMaterial();
+        foreach (var img in storePanelObj.GetComponentsInChildren<Image>(true))
+            img.material = Canvas.GetDefaultCanvasMaterial();
+
+        // ────────────────────────────────────────────────────────────────────
+        //  WIRE UP PackOpeningController
+        // ────────────────────────────────────────────────────────────────────
+
+        GameObject uiManagerObj = GameObject.Find("MainUIManager");
+        if (uiManagerObj == null) uiManagerObj = new GameObject("MainUIManager");
+
+        PackOpeningController poc = uiManagerObj.GetComponent<PackOpeningController>();
+        if (poc == null) poc = uiManagerObj.AddComponent<PackOpeningController>();
+
+        System.Type t = typeof(PackOpeningController);
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+
+        void Set(string fieldName, object value)
+        {
+            var f = t.GetField(fieldName, bf);
+            if (f != null) f.SetValue(poc, value);
+            else Debug.LogWarning($"[PackOpeningSetup] Field not found: {fieldName}");
+        }
+
+        Set("storeRootPanel",      storePanelObj);
+        Set("packArtImage",        packArtImg);
+        Set("packNameLabel",       packNameTMP);
+        Set("openPackButton",      openBtnObj.GetComponent<Button>());
+        Set("openPackButtonText",  openBtnTMP);
+        Set("cooldownTimerLabel",  cooldownTMP);
+        Set("packShimmerOverlay",  shimmerImg);
+        Set("packOverlayPanel",    overlayPanelObj);
+        Set("packOverlayCG",       overlayCG);
+        Set("packRipRect",         packRipRt);
+        Set("packRipCG",           packRipCGComp);
+        Set("cardRevealContainer", cardRevealRt);
+        Set("glowBurstImage",      glowObj.GetComponent<Image>());
+        Set("summaryPanel",        summaryObj);
+        Set("addToCollectionButton", addBtnObj.GetComponent<Button>());
+        Set("summaryLabel",        summaryTMP);
+
+        // Populate masterCardPool from Assets
+        var poolField = t.GetField("masterCardPool", bf);
+        if (poolField != null)
+        {
+            List<PokemonCardData> pool = new List<PokemonCardData>();
+            string[] guids = AssetDatabase.FindAssets("t:PokemonCardData", new[] { "Assets/Game Assets/Data" });
+            foreach (var guid in guids)
+            {
+                PokemonCardData d = AssetDatabase.LoadAssetAtPath<PokemonCardData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (d != null) pool.Add(d);
+            }
+            poolField.SetValue(poc, pool);
+        }
+
+        // Link MainUIManager back reference
+        MainUIManager uiMgr = uiManagerObj.GetComponent<MainUIManager>();
+        Set("mainUIManager", uiMgr);
+
+        // Wire CharizardCard as the 3D reveal prefab
+        string charizardPath = "Assets/Game Assets/Prefabs/CharizardCard.prefab";
+        GameObject charizardPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(charizardPath);
+        Set("card3DRevealPrefab", charizardPrefab);
+
+        // Wire EmptyCollectionHint to MainUIManager
+        if (uiMgr != null && emptyHintObj != null)
+        {
+            var emptyField = typeof(MainUIManager).GetField("emptyCollectionHint",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            emptyField?.SetValue(uiMgr, emptyHintObj);
+        }
+
+        EditorUtility.SetDirty(poc);
+        if (uiMgr != null) EditorUtility.SetDirty(uiMgr);
+        Selection.activeGameObject = overlayPanelObj;
+
+        Debug.Log("[PackOpeningSetup] Pack Opening UI built and wired successfully! ✅");
+    }
+
+    // ── Booster pack art texture generator ───────────────────────────────────
+
+    private static Sprite GetOrCreatePackArtSprite()
+    {
+        string path = "Assets/Game Assets/Textures/booster_pack_art.png";
+        Texture2D exist = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        if (exist != null) return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+        // Build a stylised booster pack texture programmatically
+        int w = 256, h = 360;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+
+        // Background gradient: deep navy → midnight blue
+        Color topColor    = new Color(0.08f, 0.12f, 0.35f, 1f);
+        Color bottomColor = new Color(0.04f, 0.06f, 0.16f, 1f);
+
+        for (int y = 0; y < h; y++)
+        {
+            float t = (float)y / h;
+            Color rowColor = Color.Lerp(bottomColor, topColor, t);
+            for (int x = 0; x < w; x++)
+                tex.SetPixel(x, y, rowColor);
+        }
+
+        // Gold horizontal accent stripe near top third
+        int stripeY = (int)(h * 0.72f);
+        for (int sy = stripeY; sy < stripeY + 6; sy++)
+            for (int sx = 0; sx < w; sx++)
+                tex.SetPixel(sx, sy, new Color(0.95f, 0.78f, 0.12f, 1f));
+
+        // Pokeball-like circle in the centre
+        Vector2 centre = new Vector2(w * 0.5f, h * 0.42f);
+        float outerR = 52f, innerR = 14f, lineH = 5f;
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                float dx = x - centre.x, dy = y - centre.y;
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                if (dist > outerR) continue;
+
+                Color circleFill;
+                if (dist < innerR)
+                    circleFill = new Color(0.9f, 0.9f, 0.92f, 1f); // Centre button
+                else if (Mathf.Abs(dy) < lineH)
+                    circleFill = new Color(0.15f, 0.15f, 0.2f, 1f);  // Horizontal divider
+                else if (dy > 0)
+                    circleFill = new Color(0.88f, 0.15f, 0.12f, 1f); // Top half: red
+                else
+                    circleFill = new Color(0.88f, 0.88f, 0.92f, 1f); // Bottom half: white
+
+                // Soft edge anti-alias
+                float edge = outerR - dist;
+                if (edge < 2f) circleFill.a = edge * 0.5f;
+
+                Color current = tex.GetPixel(x, y);
+                tex.SetPixel(x, y, Color.Lerp(current, circleFill, circleFill.a));
+            }
+        }
+
+        // "POKEMON" text replaced by a simple star cluster
+        Color starColor = new Color(0.95f, 0.82f, 0.18f, 1f);
+        int[] starXs = { w / 2 - 60, w / 2 - 20, w / 2 + 20, w / 2 + 60, w / 2 };
+        int[] starYs = { (int)(h * 0.88f), (int)(h * 0.91f), (int)(h * 0.89f), (int)(h * 0.92f), (int)(h * 0.86f) };
+        for (int s = 0; s < starXs.Length; s++)
+        {
+            int sx = starXs[s], sy = starYs[s];
+            for (int dy2 = -4; dy2 <= 4; dy2++)
+                for (int dx2 = -4; dx2 <= 4; dx2++)
+                {
+                    float d = Mathf.Sqrt(dx2 * dx2 + dy2 * dy2);
+                    if (d < 4f) tex.SetPixel(sx + dx2, sy + dy2, starColor);
+                }
+        }
+
+        tex.Apply();
+        System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+        Object.DestroyImmediate(tex);
+        AssetDatabase.Refresh();
+
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteBorder = new Vector4(0, 0, 0, 0);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
 }
 #endif
