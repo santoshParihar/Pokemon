@@ -422,7 +422,10 @@ public class SceneSetupHelper
         // Force default UI material assignment on all Canvas Images to prevent missing material/pink bugs
         foreach (var img in canvas.GetComponentsInChildren<Image>(true))
         {
-            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+            if (img.gameObject.name != "PackArtImage" && img.gameObject.name != "PackShimmerOverlay")
+            {
+                img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+            }
         }
         #endif
 
@@ -999,7 +1002,7 @@ public class SceneSetupHelper
         // Pack art image (centred, takes up most of the panel height)
         Sprite packArtSprite = GetOrCreatePackArtSprite();
 
-        GameObject packArtObj = new GameObject("PackArtImage", typeof(RectTransform), typeof(Image));
+        GameObject packArtObj = new GameObject("PackArtImage", typeof(RectTransform), typeof(Image), typeof(Mask));
         packArtObj.transform.SetParent(storePanelObj.transform, false);
         RectTransform packArtRt = packArtObj.GetComponent<RectTransform>();
         packArtRt.anchorMin = new Vector2(0.5f, 0.5f);
@@ -1008,20 +1011,27 @@ public class SceneSetupHelper
         packArtRt.anchoredPosition = new Vector2(0f, 120f);
         packArtRt.sizeDelta        = new Vector2(647.3f, 1024f);
         Image packArtImg = packArtObj.GetComponent<Image>();
-        packArtImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        packArtImg.material = null; // Use default UI material to support Stencil Masking
         packArtImg.sprite = packArtSprite;
         packArtImg.preserveAspect = true;
 
-        // Shimmer overlay (child of pack art)
+        Mask packMask = packArtObj.GetComponent<Mask>();
+        packMask.showMaskGraphic = true;
+
+        // Shine beam overlay (child of pack art)
         GameObject shimmerObj = new GameObject("PackShimmerOverlay", typeof(RectTransform), typeof(Image));
         shimmerObj.transform.SetParent(packArtObj.transform, false);
         RectTransform shimmerRt = shimmerObj.GetComponent<RectTransform>();
-        shimmerRt.anchorMin = Vector2.zero;
-        shimmerRt.anchorMax = Vector2.one;
-        shimmerRt.offsetMin = shimmerRt.offsetMax = Vector2.zero;
+        shimmerRt.anchorMin = new Vector2(0.5f, 0.5f);
+        shimmerRt.anchorMax = new Vector2(0.5f, 0.5f);
+        shimmerRt.pivot     = new Vector2(0.5f, 0.5f);
+        shimmerRt.anchoredPosition = new Vector2(-800f, 0f);
+        shimmerRt.sizeDelta        = new Vector2(140f, 1600f);
+        shimmerRt.localRotation    = Quaternion.Euler(0f, 0f, -35f);
         Image shimmerImg = shimmerObj.GetComponent<Image>();
-        shimmerImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        shimmerImg.color = new Color(1f, 1f, 1f, 0f);
+        shimmerImg.material = null; // Use default UI material to support Stencil Masking
+        shimmerImg.sprite = GetOrCreateShineBeamSprite();
+        shimmerImg.color = new Color(1f, 1f, 1f, 0.75f);
 
         // Pack name label
         GameObject packNameObj = new GameObject("PackNameLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -1237,7 +1247,12 @@ public class SceneSetupHelper
         foreach (var img in overlayPanelObj.GetComponentsInChildren<Image>(true))
             img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         foreach (var img in storePanelObj.GetComponentsInChildren<Image>(true))
-            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        {
+            if (img.gameObject.name != "PackArtImage" && img.gameObject.name != "PackShimmerOverlay")
+            {
+                img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+            }
+        }
 
         // ────────────────────────────────────────────────────────────────────
         //  WIRE UP PackOpeningController
@@ -1312,6 +1327,50 @@ public class SceneSetupHelper
         Selection.activeGameObject = overlayPanelObj;
 
         Debug.Log("[PackOpeningSetup] Pack Opening UI built and wired successfully! ✅");
+    }
+
+    private static Sprite GetOrCreateShineBeamSprite()
+    {
+        string path = "Assets/Game Assets/Textures/shine_beam.png";
+        
+        int w = 256;
+        int h = 16;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                float normalizedX = (float)x / w;
+                
+                // Double-peak metallic gloss highlight:
+                float dist1 = Mathf.Abs(normalizedX - 0.5f) * 6.5f;
+                float peak1 = Mathf.Exp(-dist1 * dist1); // Main bright peak
+                
+                float dist2 = Mathf.Abs(normalizedX - 0.64f) * 14.0f;
+                float peak2 = Mathf.Exp(-dist2 * dist2) * 0.45f; // Sharp secondary highlight
+                
+                float alpha = Mathf.Clamp01(peak1 + peak2) * 0.95f;
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+        tex.Apply();
+        
+        System.IO.Directory.CreateDirectory("Assets/Game Assets/Textures");
+        System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+        Object.DestroyImmediate(tex);
+        AssetDatabase.Refresh();
+        
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
     // ── Booster pack art texture generator ───────────────────────────────────

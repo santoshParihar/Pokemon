@@ -83,7 +83,7 @@ public class PackOpeningController : MonoBehaviour
     private bool[]                cardRevealComplete;  // true after each card's flip+fly-away is done
 
     #if PRIME_TWEEN_INSTALLED
-    private Tween shimmerTween;
+    private Sequence shimmerSequence;
     private Tween cooldownTween;   // not a tween — we just track with a coroutine below
     #endif
 
@@ -124,16 +124,19 @@ public class PackOpeningController : MonoBehaviour
 
     public void RefreshStorePanel()
     {
-        // ── Shimmer loop on pack art ──────────────────────────────────────
+        // ── Shine sweep loop on pack art ──────────────────────────────────
         #if PRIME_TWEEN_INSTALLED
-        shimmerTween.Stop();
+        shimmerSequence.Stop();
         if (packShimmerOverlay != null)
         {
-            // Alpha ping-pong: 0 → 0.35 → 0, forever
-            shimmerTween = Tween.Alpha(packShimmerOverlay,
-                startValue: 0f, endValue: 0.35f,
-                duration: 1.1f, ease: Ease.InOutSine,
-                cycles: -1, cycleMode: CycleMode.Yoyo);
+            // Reset position to starting X
+            packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
+
+            // Repeat sweep: move to 800f over 1.6 seconds, wait 2.0 seconds, repeat
+            shimmerSequence = Sequence.Create(cycles: -1)
+                .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: 800f, duration: 1.6f, ease: Ease.InOutQuad))
+                .Chain(Tween.Delay(2.0f))
+                .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: -800f, duration: 0f)); // instant reset
         }
         #endif
 
