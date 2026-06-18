@@ -67,6 +67,12 @@ public class PackOpeningController : MonoBehaviour
     [SerializeField] private Color colorEpic      = new Color(0.65f, 0.35f, 0.95f);
     [SerializeField] private Color colorLegendary = new Color(1f,    0.45f, 0.1f);
 
+    [Header("Idle Ready Animation Settings")]
+    [SerializeField] private float            idleShakeRotation = 3.0f;      // Rotation angle (Z degrees) for wiggle
+    [SerializeField] private float            idleShakeSpeed = 0.12f;        // Time in seconds for each wiggle step
+    [SerializeField] private float            idleScalePulse = 1.04f;        // Target scale for the pulse
+    [SerializeField] private float            idleDelayBetweenCycles = 0.0f;  // Delay before repeating the shake (0 for continuous loop)
+
     [Header("Callback")]
     [SerializeField] private MainUIManager mainUIManager;
 
@@ -85,6 +91,7 @@ public class PackOpeningController : MonoBehaviour
     #if PRIME_TWEEN_INSTALLED
     private Sequence shimmerSequence;
     private Tween cooldownTween;   // not a tween — we just track with a coroutine below
+    private Sequence idlePackSequence;
     #endif
 
     private Coroutine cooldownCoroutine;
@@ -102,6 +109,15 @@ public class PackOpeningController : MonoBehaviour
     private void Start() => SetupButtons();
 
     private void OnEnable() => RefreshStorePanel();
+
+    private void OnDisable()
+    {
+        #if PRIME_TWEEN_INSTALLED
+        shimmerSequence.Stop();
+        idlePackSequence.Stop();
+        #endif
+        if (cooldownCoroutine != null) StopCoroutine(cooldownCoroutine);
+    }
 
     // ────────────────────────────────────────────────────────────────────────
     // Store Panel
@@ -163,6 +179,45 @@ public class PackOpeningController : MonoBehaviour
                     cooldownTimerLabel.text = $"{rem.Hours:D2}:{rem.Minutes:D2}:{rem.Seconds:D2}";
                 }
             }
+
+            #if PRIME_TWEEN_INSTALLED
+            if (ready && !packIsOpening)
+            {
+                if (!idlePackSequence.isAlive && packArtImage != null)
+                {
+                    packArtImage.rectTransform.localScale = Vector3.one;
+                    packArtImage.rectTransform.localRotation = Quaternion.identity;
+
+                    var seq = Sequence.Create(cycles: -1);
+                    if (idleDelayBetweenCycles > 0f)
+                    {
+                        seq.Chain(Tween.Delay(idleDelayBetweenCycles));
+                    }
+                    
+                    seq.Group(Tween.Scale(packArtImage.rectTransform, endValue: new Vector3(idleScalePulse, idleScalePulse, 1f), duration: idleShakeSpeed * 1.5f, ease: Ease.OutQuad))
+                       .Chain(Tween.Rotation(packArtImage.rectTransform, endValue: new Vector3(0, 0, -idleShakeRotation), duration: idleShakeSpeed, ease: Ease.InOutQuad))
+                       .Chain(Tween.Rotation(packArtImage.rectTransform, endValue: new Vector3(0, 0, idleShakeRotation), duration: idleShakeSpeed * 1.5f, ease: Ease.InOutQuad))
+                       .Chain(Tween.Rotation(packArtImage.rectTransform, endValue: new Vector3(0, 0, -idleShakeRotation * 0.7f), duration: idleShakeSpeed * 1.2f, ease: Ease.InOutQuad))
+                       .Chain(Tween.Rotation(packArtImage.rectTransform, endValue: new Vector3(0, 0, 0f), duration: idleShakeSpeed, ease: Ease.OutQuad))
+                       .Group(Tween.Scale(packArtImage.rectTransform, endValue: Vector3.one, duration: idleShakeSpeed * 1.5f, ease: Ease.InOutQuad));
+
+                    idlePackSequence = seq;
+                }
+            }
+            else
+            {
+                if (idlePackSequence.isAlive)
+                {
+                    idlePackSequence.Stop();
+                    if (packArtImage != null)
+                    {
+                        packArtImage.rectTransform.localScale = Vector3.one;
+                        packArtImage.rectTransform.localRotation = Quaternion.identity;
+                    }
+                }
+            }
+            #endif
+
             yield return new WaitForSeconds(1f);
         }
     }
@@ -174,6 +229,17 @@ public class PackOpeningController : MonoBehaviour
     private void OnOpenPackClicked()
     {
         if (packIsOpening || !PlayerCollection.CanOpenFreePack()) return;
+        #if PRIME_TWEEN_INSTALLED
+        if (idlePackSequence.isAlive)
+        {
+            idlePackSequence.Stop();
+            if (packArtImage != null)
+            {
+                packArtImage.rectTransform.localScale = Vector3.one;
+                packArtImage.rectTransform.localRotation = Quaternion.identity;
+            }
+        }
+        #endif
         StartCoroutine(PackOpeningSequence());
     }
 
