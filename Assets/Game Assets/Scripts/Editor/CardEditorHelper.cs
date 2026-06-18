@@ -83,6 +83,13 @@ public class CardEditorHelper : EditorWindow
         {
             CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, selectedCardData);
         }
+        
+        GUILayout.Space(10);
+        GUI.backgroundColor = new Color(0.85f, 0.35f, 0.35f);
+        if (GUILayout.Button("Clear PlayerPrefs (Reset Collection)", GUILayout.Height(30)))
+        {
+            PlayerCollection.ClearAll();
+        }
         GUI.backgroundColor = Color.white;
     }
 
@@ -542,6 +549,7 @@ public class CardEditorHelper : EditorWindow
 
         Sprite badgeBgSprite = GetOrCreateBadgeSprite();
         Image typeBadgeImg = typeBadgeObj.GetComponent<Image>();
+        typeBadgeImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         typeBadgeImg.sprite = badgeBgSprite; // Use the rounded rect badge background!
         typeBadgeImg.type = Image.Type.Sliced;
         typeBadgeImg.color = new Color(0.18f, 0.22f, 0.29f, 1f); // #2D323E - dark slate pill background
@@ -613,6 +621,7 @@ public class CardEditorHelper : EditorWindow
         artRect.sizeDelta = new Vector2(610, 340); // Increased size from 580x320 to 610x340
         
         Image artImg = artObj.GetComponent<Image>();
+        artImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         artImg.color = new Color(0.9f, 0.9f, 0.9f, 0.6f);
         Sprite pokemonSprite = GetOrConvertSprite("Assets/Game Assets/Textures/pokemon.png");
         if (pokemonSprite != null)
@@ -673,6 +682,7 @@ public class CardEditorHelper : EditorWindow
             bRect.sizeDelta = sizeDelta;
 
             Image img = badgeObj.GetComponent<Image>();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
             img.sprite = badgeBgSprite;
             img.type = Image.Type.Sliced;
             img.color = Color.white;
@@ -706,6 +716,7 @@ public class CardEditorHelper : EditorWindow
                 iconRect.sizeDelta = new Vector2(24, 24); // Increased from 20x20 for scale
 
                 Image iconImg = iconObj.GetComponent<Image>();
+                iconImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
                 iconImg.sprite = iconSprite;
                 iconImg.color = new Color(0.18f, 0.22f, 0.29f, 1f); // Cohesive slate/dark grey text color
 
@@ -751,6 +762,7 @@ public class CardEditorHelper : EditorWindow
         atk1Rect.offsetMax = new Vector2(0, -5); // 5px top spacing gap
 
         UnityEngine.UI.Image panel1Img = atk1Obj.GetComponent<UnityEngine.UI.Image>();
+        panel1Img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         panel1Img.sprite = badgeBgSprite;
         panel1Img.type = UnityEngine.UI.Image.Type.Sliced;
         panel1Img.color = new Color(1f, 1f, 1f, 0.45f); // 45% translucent soft white card background
@@ -771,6 +783,7 @@ public class CardEditorHelper : EditorWindow
         atk2Rect.offsetMax = new Vector2(0, -5); // 5px top spacing gap
 
         UnityEngine.UI.Image panel2Img = atk2Obj.GetComponent<UnityEngine.UI.Image>();
+        panel2Img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         panel2Img.sprite = badgeBgSprite;
         panel2Img.type = UnityEngine.UI.Image.Type.Sliced;
         panel2Img.color = new Color(1f, 1f, 1f, 0.45f); // 45% translucent soft white card background
@@ -830,6 +843,12 @@ public class CardEditorHelper : EditorWindow
 
         dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
         uiController.SetCardData(dataToUse);
+
+        // Force default UI material assignment on all Canvas Images to prevent missing material/pink bugs
+        foreach (var img in cardObj.GetComponentsInChildren<Image>(true))
+        {
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        }
 
         // 9. Save Card Prefab (uniquely named based on Pokemon name)
         string pokemonPrefabName = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");

@@ -7,6 +7,12 @@ using TMPro;
 
 public class SceneSetupHelper
 {
+    [MenuItem("Pokemon TCG/Clear PlayerPrefs (Reset Collection)")]
+    public static void ClearPlayerPrefs()
+    {
+        PlayerCollection.ClearAll();
+    }
+
     [MenuItem("Pokemon TCG/Setup Main Scene UI")]
     public static void SetupMainSceneUI()
     {
@@ -68,6 +74,7 @@ public class SceneSetupHelper
         headerRect.offsetMax = Vector2.zero;
         
         Image headerImg = headerObj.GetComponent<Image>();
+        headerImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         headerImg.color = new Color(0.12f, 0.15f, 0.22f, 0.9f); // Glassmorphism translucent dark slate
 
         // App title
@@ -106,7 +113,9 @@ public class SceneSetupHelper
         colBtnObj.transform.SetParent(tabRowObj.transform, false);
         RectTransform colBtnRect = colBtnObj.GetComponent<RectTransform>();
         colBtnRect.sizeDelta = new Vector2(320, 70);
-        colBtnObj.GetComponent<Image>().color = Color.clear;
+        Image colBtnImg = colBtnObj.GetComponent<Image>();
+        colBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        colBtnImg.color = Color.clear;
 
         // Dedicated underline childed directly to Collection tab button
         GameObject colUnderlineObj = new GameObject("Underline", typeof(RectTransform), typeof(Image));
@@ -117,7 +126,9 @@ public class SceneSetupHelper
         colUnderlineRect.pivot = new Vector2(0.5f, 0f);
         colUnderlineRect.anchoredPosition = new Vector2(0, 0f); // Exactly at bottom edge of button
         colUnderlineRect.sizeDelta = new Vector2(0, 6f); // Span full button width, 6 height
-        colUnderlineObj.GetComponent<Image>().color = new Color(0.95f, 0.8f, 0.1f, 1f); // Vibrant Gold
+        Image colUnderlineImg = colUnderlineObj.GetComponent<Image>();
+        colUnderlineImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        colUnderlineImg.color = new Color(0.95f, 0.8f, 0.1f, 1f); // Vibrant Gold
 
         GameObject colTxtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         colTxtObj.transform.SetParent(colBtnObj.transform, false);
@@ -141,7 +152,9 @@ public class SceneSetupHelper
         storeBtnObj.transform.SetParent(tabRowObj.transform, false);
         RectTransform storeBtnRect = storeBtnObj.GetComponent<RectTransform>();
         storeBtnRect.sizeDelta = new Vector2(320, 70);
-        storeBtnObj.GetComponent<Image>().color = Color.clear;
+        Image storeBtnImg = storeBtnObj.GetComponent<Image>();
+        storeBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        storeBtnImg.color = Color.clear;
 
         // Dedicated underline childed directly to Store tab button
         GameObject storeUnderlineObj = new GameObject("Underline", typeof(RectTransform), typeof(Image));
@@ -152,7 +165,9 @@ public class SceneSetupHelper
         storeUnderlineRect.pivot = new Vector2(0.5f, 0f);
         storeUnderlineRect.anchoredPosition = new Vector2(0, 0f);
         storeUnderlineRect.sizeDelta = new Vector2(0, 6f);
-        storeUnderlineObj.GetComponent<Image>().color = new Color(0.95f, 0.8f, 0.1f, 1f); // Vibrant Gold
+        Image storeUnderlineImg = storeUnderlineObj.GetComponent<Image>();
+        storeUnderlineImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        storeUnderlineImg.color = new Color(0.95f, 0.8f, 0.1f, 1f); // Vibrant Gold
 
         GameObject storeTxtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         storeTxtObj.transform.SetParent(storeBtnObj.transform, false);
@@ -181,6 +196,7 @@ public class SceneSetupHelper
         storePanelRect.offsetMax = Vector2.zero;
 
         Image storePanelImg = storePanelObj.GetComponent<Image>();
+        storePanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         storePanelImg.color = new Color(0.08f, 0.10f, 0.14f, 1f);
 
         GameObject storeMsgObj = new GameObject("StoreMessage", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -206,6 +222,7 @@ public class SceneSetupHelper
         colPanelRect.offsetMax = Vector2.zero;
 
         Image colPanelImg = colPanelObj.GetComponent<Image>();
+        colPanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         colPanelImg.color = new Color(0.08f, 0.10f, 0.14f, 1f);
 
         // ScrollView Object
@@ -272,6 +289,7 @@ public class SceneSetupHelper
         overlayRect.offsetMax = Vector2.zero;
 
         Image overlayImg = overlayObj.GetComponent<Image>();
+        overlayImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         overlayImg.color = new Color(0.04f, 0.05f, 0.07f, 0.92f); // High-premium extra-dark glass background
 
         Button overlayBgBtn = overlayObj.GetComponent<Button>();
@@ -295,6 +313,7 @@ public class SceneSetupHelper
         closeBtnRect.sizeDelta = new Vector2(250, 70);
 
         Image closeImg = closeBtnObj.GetComponent<Image>();
+        closeImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         closeImg.sprite = GetOrCreateCloseButtonSprite();
         closeImg.type = Image.Type.Sliced;
         closeImg.color = new Color(0.75f, 0.15f, 0.20f, 1f); // Premium dark crimson red
@@ -403,7 +422,7 @@ public class SceneSetupHelper
         // Force default UI material assignment on all Canvas Images to prevent missing material/pink bugs
         foreach (var img in canvas.GetComponentsInChildren<Image>(true))
         {
-            img.material = Canvas.GetDefaultCanvasMaterial();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         }
         #endif
 
@@ -426,6 +445,7 @@ public class SceneSetupHelper
         rootRect.sizeDelta = new Vector2(700, 980);
 
         Image bgImg = root.GetComponent<Image>();
+        bgImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         bgImg.type = Image.Type.Simple;
 
         Card2DUIController controller = root.GetComponent<Card2DUIController>();
@@ -494,6 +514,7 @@ public class SceneSetupHelper
         GameObject typeBadgeObj = new GameObject("TypeBadge", typeof(RectTransform), typeof(Image));
         typeBadgeObj.transform.SetParent(nameContainerObj.transform, false);
         Image typeBadgeImg = typeBadgeObj.GetComponent<Image>();
+        typeBadgeImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         typeBadgeImg.sprite = GetOrCreateBadgeSprite();
         typeBadgeImg.type = Image.Type.Sliced;
         typeBadgeImg.color = new Color(0.18f, 0.22f, 0.29f, 1f);
@@ -559,6 +580,7 @@ public class SceneSetupHelper
         artRect.sizeDelta = new Vector2(610, 340);
         
         Image artImg = artObj.GetComponent<Image>();
+        artImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         artImg.color = Color.white;
 
         Outline artOutline = artObj.AddComponent<Outline>();
@@ -595,6 +617,7 @@ public class SceneSetupHelper
             bRect.sizeDelta = sizeDelta;
 
             Image img = badgeObj.GetComponent<Image>();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
             img.sprite = badgeBgSprite;
             img.type = Image.Type.Sliced;
             img.color = Color.white;
@@ -626,6 +649,7 @@ public class SceneSetupHelper
                 iconRect.sizeDelta = new Vector2(24, 24);
 
                 Image iconImg = iconObj.GetComponent<Image>();
+                iconImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
                 iconImg.sprite = iconSprite;
                 iconImg.color = new Color(0.18f, 0.22f, 0.29f, 1f);
 
@@ -673,6 +697,7 @@ public class SceneSetupHelper
             sRect.offsetMax = Vector2.zero;
 
             Image img = slotObj.GetComponent<Image>();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
             img.sprite = badgeBgSprite;
             img.type = Image.Type.Sliced;
             img.color = new Color(1f, 1f, 1f, 0.45f);
@@ -752,7 +777,7 @@ public class SceneSetupHelper
         // Force default UI material assignment on all prefab Images to prevent missing material/pink bugs
         foreach (var img in root.GetComponentsInChildren<Image>(true))
         {
-            img.material = Canvas.GetDefaultCanvasMaterial();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         }
 
         // Save prefab
@@ -983,6 +1008,7 @@ public class SceneSetupHelper
         packArtRt.anchoredPosition = new Vector2(0f, 120f);
         packArtRt.sizeDelta        = new Vector2(480f, 660f);
         Image packArtImg = packArtObj.GetComponent<Image>();
+        packArtImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         packArtImg.sprite = packArtSprite;
         packArtImg.preserveAspect = true;
 
@@ -994,6 +1020,7 @@ public class SceneSetupHelper
         shimmerRt.anchorMax = Vector2.one;
         shimmerRt.offsetMin = shimmerRt.offsetMax = Vector2.zero;
         Image shimmerImg = shimmerObj.GetComponent<Image>();
+        shimmerImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         shimmerImg.color = new Color(1f, 1f, 1f, 0f);
 
         // Pack name label
@@ -1019,6 +1046,7 @@ public class SceneSetupHelper
         openBtnRt.anchorMax = new Vector2(0.85f, 0.21f);
         openBtnRt.offsetMin = openBtnRt.offsetMax = Vector2.zero;
         Image openBtnImg = openBtnObj.GetComponent<Image>();
+        openBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         openBtnImg.sprite = badgeSprite;
         openBtnImg.type   = Image.Type.Sliced;
         openBtnImg.color  = new Color(0.95f, 0.75f, 0.1f, 1f); // Gold
@@ -1105,7 +1133,9 @@ public class SceneSetupHelper
         darkBgRt.anchorMin = Vector2.zero;
         darkBgRt.anchorMax = Vector2.one;
         darkBgRt.offsetMin = darkBgRt.offsetMax = Vector2.zero;
-        darkBgObj.GetComponent<Image>().color = new Color(0.04f, 0.04f, 0.06f, 0.95f);
+        Image darkBgImg = darkBgObj.GetComponent<Image>();
+        darkBgImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        darkBgImg.color = new Color(0.04f, 0.04f, 0.06f, 0.95f);
 
         // Pack rip image (the booster art shown in overlay centre)
         GameObject packRipObj = new GameObject("PackRipImage", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
@@ -1117,6 +1147,7 @@ public class SceneSetupHelper
         packRipRt.anchoredPosition = new Vector2(0f, 80f);
         packRipRt.sizeDelta        = new Vector2(460f, 640f);
         Image packRipImgComp = packRipObj.GetComponent<Image>();
+        packRipImgComp.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         packRipImgComp.sprite         = packArtSprite;
         packRipImgComp.preserveAspect = true;
         CanvasGroup packRipCGComp = packRipObj.GetComponent<CanvasGroup>();
@@ -1140,7 +1171,9 @@ public class SceneSetupHelper
         glowRt.anchorMin = Vector2.zero;
         glowRt.anchorMax = Vector2.one;
         glowRt.offsetMin = glowRt.offsetMax = Vector2.zero;
-        glowObj.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+        Image glowImg = glowObj.GetComponent<Image>();
+        glowImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        glowImg.color = new Color(1f, 1f, 1f, 0f);
         glowObj.SetActive(false);
 
         // Summary panel
@@ -1151,6 +1184,7 @@ public class SceneSetupHelper
         summaryRt.anchorMax = new Vector2(0.9f, 0.75f);
         summaryRt.offsetMin = summaryRt.offsetMax = Vector2.zero;
         Image summaryBg = summaryObj.GetComponent<Image>();
+        summaryBg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         summaryBg.sprite = badgeSprite;
         summaryBg.type   = Image.Type.Sliced;
         summaryBg.color  = new Color(0.12f, 0.15f, 0.22f, 0.97f);
@@ -1178,6 +1212,7 @@ public class SceneSetupHelper
         addBtnRt.anchorMax = new Vector2(0.9f, 0.27f);
         addBtnRt.offsetMin = addBtnRt.offsetMax = Vector2.zero;
         Image addBtnImg = addBtnObj.GetComponent<Image>();
+        addBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         addBtnImg.sprite = badgeSprite;
         addBtnImg.type   = Image.Type.Sliced;
         addBtnImg.color  = new Color(0.2f, 0.7f, 0.35f, 1f); // Green
@@ -1200,9 +1235,9 @@ public class SceneSetupHelper
 
         // Fix materials
         foreach (var img in overlayPanelObj.GetComponentsInChildren<Image>(true))
-            img.material = Canvas.GetDefaultCanvasMaterial();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         foreach (var img in storePanelObj.GetComponentsInChildren<Image>(true))
-            img.material = Canvas.GetDefaultCanvasMaterial();
+            img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
 
         // ────────────────────────────────────────────────────────────────────
         //  WIRE UP PackOpeningController
