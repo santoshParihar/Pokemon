@@ -112,7 +112,7 @@ public class SceneSetupHelper
         GameObject colBtnObj = new GameObject("CollectionTabButton", typeof(RectTransform), typeof(Image), typeof(Button));
         colBtnObj.transform.SetParent(tabRowObj.transform, false);
         RectTransform colBtnRect = colBtnObj.GetComponent<RectTransform>();
-        colBtnRect.sizeDelta = new Vector2(320, 70);
+        colBtnRect.sizeDelta = new Vector2(420, 110);
         Image colBtnImg = colBtnObj.GetComponent<Image>();
         colBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         colBtnImg.color = Color.clear;
@@ -151,7 +151,7 @@ public class SceneSetupHelper
         GameObject storeBtnObj = new GameObject("StoreTabButton", typeof(RectTransform), typeof(Image), typeof(Button));
         storeBtnObj.transform.SetParent(tabRowObj.transform, false);
         RectTransform storeBtnRect = storeBtnObj.GetComponent<RectTransform>();
-        storeBtnRect.sizeDelta = new Vector2(320, 70);
+        storeBtnRect.sizeDelta = new Vector2(420, 110);
         Image storeBtnImg = storeBtnObj.GetComponent<Image>();
         storeBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         storeBtnImg.color = Color.clear;
@@ -1006,7 +1006,7 @@ public class SceneSetupHelper
         packArtRt.anchorMax = new Vector2(0.5f, 0.5f);
         packArtRt.pivot     = new Vector2(0.5f, 0.5f);
         packArtRt.anchoredPosition = new Vector2(0f, 120f);
-        packArtRt.sizeDelta        = new Vector2(480f, 660f);
+        packArtRt.sizeDelta        = new Vector2(647.3f, 1024f);
         Image packArtImg = packArtObj.GetComponent<Image>();
         packArtImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         packArtImg.sprite = packArtSprite;
@@ -1027,8 +1027,8 @@ public class SceneSetupHelper
         GameObject packNameObj = new GameObject("PackNameLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         packNameObj.transform.SetParent(storePanelObj.transform, false);
         RectTransform packNameRt = packNameObj.GetComponent<RectTransform>();
-        packNameRt.anchorMin = new Vector2(0.1f, 0.72f);
-        packNameRt.anchorMax = new Vector2(0.9f, 0.82f);
+        packNameRt.anchorMin = new Vector2(0.1f, 0.85f);
+        packNameRt.anchorMax = new Vector2(0.9f, 0.95f);
         packNameRt.offsetMin = packNameRt.offsetMax = Vector2.zero;
         TextMeshProUGUI packNameTMP = packNameObj.GetComponent<TextMeshProUGUI>();
         packNameTMP.text      = "Kanto Starter Pack";
@@ -1145,7 +1145,7 @@ public class SceneSetupHelper
         packRipRt.anchorMax = new Vector2(0.5f, 0.5f);
         packRipRt.pivot     = new Vector2(0.5f, 0.5f);
         packRipRt.anchoredPosition = new Vector2(0f, 80f);
-        packRipRt.sizeDelta        = new Vector2(460f, 640f);
+        packRipRt.sizeDelta        = new Vector2(647.3f, 1024f);
         Image packRipImgComp = packRipObj.GetComponent<Image>();
         packRipImgComp.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         packRipImgComp.sprite         = packArtSprite;
@@ -1318,7 +1318,11 @@ public class SceneSetupHelper
 
     private static Sprite GetOrCreatePackArtSprite()
     {
-        string path = "Assets/Game Assets/Textures/booster_pack_art.png";
+        string path = "Assets/Game Assets/Textures/pack.png";
+        Sprite packSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if (packSprite != null) return packSprite;
+
+        path = "Assets/Game Assets/Textures/booster_pack_art.png";
         Texture2D exist = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         if (exist != null) return AssetDatabase.LoadAssetAtPath<Sprite>(path);
 
