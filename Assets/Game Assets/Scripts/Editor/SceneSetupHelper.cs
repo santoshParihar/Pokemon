@@ -1154,7 +1154,7 @@ public class SceneSetupHelper
         packRipRt.anchorMin = new Vector2(0.5f, 0.5f);
         packRipRt.anchorMax = new Vector2(0.5f, 0.5f);
         packRipRt.pivot     = new Vector2(0.5f, 0.5f);
-        packRipRt.anchoredPosition = new Vector2(0f, 80f);
+        packRipRt.anchoredPosition = new Vector2(0f, -33.6f);
         packRipRt.sizeDelta        = new Vector2(647.3f, 1024f);
         Image packRipImgComp = packRipObj.GetComponent<Image>();
         packRipImgComp.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");

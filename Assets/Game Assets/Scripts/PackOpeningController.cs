@@ -140,19 +140,11 @@ public class PackOpeningController : MonoBehaviour
 
     public void RefreshStorePanel()
     {
-        // ── Shine sweep loop on pack art ──────────────────────────────────
         #if PRIME_TWEEN_INSTALLED
         shimmerSequence.Stop();
         if (packShimmerOverlay != null)
         {
-            // Reset position to starting X
             packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
-
-            // Repeat sweep: move to 800f over 1.6 seconds, wait 2.0 seconds, repeat
-            shimmerSequence = Sequence.Create(cycles: -1)
-                .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: 800f, duration: 1.6f, ease: Ease.InOutQuad))
-                .Chain(Tween.Delay(2.0f))
-                .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: -800f, duration: 0f)); // instant reset
         }
         #endif
 
@@ -183,6 +175,7 @@ public class PackOpeningController : MonoBehaviour
             #if PRIME_TWEEN_INSTALLED
             if (ready && !packIsOpening)
             {
+                // Start wiggle if not playing
                 if (!idlePackSequence.isAlive && packArtImage != null)
                 {
                     packArtImage.rectTransform.localScale = Vector3.one;
@@ -203,9 +196,21 @@ public class PackOpeningController : MonoBehaviour
 
                     idlePackSequence = seq;
                 }
+
+                // Start shine sweep if not playing
+                if (!shimmerSequence.isAlive && packShimmerOverlay != null)
+                {
+                    packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
+
+                    shimmerSequence = Sequence.Create(cycles: -1)
+                        .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: 800f, duration: 1.6f, ease: Ease.InOutQuad))
+                        .Chain(Tween.Delay(2.0f))
+                        .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, endValue: -800f, duration: 0f));
+                }
             }
             else
             {
+                // Stop wiggle
                 if (idlePackSequence.isAlive)
                 {
                     idlePackSequence.Stop();
@@ -213,6 +218,16 @@ public class PackOpeningController : MonoBehaviour
                     {
                         packArtImage.rectTransform.localScale = Vector3.one;
                         packArtImage.rectTransform.localRotation = Quaternion.identity;
+                    }
+                }
+
+                // Stop shine sweep
+                if (shimmerSequence.isAlive)
+                {
+                    shimmerSequence.Stop();
+                    if (packShimmerOverlay != null)
+                    {
+                        packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
                     }
                 }
             }
@@ -237,6 +252,14 @@ public class PackOpeningController : MonoBehaviour
             {
                 packArtImage.rectTransform.localScale = Vector3.one;
                 packArtImage.rectTransform.localRotation = Quaternion.identity;
+            }
+        }
+        if (shimmerSequence.isAlive)
+        {
+            shimmerSequence.Stop();
+            if (packShimmerOverlay != null)
+            {
+                packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
             }
         }
         #endif
@@ -365,24 +388,20 @@ public class PackOpeningController : MonoBehaviour
         if (packRipRect == null) yield break;
 
         #if PRIME_TWEEN_INSTALLED
-        // Flash screen white
-        StartCoroutine(FlashScreen(Color.white, 0.3f));
-
-        // Squish on X to simulate tearing, fade out simultaneously
+        // Burst scale up and fade out simultaneously (preventing paper-thin look)
         var scaleSeq = Sequence.Create()
-            .Group(Tween.ScaleX(packRipRect, 0f, 0.3f, Ease.InCubic))
-            .Group(Tween.ScaleY(packRipRect, 1.25f, 0.3f, Ease.InCubic));
+            .Group(Tween.Scale(packRipRect, endValue: new Vector3(1.4f, 1.4f, 1f), duration: 0.45f, ease: Ease.OutQuad));
 
         if (packRipCG != null)
-            scaleSeq.Group(Tween.Alpha(packRipCG, 0f, 0.3f, Ease.InCubic));
+            scaleSeq.Group(Tween.Alpha(packRipCG, 0f, 0.4f, Ease.OutQuad));
 
         yield return scaleSeq.ToYieldInstruction();
         #else
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.45f);
         #endif
 
         packRipRect.gameObject.SetActive(false);
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSeconds(0.1f); // transition instantly to first card spawn
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -405,7 +424,7 @@ public class PackOpeningController : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             yield return StartCoroutine(RevealCardRoutine(i));
-            yield return new WaitForSeconds(0.2f); // breath between cards
+            yield return new WaitForSeconds(0.6f); // breath between cards (was 0.2s)
         }
     }
 
@@ -450,17 +469,28 @@ public class PackOpeningController : MonoBehaviour
         yield return Tween.Scale(card3D.transform, Vector3.one, 0.08f, Ease.OutQuad).ToYieldInstruction();
 
         // Stage 4 : Brief back-face pause so player registers the card
-        yield return new WaitForSeconds(0.38f);
+        yield return new WaitForSeconds(0.75f); // was 0.38f
 
-        // ── Stage 5 : Auto-flip — Y 180→0, front face revealed at last frame ─
-        yield return Tween.ShakeLocalPosition(card3D.transform,
-            strength: new Vector3(0.08f, 0.05f, 0f), duration: 0.18f, frequency: 24)
+        // ── Stage 5 : Simulated Flip using Scale X (preventing paper-thin look) ─
+        // Premium anticipation wiggle (Z-tilt and slight scale pulse)
+        yield return Sequence.Create()
+            .Group(Tween.Scale(card3D.transform, endValue: new Vector3(1.04f, 1.04f, 1f), duration: 0.10f, ease: Ease.OutQuad))
+            .Chain(Tween.LocalRotation(card3D.transform, endValue: Quaternion.Euler(0f, 180f, -3f), duration: 0.05f, ease: Ease.InOutQuad))
+            .Chain(Tween.LocalRotation(card3D.transform, endValue: Quaternion.Euler(0f, 180f, 3f), duration: 0.08f, ease: Ease.InOutQuad))
+            .Chain(Tween.LocalRotation(card3D.transform, endValue: Quaternion.Euler(0f, 180f, 0f), duration: 0.05f, ease: Ease.OutQuad))
+            .Group(Tween.Scale(card3D.transform, endValue: Vector3.one, duration: 0.08f, ease: Ease.InOutQuad))
             .ToYieldInstruction();
 
-        yield return Tween.LocalRotation(card3D.transform,
-            startValue: Quaternion.Euler(0f, 180f, 0f),
-            endValue:   Quaternion.Euler(0f,   0f, 0f),
-            duration: 0.40f, ease: Ease.InOutCubic).ToYieldInstruction();
+        // Scale X from 1 to 0 (half flip)
+        yield return Tween.ScaleX(card3D.transform, endValue: 0f, duration: 0.32f, ease: Ease.InQuad)
+            .ToYieldInstruction();
+
+        // Instantly set rotation to front face (0 degrees)
+        card3D.transform.localRotation = Quaternion.identity;
+
+        // Scale X back from 0 to 1 (complete flip)
+        yield return Tween.ScaleX(card3D.transform, endValue: 1f, duration: 0.32f, ease: Ease.OutQuad)
+            .ToYieldInstruction();
 
         // Stage 6 : Pop scale on front reveal
         yield return Tween.Scale(card3D.transform, Vector3.one * 1.18f, 0.15f, Ease.OutBack).ToYieldInstruction();
@@ -475,20 +505,27 @@ public class PackOpeningController : MonoBehaviour
             Quaternion.Euler(0f, 180f, 0f), Quaternion.identity, 0.4f));
         #endif
 
-        // ── Stage 7 : Front face showing — add rarity burst + slow spin ──────
+        // ── Stage 7 : Front face showing — add slow spin ──────
         cardFlipped[idx] = true;
-        StartCoroutine(RarityBurst(drawnCards[idx].rarityStars));
 
         if (rot == null) rot = card3D.AddComponent<CardRotator>();
-        rot.autoSpin = true; rot.spinAxis = Vector3.up; rot.spinSpeed = 15f; rot.enabled = true;
+        rot.autoSpin = false; // Disable Y-spin which makes 2D sprites look paper-thin
+        rot.enabled = true;   // Still allow manual drag inspection
         flippedCount++;
 
+        // Gentle floating hover & tilt loop
+        #if PRIME_TWEEN_INSTALLED
+        Tween.LocalPosition(card3D.transform, startValue: finalPos, endValue: finalPos + new Vector3(0f, 0.12f, 0f), duration: 1.0f, ease: Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+        Tween.LocalRotation(card3D.transform, startValue: Quaternion.identity, endValue: Quaternion.Euler(0f, 0f, 2.5f), duration: 1.0f, ease: Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+        #endif
+
         // Stage 8 : Admire pause
-        yield return new WaitForSeconds(0.90f);
+        yield return new WaitForSeconds(1.6f); // was 0.90f
 
         // ── Stage 9 : Fly card up & shrink away ──────────────────────────────
         rot.enabled = false;
         #if PRIME_TWEEN_INSTALLED
+        Tween.StopAll(card3D.transform); // Stop the hover loop before flying away
         Tween.Scale(card3D.transform, Vector3.zero, 0.36f, Ease.InCubic);
         yield return Tween.Position(card3D.transform,
             card3D.transform.position + new Vector3(0f, 5f, 0f),
