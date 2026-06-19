@@ -446,7 +446,9 @@ public class PackOpeningController : MonoBehaviour
         while (spawned3DCards.Count <= idx) spawned3DCards.Add(null);
         spawned3DCards[idx] = card3D;
 
-        // ── Stage 1 : Pop in — scale 0→1 + Z tilt -22°→+4° (OutBack) ───────
+        // ── STAGE 1: Card Spawns Face-Down ─────────────────────────────────
+        // The card scales up from 0 to 1 with an overshoot bounce (OutBack) 
+        // while rotating from a -22 degree tilt to a +4 degree Z-tilt.
         #if PRIME_TWEEN_INSTALLED
         StartCoroutine(FlashScreen(new Color(0.70f, 0.82f, 1f), 0.28f)); // blue-white flash
         yield return Sequence.Create()
@@ -458,21 +460,25 @@ public class PackOpeningController : MonoBehaviour
                                        duration: 0.52f, ease: Ease.OutBack))
             .ToYieldInstruction();
 
-        // Stage 2 : Settle Z tilt upright
+        // ── STAGE 2: Card Z-Rotation Settles ────────────────────────────────
+        // Tilts the card back upright from its Z-tilt to align perfectly straight.
         yield return Tween.LocalRotation(card3D.transform,
             startValue: Quaternion.Euler(0f, 180f, 4f),
             endValue:   Quaternion.Euler(0f, 180f, 0f),
             duration: 0.13f, ease: Ease.OutQuad).ToYieldInstruction();
 
-        // Stage 3 : Squish settle — satisfying landing thud
+        // ── STAGE 3: Card Landing Settle ───────────────────────────────────
+        // Simulates a satisfying "landing thud" by briefly squishing and bouncing back.
         yield return Tween.Scale(card3D.transform, new Vector3(1.09f, 0.93f, 1f), 0.08f).ToYieldInstruction();
         yield return Tween.Scale(card3D.transform, Vector3.one, 0.08f, Ease.OutQuad).ToYieldInstruction();
 
-        // Stage 4 : Brief back-face pause so player registers the card
+        // ── STAGE 4: Anticipation Pause ────────────────────────────────────
+        // Pauses face-down briefly to build anticipation before the flip.
         yield return new WaitForSeconds(0.75f); // was 0.38f
 
-        // ── Stage 5 : Simulated Flip using Scale X (preventing paper-thin look) ─
-        // Premium anticipation wiggle (Z-tilt and slight scale pulse)
+        // ── STAGE 5: Snappy Wiggle & Flip ──────────────────────────────────
+        // The card wiggles side-to-side on Z, pulses scale, scales X down to 0,
+        // swaps rotation to front-face, and scales X back up.
         yield return Sequence.Create()
             .Group(Tween.Scale(card3D.transform, endValue: new Vector3(1.04f, 1.04f, 1f), duration: 0.10f, ease: Ease.OutQuad))
             .Chain(Tween.LocalRotation(card3D.transform, endValue: Quaternion.Euler(0f, 180f, -3f), duration: 0.05f, ease: Ease.InOutQuad))
@@ -492,7 +498,8 @@ public class PackOpeningController : MonoBehaviour
         yield return Tween.ScaleX(card3D.transform, endValue: 1f, duration: 0.32f, ease: Ease.OutQuad)
             .ToYieldInstruction();
 
-        // Stage 6 : Pop scale on front reveal
+        // ── STAGE 6: Reveal Pop ────────────────────────────────────────────
+        // Performs a brief scale overshoot pop to draw attention to the front face.
         yield return Tween.Scale(card3D.transform, Vector3.one * 1.18f, 0.15f, Ease.OutBack).ToYieldInstruction();
         yield return Tween.Scale(card3D.transform, Vector3.one,          0.12f, Ease.OutQuad).ToYieldInstruction();
 
@@ -505,7 +512,8 @@ public class PackOpeningController : MonoBehaviour
             Quaternion.Euler(0f, 180f, 0f), Quaternion.identity, 0.4f));
         #endif
 
-        // ── Stage 7 : Front face showing — add slow spin ──────
+        // ── STAGE 7: Front Face Showing & Float Loop ───────────────────────
+        // Starts the endless floating loop (moving up/down on Y, wiggling on Z).
         cardFlipped[idx] = true;
 
         if (rot == null) rot = card3D.AddComponent<CardRotator>();
@@ -519,10 +527,11 @@ public class PackOpeningController : MonoBehaviour
         Tween.LocalRotation(card3D.transform, startValue: Quaternion.identity, endValue: Quaternion.Euler(0f, 0f, 2.5f), duration: 1.0f, ease: Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
         #endif
 
-        // Stage 8 : Admire pause
+        // ── STAGE 8: Admire Pause ──────────────────────────────────────────
+        // Keeps the card front-face up on screen so the player can view the details.
         yield return new WaitForSeconds(1.6f); // was 0.90f
 
-        // ── Stage 9 : Fly card up & shrink away ──────────────────────────────
+        // ── STAGE 9: Fly card up & shrink away ──────────────────────────────
         rot.enabled = false;
         #if PRIME_TWEEN_INSTALLED
         Tween.StopAll(card3D.transform); // Stop the hover loop before flying away

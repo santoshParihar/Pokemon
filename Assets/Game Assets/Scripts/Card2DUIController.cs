@@ -9,6 +9,8 @@ public class Card2DUIController : MonoBehaviour
     [Header("Card Data")]
     [SerializeField] private PokemonCardData cardData;
 
+    public PokemonCardData CardData => cardData;
+
     [Header("UI Image/Background Fields")]
     [SerializeField] private Image bgImage;
     [SerializeField] private Image pokemonImage;

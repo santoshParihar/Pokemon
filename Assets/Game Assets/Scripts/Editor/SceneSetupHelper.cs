@@ -225,14 +225,74 @@ public class SceneSetupHelper
         colPanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         colPanelImg.color = new Color(0.08f, 0.10f, 0.14f, 1f);
 
-        // ScrollView Object
+        // Create Search Input Field
+        GameObject searchBarObj = new GameObject("SearchInputField", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
+        searchBarObj.transform.SetParent(colPanelObj.transform, false);
+        RectTransform searchBarRect = searchBarObj.GetComponent<RectTransform>();
+        searchBarRect.anchorMin = new Vector2(0, 1);
+        searchBarRect.anchorMax = new Vector2(1, 1);
+        searchBarRect.pivot = new Vector2(0.5f, 1f);
+        searchBarRect.anchoredPosition = new Vector2(0, -30);
+        searchBarRect.sizeDelta = new Vector2(-40, 80);
+
+        Image searchBarImg = searchBarObj.GetComponent<Image>();
+        searchBarImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        searchBarImg.type = Image.Type.Sliced;
+        searchBarImg.color = new Color(0.12f, 0.15f, 0.22f, 1f);
+
+        TMP_InputField inputComponent = searchBarObj.GetComponent<TMP_InputField>();
+
+        // Create TextArea
+        GameObject textAreaObj = new GameObject("TextArea", typeof(RectTransform), typeof(RectMask2D));
+        textAreaObj.transform.SetParent(searchBarObj.transform, false);
+        RectTransform textAreaRect = textAreaObj.GetComponent<RectTransform>();
+        textAreaRect.anchorMin = Vector2.zero;
+        textAreaRect.anchorMax = Vector2.one;
+        textAreaRect.offsetMin = new Vector2(20, 10);
+        textAreaRect.offsetMax = new Vector2(-20, -10);
+
+        // Create Placeholder Text
+        GameObject placeholderObj = new GameObject("Placeholder", typeof(RectTransform), typeof(TextMeshProUGUI));
+        placeholderObj.transform.SetParent(textAreaObj.transform, false);
+        RectTransform placeholderRect = placeholderObj.GetComponent<RectTransform>();
+        placeholderRect.anchorMin = Vector2.zero;
+        placeholderRect.anchorMax = Vector2.one;
+        placeholderRect.offsetMin = Vector2.zero;
+        placeholderRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI placeholderTMP = placeholderObj.GetComponent<TextMeshProUGUI>();
+        placeholderTMP.text = "Search by Pokemon name...";
+        placeholderTMP.fontSize = 28;
+        placeholderTMP.fontStyle = FontStyles.Italic;
+        placeholderTMP.color = new Color(0.5f, 0.55f, 0.65f, 1f);
+        placeholderTMP.alignment = TextAlignmentOptions.MidlineLeft;
+
+        // Create Input Text
+        GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObj.transform.SetParent(textAreaObj.transform, false);
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI textTMP = textObj.GetComponent<TextMeshProUGUI>();
+        textTMP.fontSize = 28;
+        textTMP.color = Color.white;
+        textTMP.alignment = TextAlignmentOptions.MidlineLeft;
+
+        inputComponent.textViewport = textAreaRect;
+        inputComponent.textComponent = textTMP;
+        inputComponent.placeholder = placeholderTMP;
+
+        // ScrollView Object (shifted down to make space for search bar)
         GameObject scrollObj = new GameObject("ScrollView", typeof(RectTransform), typeof(ScrollRect));
         scrollObj.transform.SetParent(colPanelObj.transform, false);
         RectTransform scrollRectTrans = scrollObj.GetComponent<RectTransform>();
         scrollRectTrans.anchorMin = Vector2.zero;
         scrollRectTrans.anchorMax = Vector2.one;
         scrollRectTrans.offsetMin = new Vector2(20, 20);
-        scrollRectTrans.offsetMax = new Vector2(-20, -20);
+        scrollRectTrans.offsetMax = new Vector2(-20, -130);
 
         ScrollRect scrollComponent = scrollObj.GetComponent<ScrollRect>();
         scrollComponent.horizontal = false;
@@ -367,6 +427,7 @@ public class SceneSetupHelper
         var inspect3DAnchorField = typeof(MainUIManager).GetField("inspect3DAnchor", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var card3DPrefabsField = typeof(MainUIManager).GetField("card3DPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var inspectOverlayCloseButtonField = typeof(MainUIManager).GetField("inspectOverlayCloseButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var searchInputFieldField = typeof(MainUIManager).GetField("searchInputField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
  
         mainCanvasField?.SetValue(uiManager, canvas);
         appTitleField?.SetValue(uiManager, titleTMP);
@@ -382,6 +443,16 @@ public class SceneSetupHelper
         inspectOverlayField?.SetValue(uiManager, overlayObj);
         inspect3DAnchorField?.SetValue(uiManager, inspectAnchorObj.transform);
         inspectOverlayCloseButtonField?.SetValue(uiManager, closeBtn);
+        searchInputFieldField?.SetValue(uiManager, inputComponent);
+
+        // Attach and wire up CollectionSearchField script dynamically
+        CollectionSearchField searchField = searchBarObj.GetComponent<CollectionSearchField>();
+        if (searchField == null) searchField = searchBarObj.AddComponent<CollectionSearchField>();
+        
+        var sfInputField = typeof(CollectionSearchField).GetField("inputField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var sfGridContainer = typeof(CollectionSearchField).GetField("gridContentContainer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        sfInputField?.SetValue(searchField, inputComponent);
+        sfGridContainer?.SetValue(searchField, contentRect);
 
         // Populate card3DPrefabs list from Assets automatically
         if (card3DPrefabsField != null)

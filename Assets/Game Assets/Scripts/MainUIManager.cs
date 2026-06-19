@@ -33,6 +33,7 @@ public class MainUIManager : MonoBehaviour
     [SerializeField] private GameObject card2DPrefab;
     [SerializeField] private Transform gridContentContainer;
     [SerializeField] private List<PokemonCardData> cardsData = new List<PokemonCardData>();
+    [SerializeField] private TMP_InputField searchInputField;
 
     [Header("Empty Collection State")]
     [Tooltip("Optional label shown when the player owns no cards yet.")]
@@ -64,6 +65,11 @@ public class MainUIManager : MonoBehaviour
         {
             SetupButtonListeners();
             SetupInspectOverlayClose();
+            if (searchInputField != null)
+            {
+                searchInputField.onValueChanged.RemoveAllListeners();
+                searchInputField.onValueChanged.AddListener((val) => Spawn2DCardGrid());
+            }
         }
         SwitchToTab(activeTab);
     }
@@ -240,6 +246,13 @@ public class MainUIManager : MonoBehaviour
         // Show / hide the empty-state hint
         if (emptyCollectionHint != null)
             emptyCollectionHint.SetActive(Application.isPlaying && displayCards.Count == 0);
+
+        // Filter displayCards by search input name query
+        if (searchInputField != null && !string.IsNullOrEmpty(searchInputField.text))
+        {
+            string query = searchInputField.text.ToLower();
+            displayCards = displayCards.FindAll(c => c.pokemonName.ToLower().Contains(query));
+        }
 
         if (displayCards.Count == 0) return;
 
