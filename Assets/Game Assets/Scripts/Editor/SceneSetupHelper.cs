@@ -1261,42 +1261,92 @@ public class SceneSetupHelper
         GameObject summaryObj = new GameObject("SummaryPanel", typeof(RectTransform), typeof(Image));
         summaryObj.transform.SetParent(overlayPanelObj.transform, false);
         RectTransform summaryRt = summaryObj.GetComponent<RectTransform>();
-        summaryRt.anchorMin = new Vector2(0.1f, 0.18f);
-        summaryRt.anchorMax = new Vector2(0.9f, 0.75f);
+        summaryRt.anchorMin = new Vector2(0.15f, 0.22f);
+        summaryRt.anchorMax = new Vector2(0.85f, 0.74f);
         summaryRt.offsetMin = summaryRt.offsetMax = Vector2.zero;
         Image summaryBg = summaryObj.GetComponent<Image>();
         summaryBg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         summaryBg.sprite = badgeSprite;
         summaryBg.type   = Image.Type.Sliced;
-        summaryBg.color  = new Color(0.12f, 0.15f, 0.22f, 0.97f);
+        summaryBg.color  = new Color(0.06f, 0.08f, 0.12f, 0.98f); // Deep dark slate background
 
-        // Summary label
+        // Gold border outline
+        GameObject borderObj = new GameObject("Border", typeof(RectTransform), typeof(Image));
+        borderObj.transform.SetParent(summaryObj.transform, false);
+        RectTransform borderRt = borderObj.GetComponent<RectTransform>();
+        borderRt.anchorMin = Vector2.zero;
+        borderRt.anchorMax = Vector2.one;
+        borderRt.offsetMin = new Vector2(-4, -4);
+        borderRt.offsetMax = new Vector2(4, 4);
+        Image borderImg = borderObj.GetComponent<Image>();
+        borderImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        borderImg.sprite = badgeSprite;
+        borderImg.type = Image.Type.Sliced;
+        borderImg.color = new Color(0.72f, 0.58f, 0.36f, 0.8f); // Sleek gold outline
+        borderObj.transform.SetAsFirstSibling();
+
+        // Header Title
+        GameObject titleObj = new GameObject("TitleText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(summaryObj.transform, false);
+        RectTransform titleRt = titleObj.GetComponent<RectTransform>();
+        titleRt.anchorMin = new Vector2(0f, 0.82f);
+        titleRt.anchorMax = new Vector2(1f, 0.96f);
+        titleRt.offsetMin = titleRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI titleTMP = titleObj.GetComponent<TextMeshProUGUI>();
+        titleTMP.text = "PACK RESULTS";
+        titleTMP.fontSize = 42;
+        titleTMP.fontStyle = FontStyles.Bold;
+        titleTMP.alignment = TextAlignmentOptions.Center;
+        titleTMP.color = new Color(0.95f, 0.75f, 0.25f, 1f); // Rich gold color
+
+        // Dark List Inset Area
+        GameObject listBoxObj = new GameObject("ListBox", typeof(RectTransform), typeof(Image));
+        listBoxObj.transform.SetParent(summaryObj.transform, false);
+        RectTransform listBoxRt = listBoxObj.GetComponent<RectTransform>();
+        listBoxRt.anchorMin = new Vector2(0.08f, 0.28f);
+        listBoxRt.anchorMax = new Vector2(0.92f, 0.78f);
+        listBoxRt.offsetMin = listBoxRt.offsetMax = Vector2.zero;
+        Image listBoxImg = listBoxObj.GetComponent<Image>();
+        listBoxImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
+        listBoxImg.sprite = badgeSprite;
+        listBoxImg.type = Image.Type.Sliced;
+        listBoxImg.color = new Color(0.03f, 0.04f, 0.06f, 0.65f); // Inset background
+
+        // Card Rows Container (VerticalLayoutGroup) inside ListBox — rows are spawned at runtime
+        GameObject cardContainerObj = new GameObject("CardContainer", typeof(RectTransform));
+        cardContainerObj.transform.SetParent(listBoxObj.transform, false);
+        RectTransform cardContainerRt = cardContainerObj.GetComponent<RectTransform>();
+        cardContainerRt.anchorMin = Vector2.zero;
+        cardContainerRt.anchorMax = Vector2.one;
+        cardContainerRt.offsetMin = new Vector2(8f, 6f);
+        cardContainerRt.offsetMax = new Vector2(-8f, -6f);
+        VerticalLayoutGroup vlg = cardContainerObj.AddComponent<VerticalLayoutGroup>();
+        vlg.childAlignment         = TextAnchor.UpperLeft;
+        vlg.spacing                = 4f;
+        vlg.childForceExpandWidth  = true;
+        vlg.childForceExpandHeight = false;  // MUST be false — heights come from LayoutElement
+        vlg.childControlWidth      = true;
+        vlg.childControlHeight     = false;  // MUST be false — LayoutElement.preferredHeight is used
+
+        // Keep a hidden SummaryLabel for backward-compat (text cleared at runtime)
         GameObject summaryLabelObj = new GameObject("SummaryLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
-        summaryLabelObj.transform.SetParent(summaryObj.transform, false);
-        RectTransform summaryLabelRt = summaryLabelObj.GetComponent<RectTransform>();
-        summaryLabelRt.anchorMin = new Vector2(0f, 0.3f);
-        summaryLabelRt.anchorMax = Vector2.one;
-        summaryLabelRt.offsetMin = new Vector2(30f, 0f);
-        summaryLabelRt.offsetMax = new Vector2(-30f, -20f);
+        summaryLabelObj.transform.SetParent(listBoxObj.transform, false);
+        summaryLabelObj.SetActive(false);
         TextMeshProUGUI summaryTMP = summaryLabelObj.GetComponent<TextMeshProUGUI>();
-        summaryTMP.text      = "<b>Cards Received!</b>";
-        summaryTMP.fontSize  = 34;
-        summaryTMP.alignment = TextAlignmentOptions.Center;
-        summaryTMP.color     = Color.white;
-        summaryTMP.enableWordWrapping = true;
+        summaryTMP.text = "";
 
         // Add to Collection button
         GameObject addBtnObj = new GameObject("AddToCollectionButton", typeof(RectTransform), typeof(Image), typeof(Button));
         addBtnObj.transform.SetParent(summaryObj.transform, false);
         RectTransform addBtnRt = addBtnObj.GetComponent<RectTransform>();
-        addBtnRt.anchorMin = new Vector2(0.1f, 0.05f);
-        addBtnRt.anchorMax = new Vector2(0.9f, 0.27f);
+        addBtnRt.anchorMin = new Vector2(0.18f, 0.06f);
+        addBtnRt.anchorMax = new Vector2(0.82f, 0.20f);
         addBtnRt.offsetMin = addBtnRt.offsetMax = Vector2.zero;
         Image addBtnImg = addBtnObj.GetComponent<Image>();
         addBtnImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         addBtnImg.sprite = badgeSprite;
         addBtnImg.type   = Image.Type.Sliced;
-        addBtnImg.color  = new Color(0.2f, 0.7f, 0.35f, 1f); // Green
+        addBtnImg.color  = new Color(0.1f, 0.75f, 0.4f, 1f); // Premium emerald green
         addBtnObj.GetComponent<Button>().navigation = noneNav;
 
         GameObject addBtnTxtObj = new GameObject("ButtonText", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -1361,6 +1411,7 @@ public class SceneSetupHelper
         Set("summaryPanel",        summaryObj);
         Set("addToCollectionButton", addBtnObj.GetComponent<Button>());
         Set("summaryLabel",        summaryTMP);
+        Set("summaryCardContainer", cardContainerObj.transform);
 
         // Populate masterCardPool from Assets
         var poolField = t.GetField("masterCardPool", bf);

@@ -59,6 +59,7 @@ public class PackOpeningController : MonoBehaviour
     [SerializeField] private GameObject       summaryPanel;
     [SerializeField] private Button           addToCollectionButton;
     [SerializeField] private TextMeshProUGUI  summaryLabel;
+    [SerializeField] private Transform        summaryCardContainer; // Parent for per-card icon rows
 
     [Header("Rarity Colors")]
     [SerializeField] private Color colorCommon    = new Color(0.95f, 0.95f, 0.95f);
@@ -622,14 +623,96 @@ public class PackOpeningController : MonoBehaviour
     {
         if (summaryPanel == null) return;
 
-        if (summaryLabel != null)
+        // Clear old label (if any)
+        if (summaryLabel != null) summaryLabel.text = "";
+
+        // Spawn one icon-row per drawn card
+        if (summaryCardContainer != null)
         {
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("<b>Cards Received!</b>\n");
+            // Remove previous rows
+            for (int i = summaryCardContainer.childCount - 1; i >= 0; i--)
+                Destroy(summaryCardContainer.GetChild(i).gameObject);
+
             foreach (var card in drawnCards)
-                if (card != null)
-                    sb.AppendLine($"• {card.pokemonName}  <color=#888888>({RarityName(card.rarityStars)})</color>");
-            summaryLabel.text = sb.ToString();
+            {
+                if (card == null) continue;
+
+                // ── Row: HorizontalLayoutGroup arranges items left-to-right ──
+                GameObject row = new GameObject("CardRow", typeof(RectTransform));
+                row.transform.SetParent(summaryCardContainer, false);
+
+                // LayoutElement: tells the parent VLG exactly how tall each row is
+                LayoutElement rowLE = row.AddComponent<LayoutElement>();
+                rowLE.minHeight       = 96f;
+                rowLE.preferredHeight = 96f;
+                rowLE.flexibleWidth   = 1f;
+
+                // HorizontalLayoutGroup: stacks icon + labels side by side
+                HorizontalLayoutGroup hlg = row.AddComponent<HorizontalLayoutGroup>();
+                hlg.childAlignment         = TextAnchor.MiddleLeft;
+                hlg.spacing                = 18f;
+                hlg.padding                = new RectOffset(14, 14, 10, 10);
+                hlg.childForceExpandWidth  = false;
+                hlg.childForceExpandHeight = true;
+                hlg.childControlWidth      = true;
+                hlg.childControlHeight     = true;
+
+                // Subtle alternating row background
+                Image rowBg = row.AddComponent<Image>();
+                rowBg.color = new Color(1f, 1f, 1f, 0.05f);
+
+                // ── Icon (fixed 72 wide) ─────────────────────────────────────
+                GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconObj.transform.SetParent(row.transform, false);
+                LayoutElement iconLE = iconObj.AddComponent<LayoutElement>();
+                iconLE.minWidth       = 76f;
+                iconLE.preferredWidth = 76f;
+                iconLE.flexibleWidth  = 0f;
+                Image iconImg = iconObj.GetComponent<Image>();
+                iconImg.sprite         = card.pokemonSprite;
+                iconImg.preserveAspect = true;
+                iconImg.color          = card.pokemonSprite != null ? Color.white : new Color(0f, 0f, 0f, 0f);
+
+                // ── Name label (flexible — fills remaining space) ─────────────
+                GameObject nameObj = new GameObject("Name", typeof(RectTransform), typeof(TextMeshProUGUI));
+                nameObj.transform.SetParent(row.transform, false);
+                LayoutElement nameLE = nameObj.AddComponent<LayoutElement>();
+                nameLE.preferredWidth = 200f;
+                nameLE.flexibleWidth  = 1f;
+                TextMeshProUGUI nameTMP = nameObj.GetComponent<TextMeshProUGUI>();
+                nameTMP.text         = $"<b>{card.pokemonName}</b>";
+                nameTMP.fontSize     = 32f;
+                nameTMP.color        = Color.white;
+                nameTMP.alignment    = TextAlignmentOptions.MidlineLeft;
+                nameTMP.overflowMode = TextOverflowModes.Ellipsis;
+
+                // ── HP label (fixed 120 wide) ────────────────────────────────
+                GameObject hpObj = new GameObject("HP", typeof(RectTransform), typeof(TextMeshProUGUI));
+                hpObj.transform.SetParent(row.transform, false);
+                LayoutElement hpLE = hpObj.AddComponent<LayoutElement>();
+                hpLE.preferredWidth = 120f;
+                hpLE.flexibleWidth  = 0f;
+                TextMeshProUGUI hpTMP = hpObj.GetComponent<TextMeshProUGUI>();
+                hpTMP.text      = $"<color=#7EC8E3><b>HP {card.hp}</b></color>";
+                hpTMP.fontSize  = 26f;
+                hpTMP.alignment = TextAlignmentOptions.Center;
+                hpTMP.color     = Color.white;
+
+                // ── Rarity label (fixed 150 wide, right-aligned) ─────────────
+                GameObject rarityObj = new GameObject("Rarity", typeof(RectTransform), typeof(TextMeshProUGUI));
+                rarityObj.transform.SetParent(row.transform, false);
+                LayoutElement rarityLE = rarityObj.AddComponent<LayoutElement>();
+                rarityLE.preferredWidth = 150f;
+                rarityLE.flexibleWidth  = 0f;
+                TextMeshProUGUI rarityTMP = rarityObj.GetComponent<TextMeshProUGUI>();
+                string rarityName = RarityName(card.rarityStars);
+                Color rarCol = RarityColor(card.rarityStars);
+                string hex = ColorUtility.ToHtmlStringRGB(rarCol);
+                rarityTMP.text      = $"<b><color=#{hex}>{rarityName}</color></b>";
+                rarityTMP.fontSize  = 26f;
+                rarityTMP.alignment = TextAlignmentOptions.MidlineRight;
+                rarityTMP.color     = Color.white;
+            }
         }
 
         summaryPanel.SetActive(true);
