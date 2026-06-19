@@ -210,9 +210,8 @@ public class PackRevealAnimator : MonoBehaviour
         // STAGE 5: Snappy wiggle then flip
         yield return Sequence.Create()
             .Group(Tween.Scale(card3D.transform, new Vector3(1.04f, 1.04f, 1f), 0.10f, Ease.OutQuad))
-            .Chain(Tween.LocalRotation(card3D.transform, Quaternion.Euler(0f, 180f, -3f), 0.05f, Ease.InOutQuad))
-            .Chain(Tween.LocalRotation(card3D.transform, Quaternion.Euler(0f, 180f,  3f), 0.08f, Ease.InOutQuad))
-            .Chain(Tween.LocalRotation(card3D.transform, Quaternion.Euler(0f, 180f,  0f), 0.05f, Ease.OutQuad))
+            .Chain(Tween.LocalRotation(card3D.transform, Quaternion.Euler(0f, 180f, -3f), 0.08f, Ease.InOutQuad))
+            .Chain(Tween.LocalRotation(card3D.transform, Quaternion.Euler(0f, 180f,  0f), 0.08f, Ease.OutQuad))
             .Group(Tween.Scale(card3D.transform, Vector3.one, 0.08f, Ease.InOutQuad))
             .ToYieldInstruction();
 

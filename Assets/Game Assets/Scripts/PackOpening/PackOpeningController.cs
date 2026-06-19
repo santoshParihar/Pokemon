@@ -139,13 +139,14 @@ public class PackOpeningController : MonoBehaviour
     private void OnOpenPackClicked()
     {
         if (packIsOpening || !PlayerCollection.CanOpenFreePack()) return;
-        storeUI.StopIdleAnimations();
+        storeUI.SetPackOpeningState(true);
         StartCoroutine(PackOpeningSequence());
     }
 
     private IEnumerator PackOpeningSequence()
     {
         packIsOpening = true;
+        storeUI.SetPackOpeningState(true);
         storeUI.SetPackButtonInteractable(false);
         PlayerCollection.RecordPackOpened();
 
@@ -189,6 +190,7 @@ public class PackOpeningController : MonoBehaviour
         revealAnimator.Cleanup();
         drawnCards.Clear();
         packIsOpening = false;
+        storeUI.SetPackOpeningState(false);
 
         if (mainUIManager != null)
             mainUIManager.SwitchToTab(MainUIManager.Tab.Collection);

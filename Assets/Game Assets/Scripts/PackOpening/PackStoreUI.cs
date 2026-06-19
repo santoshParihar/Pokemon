@@ -72,6 +72,8 @@ public class PackStoreUI : MonoBehaviour
         this.onAddToCollectionClicked = onAddToCollectionClicked;
     }
 
+    private bool isPackOpening = false;
+
     // ── Public API ───────────────────────────────────────────────────────────
 
     public void SetupButtons()
@@ -91,6 +93,7 @@ public class PackStoreUI : MonoBehaviour
 
     public void RefreshStorePanel()
     {
+        isPackOpening = false;
         #if PRIME_TWEEN_INSTALLED
         shimmerSequence.Stop();
         if (packShimmerOverlay != null)
@@ -113,6 +116,15 @@ public class PackStoreUI : MonoBehaviour
     public void SetPackButtonInteractable(bool interactable)
     {
         if (openPackButton != null) openPackButton.interactable = interactable;
+    }
+
+    public void SetPackOpeningState(bool active)
+    {
+        isPackOpening = active;
+        if (active)
+        {
+            StopIdleAnimations();
+        }
     }
 
     /// <summary>Stops idle wiggle and shimmer. Called when the pack opening begins.</summary>
@@ -145,7 +157,7 @@ public class PackStoreUI : MonoBehaviour
         {
             bool ready = PlayerCollection.CanOpenFreePack();
 
-            if (openPackButton != null)     openPackButton.interactable = ready;
+            if (openPackButton != null)     openPackButton.interactable = ready && !isPackOpening;
             if (openPackButtonText != null) openPackButtonText.text = ready ? "✨  Open Free Pack" : "⏳  Next Pack In...";
 
             if (cooldownTimerLabel != null)
@@ -160,8 +172,8 @@ public class PackStoreUI : MonoBehaviour
             }
 
             #if PRIME_TWEEN_INSTALLED
-            if (ready) RunIdleAnimations();
-            else        StopIdleAnimations();
+            if (ready && !isPackOpening) RunIdleAnimations();
+            else                         StopIdleAnimations();
             #endif
 
             yield return new WaitForSeconds(1f);
