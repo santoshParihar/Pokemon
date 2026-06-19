@@ -89,10 +89,12 @@ public class SceneSetupHelper
 
         TextMeshProUGUI titleTMP = titleObj.GetComponent<TextMeshProUGUI>();
         titleTMP.text = "POKEMON CARDS";
-        titleTMP.fontSize = 44;
+        titleTMP.fontSize = 52;
         titleTMP.alignment = TextAlignmentOptions.Center;
-        titleTMP.color = Color.white;
+        titleTMP.color = Color.black;
         titleTMP.fontStyle = FontStyles.Bold;
+        titleTMP.outlineColor = Color.white;
+        titleTMP.outlineWidth = 0.2f;
 
         // Tabs Row
         GameObject tabRowObj = new GameObject("TabRow", typeof(RectTransform));
@@ -198,7 +200,8 @@ public class SceneSetupHelper
 
         Image storePanelImg = storePanelObj.GetComponent<Image>();
         storePanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        storePanelImg.color = new Color(0.08f, 0.10f, 0.14f, 1f);
+        storePanelImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/Background/Property 1=Normal.png");
+        storePanelImg.color = new Color(1f, 1f, 1f, 0.5f);
 
         GameObject storeMsgObj = new GameObject("StoreMessage", typeof(RectTransform), typeof(TextMeshProUGUI));
         storeMsgObj.transform.SetParent(storePanelObj.transform, false);
@@ -224,7 +227,8 @@ public class SceneSetupHelper
 
         Image colPanelImg = colPanelObj.GetComponent<Image>();
         colPanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        colPanelImg.color = new Color(0.08f, 0.10f, 0.14f, 1f);
+        colPanelImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/Background/Property 1=Metal.png");
+        colPanelImg.color = new Color(1f, 1f, 1f, 0.5f);
 
         // Create Search Input Field
         GameObject searchBarObj = new GameObject("SearchInputField", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
@@ -1109,15 +1113,15 @@ public class SceneSetupHelper
         GameObject packNameObj = new GameObject("PackNameLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         packNameObj.transform.SetParent(storePanelObj.transform, false);
         RectTransform packNameRt = packNameObj.GetComponent<RectTransform>();
-        packNameRt.anchorMin = new Vector2(0.1f, 0.85f);
-        packNameRt.anchorMax = new Vector2(0.9f, 0.95f);
+        packNameRt.anchorMin = new Vector2(0.1f, 0.88f);
+        packNameRt.anchorMax = new Vector2(0.9f, 0.98f);
         packNameRt.offsetMin = packNameRt.offsetMax = Vector2.zero;
         TextMeshProUGUI packNameTMP = packNameObj.GetComponent<TextMeshProUGUI>();
-        packNameTMP.text      = "Kanto Starter Pack";
-        packNameTMP.fontSize  = 44;
+        packNameTMP.text      = "<color=black><b>KANTO STARTER PACK</b></color>";
+        packNameTMP.fontSize  = 54;
         packNameTMP.fontStyle = FontStyles.Bold;
         packNameTMP.alignment = TextAlignmentOptions.Center;
-        packNameTMP.color     = Color.white;
+        packNameTMP.color     = Color.black;
 
         // Open pack button
         Sprite badgeSprite = GetOrCreateBadgeSprite();
@@ -1156,10 +1160,11 @@ public class SceneSetupHelper
         cooldownRt.anchorMax = new Vector2(0.9f, 0.13f);
         cooldownRt.offsetMin = cooldownRt.offsetMax = Vector2.zero;
         TextMeshProUGUI cooldownTMP = cooldownObj.GetComponent<TextMeshProUGUI>();
-        cooldownTMP.text      = "Pack ready!";
-        cooldownTMP.fontSize  = 28;
+        cooldownTMP.text      = "<color=black><b>Pack ready!</b></color>";
+        cooldownTMP.fontSize  = 48;
         cooldownTMP.alignment = TextAlignmentOptions.Center;
-        cooldownTMP.color     = new Color(0.55f, 0.6f, 0.7f, 1f);
+        cooldownTMP.color     = Color.black;
+        cooldownTMP.fontStyle = FontStyles.Bold;
 
         // Empty collection hint (shown when player has no cards yet)
         GameObject emptyHintObj = new GameObject("EmptyCollectionHint", typeof(RectTransform), typeof(TextMeshProUGUI));

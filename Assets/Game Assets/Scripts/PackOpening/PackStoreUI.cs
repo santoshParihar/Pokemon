@@ -88,7 +88,7 @@ public class PackStoreUI : MonoBehaviour
             addToCollectionButton.onClick.RemoveAllListeners();
             addToCollectionButton.onClick.AddListener(() => onAddToCollectionClicked?.Invoke());
         }
-        if (packNameLabel != null) packNameLabel.text = "Kanto Starter Pack";
+        if (packNameLabel != null) packNameLabel.text = "<color=black><b>KANTO STARTER PACK</b></color>";
     }
 
     public void RefreshStorePanel()
@@ -163,11 +163,11 @@ public class PackStoreUI : MonoBehaviour
             if (cooldownTimerLabel != null)
             {
                 if (ready)
-                    cooldownTimerLabel.text = "Pack ready!";
+                    cooldownTimerLabel.text = "<color=black><b>Pack ready!</b></color>";
                 else
                 {
                     TimeSpan rem = PlayerCollection.CooldownRemaining();
-                    cooldownTimerLabel.text = $"{rem.Hours:D2}:{rem.Minutes:D2}:{rem.Seconds:D2}";
+                    cooldownTimerLabel.text = $"<color=black><b>{rem.Hours:D2}:{rem.Minutes:D2}:{rem.Seconds:D2}</b></color>";
                 }
             }
 
