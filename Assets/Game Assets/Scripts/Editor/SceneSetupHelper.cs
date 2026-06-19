@@ -75,7 +75,8 @@ public class SceneSetupHelper
         
         Image headerImg = headerObj.GetComponent<Image>();
         headerImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        headerImg.color = new Color(0.12f, 0.15f, 0.22f, 0.9f); // Glassmorphism translucent dark slate
+        headerImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/pikachu-banner.png");
+        headerImg.color = Color.white;
 
         // App title
         GameObject titleObj = new GameObject("AppTitleText", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -83,11 +84,11 @@ public class SceneSetupHelper
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = new Vector2(0, 0.45f);
         titleRect.anchorMax = new Vector2(1, 1);
-        titleRect.offsetMin = Vector2.zero;
-        titleRect.offsetMax = Vector2.zero;
+        titleRect.offsetMin = new Vector2(0f, 40f);
+        titleRect.offsetMax = new Vector2(0f, 40f);
 
         TextMeshProUGUI titleTMP = titleObj.GetComponent<TextMeshProUGUI>();
-        titleTMP.text = "POKEMON CARD CREATOR";
+        titleTMP.text = "POKEMON CARDS";
         titleTMP.fontSize = 44;
         titleTMP.alignment = TextAlignmentOptions.Center;
         titleTMP.color = Color.white;
