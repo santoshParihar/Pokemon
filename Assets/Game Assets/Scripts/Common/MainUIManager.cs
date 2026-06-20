@@ -206,8 +206,8 @@ public class MainUIManager : MonoBehaviour
 
     private void UpdateTabStyles()
     {
-        Color activeColor = Color.white;
-        Color inactiveColor = new Color(0.5f, 0.55f, 0.65f, 1f); // Muted slate blue/gray
+        Color activeColor = Color.black;
+        Color inactiveColor = new Color(0.4f, 0.45f, 0.5f, 1f);
 
         if (collectionTabButton != null)
         {
@@ -216,6 +216,7 @@ public class MainUIManager : MonoBehaviour
             {
                 txt.color = activeTab == Tab.Collection ? activeColor : inactiveColor;
                 txt.fontStyle = activeTab == Tab.Collection ? FontStyles.Bold : FontStyles.Normal;
+                txt.fontSize = 42;
             }
         }
 
@@ -226,6 +227,7 @@ public class MainUIManager : MonoBehaviour
             {
                 txt.color = activeTab == Tab.Store ? activeColor : inactiveColor;
                 txt.fontStyle = activeTab == Tab.Store ? FontStyles.Bold : FontStyles.Normal;
+                txt.fontSize = 42;
             }
         }
 

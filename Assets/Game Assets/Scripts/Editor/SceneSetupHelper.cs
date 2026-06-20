@@ -75,7 +75,7 @@ public class SceneSetupHelper
         
         Image headerImg = headerObj.GetComponent<Image>();
         headerImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        headerImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/pikachu-banner.png");
+        headerImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/pok.png");
         headerImg.color = Color.white;
 
         // App title
@@ -143,9 +143,9 @@ public class SceneSetupHelper
         
         TextMeshProUGUI colTxtTMP = colTxtObj.GetComponent<TextMeshProUGUI>();
         colTxtTMP.text = "Collection";
-        colTxtTMP.fontSize = 34;
+        colTxtTMP.fontSize = 42;
         colTxtTMP.alignment = TextAlignmentOptions.Center;
-        colTxtTMP.color = Color.white;
+        colTxtTMP.color = Color.black;
         colTxtTMP.fontStyle = FontStyles.Bold;
 
         Button colBtn = colBtnObj.GetComponent<Button>();
@@ -182,9 +182,9 @@ public class SceneSetupHelper
 
         TextMeshProUGUI storeTxtTMP = storeTxtObj.GetComponent<TextMeshProUGUI>();
         storeTxtTMP.text = "Store";
-        storeTxtTMP.fontSize = 34;
+        storeTxtTMP.fontSize = 42;
         storeTxtTMP.alignment = TextAlignmentOptions.Center;
-        storeTxtTMP.color = new Color(0.5f, 0.55f, 0.65f, 1f);
+        storeTxtTMP.color = new Color(0.4f, 0.45f, 0.5f, 1f);
         storeTxtTMP.fontStyle = FontStyles.Normal;
 
         Button storeBtn = storeBtnObj.GetComponent<Button>();
@@ -212,9 +212,9 @@ public class SceneSetupHelper
         storeMsgRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI storeMsgTMP = storeMsgObj.GetComponent<TextMeshProUGUI>();
-        storeMsgTMP.text = "<size=48><b>POKEMON TCG STORE</b></size>\n\n<size=32><color=#5C6370>Booster Packs & Shop items arriving soon!</color></size>";
+        storeMsgTMP.text = "<size=64><b>POKEMON TCG STORE</b></size>\n\n<size=40><color=#1A1D24>Booster Packs & Shop items arriving soon!</color></size>";
         storeMsgTMP.alignment = TextAlignmentOptions.Center;
-        storeMsgTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f);
+        storeMsgTMP.color = new Color(0.08f, 0.10f, 0.14f, 1f);
 
         // 5. Collection Panel (2D Grid View ScrollRect)
         GameObject colPanelObj = new GameObject("CollectionPanel", typeof(RectTransform), typeof(Image));
@@ -227,7 +227,7 @@ public class SceneSetupHelper
 
         Image colPanelImg = colPanelObj.GetComponent<Image>();
         colPanelImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-        colPanelImg.sprite = GetOrConvertSprite("Assets/Game Assets/Textures/Background/Property 1=Metal.png");
+        colPanelImg.sprite = null;
         colPanelImg.color = new Color(1f, 1f, 1f, 0.5f);
 
         // Create Search Input Field
