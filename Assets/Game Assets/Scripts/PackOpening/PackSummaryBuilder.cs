@@ -48,6 +48,8 @@ public class PackSummaryBuilder : MonoBehaviour
     {
         if (summaryPanel == null) return;
 
+        if (addToCollectionButton != null) addToCollectionButton.interactable = true;
+
         // Clear legacy label
         if (summaryLabel != null) summaryLabel.text = "";
 

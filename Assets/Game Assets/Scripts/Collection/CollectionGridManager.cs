@@ -61,12 +61,9 @@ public class CollectionGridManager : MonoBehaviour
 
         if (displayCards.Count == 0) return;
 
-        HashSet<PokemonCardData> uniqueCards = new HashSet<PokemonCardData>();
         foreach (var data in displayCards)
         {
             if (data == null) continue;
-            if (uniqueCards.Contains(data)) continue;
-            uniqueCards.Add(data);
 
             // Create cell container to prevent GridLayoutGroup from overriding card prefab size and breaking absolute positions
             GameObject cellObj = new GameObject("CardCell", typeof(RectTransform));

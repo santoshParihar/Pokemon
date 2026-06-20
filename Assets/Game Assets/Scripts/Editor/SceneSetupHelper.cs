@@ -1189,10 +1189,10 @@ public class SceneSetupHelper
         emptyHintRt.anchorMax = new Vector2(0.95f, 0.6f);
         emptyHintRt.offsetMin = emptyHintRt.offsetMax = Vector2.zero;
         TextMeshProUGUI emptyHintTMP = emptyHintObj.GetComponent<TextMeshProUGUI>();
-        emptyHintTMP.text      = "Open a pack in the <b>Store</b> tab to get your first cards! ✨";
-        emptyHintTMP.fontSize  = 36;
+        emptyHintTMP.text      = "Open a pack in the <b>Store</b> tab to get your first cards!";
+        emptyHintTMP.fontSize  = 44;
         emptyHintTMP.alignment = TextAlignmentOptions.Center;
-        emptyHintTMP.color     = new Color(0.55f, 0.6f, 0.7f, 1f);
+        emptyHintTMP.color     = new Color(0.08f, 0.10f, 0.14f, 1f);
         emptyHintTMP.enableWordWrapping = true;
         emptyHintObj.SetActive(false); // hidden until runtime logic enables it
 

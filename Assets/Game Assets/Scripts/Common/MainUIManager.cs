@@ -110,36 +110,45 @@ public class MainUIManager : MonoBehaviour
     private void OnValidate()
     {
         #if UNITY_EDITOR
-        // Auto-find all Card Data assets if empty
-        if (cardsData.Count == 0)
+        // Always sync all available Card Data assets in the editor to avoid getting out of sync
+        string[] guids = AssetDatabase.FindAssets("t:PokemonCardData", new string[] { "Assets/Game Assets/Data" });
+        foreach (var guid in guids)
         {
-            string[] guids = AssetDatabase.FindAssets("t:PokemonCardData", new string[] { "Assets/Game Assets/Data" });
-            foreach (var guid in guids)
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            PokemonCardData data = AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
+            if (data != null && !cardsData.Contains(data))
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                PokemonCardData data = AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
-                if (data != null && !cardsData.Contains(data))
-                {
-                    cardsData.Add(data);
-                }
+                cardsData.Add(data);
             }
         }
-        else
+
+        // Clean up nulls and enforce uniqueness
+        List<PokemonCardData> uniqueList = new List<PokemonCardData>();
+        foreach (var data in cardsData)
         {
-            // Enforce uniqueness to clean up duplicates already serialized in the Inspector/Scene
-            List<PokemonCardData> uniqueList = new List<PokemonCardData>();
-            foreach (var data in cardsData)
+            if (data != null && !uniqueList.Contains(data))
             {
-                if (data != null && !uniqueList.Contains(data))
-                {
-                    uniqueList.Add(data);
-                }
-            }
-            if (uniqueList.Count != cardsData.Count)
-            {
-                cardsData = uniqueList;
+                uniqueList.Add(data);
             }
         }
+        if (uniqueList.Count != cardsData.Count)
+        {
+            cardsData = uniqueList;
+        }
+
+        // Sync 3D card prefabs automatically
+        string[] prefabs = AssetDatabase.FindAssets("t:Prefab", new string[] { "Assets/Game Assets/Prefabs" });
+        List<GameObject> prefabsList = new List<GameObject>();
+        foreach (var guid in prefabs)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (go != null && go.GetComponent<CardUIController>() != null)
+            {
+                prefabsList.Add(go);
+            }
+        }
+        card3DPrefabs = prefabsList;
 
         // Defer tab switching to the next editor update frame to avoid DestroyImmediate issues inside OnValidate
         EditorApplication.delayCall -= DeferSwitchTab;

@@ -228,4 +228,51 @@ public class PackOpeningController : MonoBehaviour
         if (storeUI != null) storeUI.RefreshStorePanel();
         Debug.Log("[PackOpening] Cooldown bypassed.");
     }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // Always sync all available Card Data assets in the editor to avoid getting out of sync
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PokemonCardData", new string[] { "Assets/Game Assets/Data" });
+        foreach (var guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            PokemonCardData data = UnityEditor.AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
+            if (data != null && !masterCardPool.Contains(data))
+            {
+                masterCardPool.Add(data);
+            }
+        }
+
+        // Clean up nulls and enforce uniqueness
+        List<PokemonCardData> uniqueList = new List<PokemonCardData>();
+        foreach (var data in masterCardPool)
+        {
+            if (data != null && !uniqueList.Contains(data))
+            {
+                uniqueList.Add(data);
+            }
+        }
+        if (uniqueList.Count != masterCardPool.Count)
+        {
+            masterCardPool = uniqueList;
+        }
+
+        // Auto-resolve missing card3DRevealPrefab
+        if (card3DRevealPrefab == null)
+        {
+            string[] prefabs = UnityEditor.AssetDatabase.FindAssets("t:Prefab", new string[] { "Assets/Game Assets/Prefabs" });
+            foreach (var pGuid in prefabs)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(pGuid);
+                GameObject go = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (go != null && go.GetComponent<CardUIController>() != null)
+                {
+                    card3DRevealPrefab = go;
+                    break;
+                }
+            }
+        }
+    }
+#endif
 }

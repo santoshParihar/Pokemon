@@ -908,6 +908,24 @@ public class CardEditorHelper : EditorWindow
             Selection.activeGameObject = sceneInstance;
         }
 
+        // Automatically sync scene objects if they exist
+        MainUIManager mainUI = FindObjectOfType<MainUIManager>();
+        if (mainUI != null)
+        {
+            EditorUtility.SetDirty(mainUI);
+        }
+
+        PackOpeningController poc = FindObjectOfType<PackOpeningController>();
+        if (poc != null)
+        {
+            var prefabField = typeof(PackOpeningController).GetField("card3DRevealPrefab", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (prefabField != null && (prefabField.GetValue(poc) == null || (prefabField.GetValue(poc) as GameObject) == null))
+            {
+                prefabField.SetValue(poc, cardPrefab);
+            }
+            EditorUtility.SetDirty(poc);
+        }
+
         Debug.Log($"Successfully created Card materials, Charmander/Bulbasaur/Squirtle Data assets, local Baked Mesh asset, and complete 3D Pokemon Card Prefab at: {cardPrefabPath}!");
     }
 
