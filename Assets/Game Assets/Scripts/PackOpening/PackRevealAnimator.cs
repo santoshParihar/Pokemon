@@ -141,7 +141,7 @@ public class PackRevealAnimator : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            yield return StartCoroutine(RevealCardRoutine(i));
+            yield return StartCoroutine(RevealCardRoutine(i, drawnCards[i]));
             yield return new WaitForSeconds(0.6f); // breath between cards
         }
     }
@@ -173,11 +173,17 @@ public class PackRevealAnimator : MonoBehaviour
 
     // ── Private animation stages ─────────────────────────────────────────────
 
-    private IEnumerator RevealCardRoutine(int idx)
+    private IEnumerator RevealCardRoutine(int idx, PokemonCardData data)
     {
         Vector3 finalPos = new Vector3(0f, revealWorldY, revealWorldZ);
         GameObject card3D = Instantiate(card3DRevealPrefab, finalPos, Quaternion.Euler(0f, 180f, -22f));
         card3D.transform.localScale = Vector3.zero;
+
+        CardUIController ctrl = card3D.GetComponent<CardUIController>();
+        if (ctrl != null)
+        {
+            ctrl.SetCardData(data);
+        }
 
         CardRotator rot = card3D.GetComponent<CardRotator>();
         if (rot != null) rot.enabled = false;

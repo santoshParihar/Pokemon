@@ -18,7 +18,7 @@ MonoBehaviour:
   pokedexNo: '#001'
   pokedexClass: "Seed Pok\xE9mon"
   cardType: 0
-  pokemonSprite: {fileID: 21300000, guid: 78dfbad78623b48a0a92cba74cb3eaa6, type: 3}
+  pokemonSprite: {fileID: 21300000, guid: f167bb5b1c6824749bc9e6dc7ce2a482, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: 7e4b76c0d6230451f8fa2c703c87a349, type: 3}
   attack1Name: Vine Whip
   attack1CostText: G C
@@ -36,3 +36,4 @@ MonoBehaviour:
   hasResistance: 1
   retreatCost: 1
   rarityStars: 2
+  dropProbability: 10

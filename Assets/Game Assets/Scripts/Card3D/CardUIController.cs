@@ -518,10 +518,14 @@ public class CardUIController : MonoBehaviour
         if (instancedFrontMaterial != null && frontTex != null)
         {
             instancedFrontMaterial.mainTexture = frontTex;
+            if (instancedFrontMaterial.HasProperty("_BaseMap")) instancedFrontMaterial.SetTexture("_BaseMap", frontTex);
+            if (instancedFrontMaterial.HasProperty("_MainTex")) instancedFrontMaterial.SetTexture("_MainTex", frontTex);
         }
         if (instancedBackMaterial != null && cardBackTexture != null)
         {
             instancedBackMaterial.mainTexture = cardBackTexture;
+            if (instancedBackMaterial.HasProperty("_BaseMap")) instancedBackMaterial.SetTexture("_BaseMap", cardBackTexture);
+            if (instancedBackMaterial.HasProperty("_MainTex")) instancedBackMaterial.SetTexture("_MainTex", cardBackTexture);
         }
 
         // Put them on the MeshRenderer

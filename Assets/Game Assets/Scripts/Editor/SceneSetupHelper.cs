@@ -237,7 +237,7 @@ public class SceneSetupHelper
         searchBarRect.anchorMin = new Vector2(0, 1);
         searchBarRect.anchorMax = new Vector2(1, 1);
         searchBarRect.pivot = new Vector2(0.5f, 1f);
-        searchBarRect.anchoredPosition = new Vector2(0, -30);
+        searchBarRect.anchoredPosition = new Vector2(0, 0);
         searchBarRect.sizeDelta = new Vector2(-40, 80);
 
         Image searchBarImg = searchBarObj.GetComponent<Image>();
@@ -297,7 +297,7 @@ public class SceneSetupHelper
         scrollRectTrans.anchorMin = Vector2.zero;
         scrollRectTrans.anchorMax = Vector2.one;
         scrollRectTrans.offsetMin = new Vector2(20, 20);
-        scrollRectTrans.offsetMax = new Vector2(-20, -130);
+        scrollRectTrans.offsetMax = new Vector2(-20, -105);
 
         ScrollRect scrollComponent = scrollObj.GetComponent<ScrollRect>();
         scrollComponent.horizontal = false;
@@ -341,8 +341,14 @@ public class SceneSetupHelper
 
         scrollComponent.content = contentRect;
 
+        // Move the SearchInputField to render on top of the ScrollView so scrolled cards pass beneath it
+        searchBarObj.transform.SetAsLastSibling();
+
         // 6. Generate/Save the 2D Card Prefab
         GameObject card2DPrefabAsset = GetOrCreate2DCardPrefab();
+
+        // Move Header Panel to render on top of Collection and Store Panels so scrolled cards go beneath it
+        headerObj.transform.SetAsLastSibling();
 
         // 7. Setup Detailed Inspect Overlay
         GameObject overlayObj = new GameObject("InspectOverlay", typeof(RectTransform), typeof(Image), typeof(Button));

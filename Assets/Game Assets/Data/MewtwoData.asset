@@ -10,30 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91774fcf222464551a6a77d44639de3b, type: 3}
-  m_Name: SquirtleData
+  m_Name: MewtwoData
   m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
-  pokemonName: Squirtle
-  hp: 60
+  pokemonName: Mewtwo
+  hp: 120
   stage: Basic
-  pokedexNo: '#007'
-  pokedexClass: "Tiny Turtle Pok\xE9mon"
-  cardType: 2
-  pokemonSprite: {fileID: 21300000, guid: 9c400c884406244d0a3701194d689cd0, type: 3}
+  pokedexNo: '#150'
+  pokedexClass: "Genetic Pok\xE9mon"
+  cardType: 4
+  pokemonSprite: {fileID: 21300000, guid: 6cf2376e9b9434e51a769dcb1f1aaedc, type: 3}
   customBackgroundSprite: {fileID: 21300000, guid: 2134e11edd3224d979f4edce886a906b, type: 3}
-  attack1Name: Water Gun
-  attack1CostText: W C
-  attack1Damage: 30
-  attack1Description: Shoots a burst of high pressure water.
+  attack1Name: Psyburn
+  attack1CostText: P P C
+  attack1Damage: 110
+  attack1Description: A psychic blast of intense energy.
   ability:
-    hasAbility: 1
-    abilityName: Shell Shield
-    abilityDescription: "As long as this Pok\xE9mon is on your Bench, prevent all
-      damage done to this Pok\xE9mon by attacks."
-  weakness: 3
+    hasAbility: 0
+    abilityName: 
+    abilityDescription: 
+  weakness: 6
   weaknessValue: "\xD72"
   resistance: 9
   resistanceValue: 
   hasResistance: 0
-  retreatCost: 1
-  rarityStars: 1
+  retreatCost: 2
+  rarityStars: 4
   dropProbability: 10

@@ -25,16 +25,16 @@ public class CardEditorHelper : EditorWindow
     private Texture2D customBackTexture = null;
     private PokemonCardData selectedCardData = null;
 
-    [MenuItem("Pokemon TCG/Card Creator Window")]
+    [MenuItem("Pokemon TCG/Generate a Card")]
     public static void ShowWindow()
     {
-        GetWindow<CardEditorHelper>("Card Creator");
+        GetWindow<CardEditorHelper>("Generate a Card");
     }
 
     private void OnGUI()
     {
         GUILayout.Space(10);
-        GUILayout.Label("3D Card Customizer", EditorStyles.boldLabel);
+        GUILayout.Label("Generate a Card", EditorStyles.boldLabel);
         
         GUILayout.BeginVertical("box");
         cardWidth = EditorGUILayout.FloatField("Width", cardWidth);
@@ -81,7 +81,14 @@ public class CardEditorHelper : EditorWindow
         GUI.backgroundColor = new Color(0.35f, 0.75f, 0.35f);
         if (GUILayout.Button("Bake Card & Generate Prefab", GUILayout.Height(40)))
         {
-            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, selectedCardData);
+            CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, selectedCardData, true);
+        }
+
+        GUILayout.Space(10);
+        GUI.backgroundColor = new Color(0.35f, 0.55f, 0.85f);
+        if (GUILayout.Button("Generate All Available Cards", GUILayout.Height(40)))
+        {
+            GenerateAllAvailableCards();
         }
         
         GUILayout.Space(10);
@@ -93,14 +100,39 @@ public class CardEditorHelper : EditorWindow
         GUI.backgroundColor = Color.white;
     }
 
-    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture, PokemonCardData selectedCardData)
+    private void GenerateAllAvailableCards()
     {
-        // 1. Setup/Find Shaders (Unlit for card faces, Lit for card edges)
-        Shader faceShader = Shader.Find("Universal Render Pipeline/Unlit");
+        string[] guids = AssetDatabase.FindAssets("t:PokemonCardData", new string[] { "Assets/Game Assets/Data" });
+        int count = 0;
+        foreach (var guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            PokemonCardData data = AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
+            if (data != null)
+            {
+                CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, data, false);
+                count++;
+            }
+        }
+        Debug.Log($"Successfully generated/updated {count} card prefabs from available Card Data assets!");
+    }
+
+    public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture, PokemonCardData selectedCardData, bool spawnInScene = true)
+    {
+        Shader faceShader = null;
+        Shader edgeShader = null;
+
+        // Check if Universal Render Pipeline is active in Graphics Settings to avoid pink material bug
+        bool isURP = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline != null;
+        if (isURP)
+        {
+            faceShader = Shader.Find("Universal Render Pipeline/Unlit");
+            edgeShader = Shader.Find("Universal Render Pipeline/Lit");
+        }
+
         if (faceShader == null) faceShader = Shader.Find("Unlit/Texture");
         if (faceShader == null) faceShader = Shader.Find("Standard");
 
-        Shader edgeShader = Shader.Find("Universal Render Pipeline/Lit");
         if (edgeShader == null) edgeShader = Shader.Find("Standard");
 
         // Create folders if they do not exist
@@ -850,27 +882,33 @@ public class CardEditorHelper : EditorWindow
             img.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         }
 
+        // Make sure all values set via reflection are serialized when saving the prefab
+        EditorUtility.SetDirty(uiController);
+
         // 9. Save Card Prefab (uniquely named based on Pokemon name)
         string pokemonPrefabName = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");
         string cardPrefabPath = $"{prefabsFolder}/{pokemonPrefabName}Card.prefab";
         GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardObj, cardPrefabPath);
         DestroyImmediate(cardObj);
 
-        // Destroy existing instances of THIS specific card in the active scene to avoid duplicate spawns of the same Pokemon card
-        GameObject[] existingCards = GameObject.FindObjectsOfType<GameObject>();
-        foreach (var card in existingCards)
+        if (spawnInScene)
         {
-            if (card.name == $"{pokemonPrefabName} Card" && card.scene.IsValid())
+            // Destroy existing instances of THIS specific card in the active scene to avoid duplicate spawns of the same Pokemon card
+            GameObject[] existingCards = GameObject.FindObjectsOfType<GameObject>();
+            foreach (var card in existingCards)
             {
-                Undo.DestroyObjectImmediate(card);
+                if (card.name == $"{pokemonPrefabName} Card" && card.scene.IsValid())
+                {
+                    Undo.DestroyObjectImmediate(card);
+                }
             }
+
+            // Instantiate in active scene for user
+            GameObject sceneInstance = PrefabUtility.InstantiatePrefab(cardPrefab) as GameObject;
+            Selection.activeGameObject = sceneInstance;
         }
 
-        // Instantiate in active scene for user
-        GameObject sceneInstance = PrefabUtility.InstantiatePrefab(cardPrefab) as GameObject;
-        Selection.activeGameObject = sceneInstance;
-
-        Debug.Log($"Successfully created Card materials, Charmander/Bulbasaur/Squirtle Data assets, local Baked Mesh asset, and complete 3D Pokemon Card Prefab at: {cardPrefabPath}. Spawned instance in scene!");
+        Debug.Log($"Successfully created Card materials, Charmander/Bulbasaur/Squirtle Data assets, local Baked Mesh asset, and complete 3D Pokemon Card Prefab at: {cardPrefabPath}!");
     }
 
     private static Mesh GenerateMesh(float width, float height, float thickness, float cornerRadius, int cornerSegments)

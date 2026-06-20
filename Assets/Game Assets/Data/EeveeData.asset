@@ -10,26 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91774fcf222464551a6a77d44639de3b, type: 3}
-  m_Name: CharmanderData
+  m_Name: EeveeData
   m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
-  pokemonName: Charizard
+  pokemonName: Eevee
   hp: 60
   stage: Basic
-  pokedexNo: '#004'
-  pokedexClass: "Lizard Pok\xE9mon"
-  cardType: 1
-  pokemonSprite: {fileID: 21300000, guid: 78dfbad78623b48a0a92cba74cb3eaa6, type: 3}
-  customBackgroundSprite: {fileID: 0}
-  attack1Name: Ember
-  attack1CostText: F C
-  attack1Damage: 30
-  attack1Description: Discard 1 Fire Energy attached to this Pokemon.
+  pokedexNo: '#133'
+  pokedexClass: "Evolution Pok\xE9mon"
+  cardType: 9
+  pokemonSprite: {fileID: 21300000, guid: d92d31160d5af4cdb97c751c38032fdc, type: 3}
+  customBackgroundSprite: {fileID: 21300000, guid: 9e1893fc8a89d4774a715ad3a2d9e232, type: 3}
+  attack1Name: Tail Whap
+  attack1CostText: C
+  attack1Damage: 20
+  attack1Description: Flip a coin.
   ability:
     hasAbility: 1
-    abilityName: Roaring Resolve
-    abilityDescription: "Once during your turn, you may attach a Fire Energy card
-      from your hand to this Pok\xE9mon."
-  weakness: 2
+    abilityName: Vee-Search
+    abilityDescription: "Once during your turn, you may search your deck for a Pok\xE9mon
+      that evolves from Eevee, reveal it, and put it into your hand."
+  weakness: 5
   weaknessValue: "\xD72"
   resistance: 9
   resistanceValue: 

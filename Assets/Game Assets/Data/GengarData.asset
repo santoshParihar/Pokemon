@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91774fcf222464551a6a77d44639de3b, type: 3}
+  m_Name: GengarData
+  m_EditorClassIdentifier: Assembly-CSharp::PokemonCardData
+  pokemonName: Gengar
+  hp: 130
+  stage: Stage 2
+  pokedexNo: '#094'
+  pokedexClass: "Shadow Pok\xE9mon"
+  cardType: 4
+  pokemonSprite: {fileID: 21300000, guid: e8648731d861343909ad983734d86079, type: 3}
+  customBackgroundSprite: {fileID: 21300000, guid: 7d975011a5695456cadd1163a819a17d, type: 3}
+  attack1Name: Shadow Pain
+  attack1CostText: P P
+  attack1Damage: 60
+  attack1Description: "Put 3 damage counters on your opponent's Benched Pok\xE9mon
+    in any way you like."
+  ability:
+    hasAbility: 1
+    abilityName: Shadow Room
+    abilityDescription: "Once during your turn, you may put 2 damage counters on
+      1 of your opponent's Pok\xE9mon."
+  weakness: 6
+  weaknessValue: "\xD72"
+  resistance: 5
+  resistanceValue: -30
+  hasResistance: 1
+  retreatCost: 2
+  rarityStars: 3
+  dropProbability: 10

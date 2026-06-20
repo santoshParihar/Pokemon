@@ -58,4 +58,9 @@ public class PokemonCardData : ScriptableObject
     public int retreatCost = 1;
     [Range(1, 5)]
     public int rarityStars = 1;
+
+    [Header("Drop Probability")]
+    [Range(0f, 100f)]
+    [Tooltip("Drop probability weight (relative to other cards) when unpacking a booster pack.")]
+    public float dropProbability = 10f;
 }
