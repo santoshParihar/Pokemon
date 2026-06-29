@@ -34,6 +34,8 @@ public class CollectionGridManager : MonoBehaviour
     {
         ClearSpawnedCards();
 
+        if (!Application.isPlaying) return;
+
         if (gridContentContainer == null || card2DPrefab == null || cardsData == null || cardsData.Count == 0) return;
 
         // ── At runtime: only show cards the player actually owns.
