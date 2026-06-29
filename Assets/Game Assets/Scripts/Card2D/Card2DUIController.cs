@@ -118,6 +118,7 @@ public class Card2DUIController : MonoBehaviour
         clickButton.onClick.RemoveAllListeners();
         clickButton.onClick.AddListener(() =>
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
             if (onClickCallback != null && cardData != null)
                 onClickCallback(cardData);
         });

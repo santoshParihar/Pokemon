@@ -171,13 +171,19 @@ public class MainUIManager : MonoBehaviour
         if (collectionTabButton != null)
         {
             collectionTabButton.onClick.RemoveAllListeners();
-            collectionTabButton.onClick.AddListener(() => SwitchToTab(Tab.Collection));
+            collectionTabButton.onClick.AddListener(() => {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                SwitchToTab(Tab.Collection);
+            });
         }
 
         if (storeTabButton != null)
         {
             storeTabButton.onClick.RemoveAllListeners();
-            storeTabButton.onClick.AddListener(() => SwitchToTab(Tab.Store));
+            storeTabButton.onClick.AddListener(() => {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                SwitchToTab(Tab.Store);
+            });
         }
     }
 

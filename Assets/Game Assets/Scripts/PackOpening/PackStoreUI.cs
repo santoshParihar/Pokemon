@@ -81,12 +81,18 @@ public class PackStoreUI : MonoBehaviour
         if (openPackButton != null)
         {
             openPackButton.onClick.RemoveAllListeners();
-            openPackButton.onClick.AddListener(() => onOpenPackClicked?.Invoke());
+            openPackButton.onClick.AddListener(() => {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                onOpenPackClicked?.Invoke();
+            });
         }
         if (addToCollectionButton != null)
         {
             addToCollectionButton.onClick.RemoveAllListeners();
-            addToCollectionButton.onClick.AddListener(() => onAddToCollectionClicked?.Invoke());
+            addToCollectionButton.onClick.AddListener(() => {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                onAddToCollectionClicked?.Invoke();
+            });
         }
         if (packNameLabel != null) packNameLabel.text = "<color=black><b>KANTO STARTER PACK</b></color>";
     }

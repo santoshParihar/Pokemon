@@ -34,7 +34,10 @@ public class InspectOverlayController : MonoBehaviour
         if (inspectOverlayCloseButton != null)
         {
             inspectOverlayCloseButton.onClick.RemoveAllListeners();
-            inspectOverlayCloseButton.onClick.AddListener(HideInspectOverlay);
+            inspectOverlayCloseButton.onClick.AddListener(() => {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                HideInspectOverlay();
+            });
         }
 
         if (inspectOverlay != null)
@@ -43,7 +46,10 @@ public class InspectOverlayController : MonoBehaviour
             if (overlayBtn != null)
             {
                 overlayBtn.onClick.RemoveAllListeners();
-                overlayBtn.onClick.AddListener(HideInspectOverlay);
+                overlayBtn.onClick.AddListener(() => {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayClickSound();
+                    HideInspectOverlay();
+                });
             }
         }
     }
