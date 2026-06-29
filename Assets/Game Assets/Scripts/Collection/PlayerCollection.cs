@@ -10,7 +10,7 @@ public static class PlayerCollection
     // ─── PlayerPrefs keys ───────────────────────────────────────────────────
     private const string OWNED_KEY        = "OwnedCards";          // Comma-separated card names
     private const string LAST_PACK_KEY    = "LastPackOpenedTicks";  // DateTime ticks (long)
-    private const double COOLDOWN_HOURS   = 1.0 / 3600.0; // ← 1 second (change back to 24.0 for release)
+    private const double COOLDOWN_SECONDS = 60.0; // ← Cooldown in seconds (e.g. 86400.0 for 24 hours)
 
     // ────────────────────────────────────────────────────────────────────────
     // Owned cards
@@ -106,15 +106,15 @@ public static class PlayerCollection
     public static bool CanOpenFreePack()
     {
         System.TimeSpan elapsed = System.DateTime.UtcNow - LastPackOpenedTime();
-        return elapsed.TotalHours >= COOLDOWN_HOURS;
+        return elapsed.TotalSeconds >= COOLDOWN_SECONDS;
     }
 
     /// <summary>Returns the remaining cooldown time, or TimeSpan.Zero if ready.</summary>
     public static System.TimeSpan CooldownRemaining()
     {
         System.TimeSpan elapsed = System.DateTime.UtcNow - LastPackOpenedTime();
-        if (elapsed.TotalHours >= COOLDOWN_HOURS) return System.TimeSpan.Zero;
-        return System.TimeSpan.FromHours(COOLDOWN_HOURS) - elapsed;
+        if (elapsed.TotalSeconds >= COOLDOWN_SECONDS) return System.TimeSpan.Zero;
+        return System.TimeSpan.FromSeconds(COOLDOWN_SECONDS) - elapsed;
     }
 
     /// <summary>Records that the player just opened a pack (starts the 24h cooldown).</summary>

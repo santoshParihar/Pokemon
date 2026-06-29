@@ -38,6 +38,7 @@ public class PackStoreUI : MonoBehaviour
 
     // ── State ────────────────────────────────────────────────────────────────
 
+    private bool wasReady = true;
     private Coroutine cooldownCoroutine;
 
     #if PRIME_TWEEN_INSTALLED
@@ -100,6 +101,7 @@ public class PackStoreUI : MonoBehaviour
     public void RefreshStorePanel()
     {
         isPackOpening = false;
+        wasReady = PlayerCollection.CanOpenFreePack();
         #if PRIME_TWEEN_INSTALLED
         shimmerSequence.Stop();
         if (packShimmerOverlay != null)
@@ -213,6 +215,14 @@ public class PackStoreUI : MonoBehaviour
         {
             packShimmerOverlay.rectTransform.anchoredPosition = new Vector2(-800f, 0f);
             shimmerSequence = Sequence.Create(cycles: -1)
+                .ChainCallback(() => {
+                    bool ready = PlayerCollection.CanOpenFreePack();
+                    bool visible = openPackButton != null && openPackButton.gameObject.activeInHierarchy;
+                    if (ready && visible && !isPackOpening)
+                    {
+                        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("swoosh");
+                    }
+                })
                 .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, 800f,  1.6f, Ease.InOutQuad))
                 .Chain(Tween.Delay(2.0f))
                 .Chain(Tween.UIAnchoredPositionX(packShimmerOverlay.rectTransform, -800f, 0f));

@@ -179,6 +179,8 @@ public class PackRevealAnimator : MonoBehaviour
         GameObject card3D = Instantiate(card3DRevealPrefab, finalPos, Quaternion.Euler(0f, 180f, -22f));
         card3D.transform.localScale = Vector3.zero;
 
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("CardSpawn");
+
         CardUIController ctrl = card3D.GetComponent<CardUIController>();
         if (ctrl != null)
         {
@@ -224,6 +226,7 @@ public class PackRevealAnimator : MonoBehaviour
         // Scale X → 0 (half-flip), swap rotation, scale X → 1 (complete flip)
         yield return Tween.ScaleX(card3D.transform, 0f, 0.32f, Ease.InQuad).ToYieldInstruction();
         card3D.transform.localRotation = Quaternion.identity;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("Surprise");
         yield return Tween.ScaleX(card3D.transform, 1f, 0.32f, Ease.OutQuad).ToYieldInstruction();
 
         // STAGE 6: Reveal pop
@@ -234,6 +237,7 @@ public class PackRevealAnimator : MonoBehaviour
         yield return StartCoroutine(LerpScale(card3D.transform, Vector3.zero, Vector3.one, 0.5f));
         card3D.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         yield return new WaitForSeconds(0.4f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("Surprise");
         yield return StartCoroutine(LerpRotation(card3D.transform, Quaternion.Euler(0f, 180f, 0f), Quaternion.identity, 0.4f));
         #endif
 
