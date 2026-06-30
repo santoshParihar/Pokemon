@@ -655,6 +655,22 @@ public class SceneSetupHelper
         pokedexClassTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f);
         pokedexClassTMP.fontStyle = FontStyles.Italic;
 
+        // Price Text under HP
+        GameObject priceTextObj = new GameObject("PriceText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        priceTextObj.transform.SetParent(headerObj.transform, false);
+        RectTransform priceTextRect = priceTextObj.GetComponent<RectTransform>();
+        priceTextRect.anchorMin = new Vector2(0.7f, 0f);
+        priceTextRect.anchorMax = new Vector2(1f, 0.35f);
+        priceTextRect.offsetMin = Vector2.zero;
+        priceTextRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI priceTMP = priceTextObj.GetComponent<TextMeshProUGUI>();
+        priceTMP.text = "$1.99";
+        priceTMP.fontSize = 38; // Size 38 to match the 3D card layout perfectly!
+        priceTMP.alignment = TextAlignmentOptions.MidlineRight;
+        priceTMP.color = new Color(0.9f, 0.22f, 0.27f, 1f); // Accent crimson
+        priceTMP.fontStyle = FontStyles.Bold;
+
         // Artwork Panel
         GameObject artObj = new GameObject("ArtworkPanel", typeof(RectTransform), typeof(Image));
         artObj.transform.SetParent(root.transform, false);
@@ -817,7 +833,15 @@ public class SceneSetupHelper
         var hpTextF = typeof(Card2DUIController).GetField("hpText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var typeTextF = typeof(Card2DUIController).GetField("typeText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var pokedexClassTextF = typeof(Card2DUIController).GetField("pokedexClassText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var priceTextF = typeof(Card2DUIController).GetField("priceText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var pokemonImageF = typeof(Card2DUIController).GetField("pokemonImage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        nameTextF?.SetValue(controller, nameTMP);
+        hpTextF?.SetValue(controller, hpTMP);
+        typeTextF?.SetValue(controller, typeTMP);
+        pokedexClassTextF?.SetValue(controller, pokedexClassTMP);
+        priceTextF?.SetValue(controller, priceTMP);
+        pokemonImageF?.SetValue(controller, artImg);
 
         var attack1NameF = typeof(Card2DUIController).GetField("attack1Name", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var attack1CostF = typeof(Card2DUIController).GetField("attack1Cost", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -836,11 +860,7 @@ public class SceneSetupHelper
         var badgeResistF = typeof(Card2DUIController).GetField("badgeResistTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var badgeRarityF = typeof(Card2DUIController).GetField("badgeRarityTmp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        nameTextF?.SetValue(controller, nameTMP);
-        hpTextF?.SetValue(controller, hpTMP);
-        typeTextF?.SetValue(controller, typeTMP);
-        pokedexClassTextF?.SetValue(controller, pokedexClassTMP);
-        pokemonImageF?.SetValue(controller, artImg);
+
 
         attack1NameF?.SetValue(controller, slot1.transform.Find("AttackName").GetComponent<TextMeshProUGUI>());
         attack1CostF?.SetValue(controller, slot1.transform.Find("AttackCost").GetComponent<TextMeshProUGUI>());

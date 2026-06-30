@@ -60,6 +60,7 @@ public class PokemonCardData : ScriptableObject
     public int retreatCost = 1;
     [Range(1, 5)]
     public int rarityStars = 1;
+    public float marketPrice = 1.99f;
 
     [Header("Drop Probability")]
     [Range(0f, 100f)]

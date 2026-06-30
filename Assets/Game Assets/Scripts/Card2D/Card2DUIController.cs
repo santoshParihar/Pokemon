@@ -43,6 +43,7 @@ public class Card2DUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private TextMeshProUGUI typeText;
     [SerializeField] private TextMeshProUGUI pokedexClassText;
+    [SerializeField] private TextMeshProUGUI priceText;
 
     // ── Attacks ──────────────────────────────────────────────────────────────
 
@@ -101,6 +102,7 @@ public class Card2DUIController : MonoBehaviour
         // Delegate each concern to its dedicated handler
         Card2DBackgroundHandler.Apply(cardData, bgImage, typeBackgrounds, defaultFrontSprite);
         Card2DTextHandler.Apply(cardData, nameText, hpText, typeText, pokedexClassText, pokemonImage);
+        if (priceText != null) priceText.text = $"${cardData.marketPrice:F2}";
         Card2DAttackHandler.Apply(cardData,
             attack1Name, attack1Cost, attack1Damage, attack1Description,
             attack2Name, attack2Cost, attack2Damage, attack2Description);

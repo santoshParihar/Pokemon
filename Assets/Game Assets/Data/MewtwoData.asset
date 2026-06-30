@@ -37,4 +37,5 @@ MonoBehaviour:
   hasResistance: 0
   retreatCost: 2
   rarityStars: 4
+  marketPrice: 6.99
   dropProbability: 10

@@ -85,36 +85,83 @@ public class CardEditorHelper : EditorWindow
         }
 
         GUILayout.Space(10);
-        GUI.backgroundColor = new Color(0.35f, 0.55f, 0.85f);
-        if (GUILayout.Button("Generate All Available Cards", GUILayout.Height(40)))
-        {
-            GenerateAllAvailableCards();
-        }
         
-        GUILayout.Space(10);
-        GUI.backgroundColor = new Color(0.85f, 0.35f, 0.35f);
-        if (GUILayout.Button("Clear PlayerPrefs (Reset Collection)", GUILayout.Height(30)))
-        {
-            PlayerCollection.ClearAll();
-        }
-        GUI.backgroundColor = Color.white;
     }
 
-    private void GenerateAllAvailableCards()
+
+
+    private static Transform FindChildRecursive(Transform parent, string name)
     {
-        string[] guids = AssetDatabase.FindAssets("t:PokemonCardData", new string[] { "Assets/Game Assets/Data" });
-        int count = 0;
-        foreach (var guid in guids)
+        if (parent.name == name) return parent;
+        foreach (Transform child in parent)
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            PokemonCardData data = AssetDatabase.LoadAssetAtPath<PokemonCardData>(path);
-            if (data != null)
-            {
-                CreatePokemonCardPrefab(cardWidth, cardHeight, cardThickness, cornerRadius, cornerSegments, defaultFacing, canvasSide, customBackTexture, data, false);
-                count++;
-            }
+            Transform found = FindChildRecursive(child, name);
+            if (found != null) return found;
         }
-        Debug.Log($"Successfully generated/updated {count} card prefabs from available Card Data assets!");
+        return null;
+    }
+
+    private static void Setup2DPrefabPriceText()
+    {
+        string prefabPath = "Assets/Game Assets/Prefabs/template/Pokemon2DCard.prefab";
+        GameObject prefabObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefabObj == null)
+        {
+            Debug.LogError($"Could not find 2D card prefab at {prefabPath}");
+            return;
+        }
+
+        GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
+        Card2DUIController controller = prefabRoot.GetComponent<Card2DUIController>();
+        if (controller == null)
+        {
+            Debug.LogError("Card2DUIController component not found on 2D prefab root.");
+            PrefabUtility.UnloadPrefabContents(prefabRoot);
+            return;
+        }
+
+        // Find HeaderPanel recursively to support nested Canvas structures
+        Transform header = FindChildRecursive(prefabRoot.transform, "HeaderPanel");
+        if (header == null)
+        {
+            header = prefabRoot.transform;
+        }
+
+        Transform priceTrans = header.Find("PriceText");
+        GameObject priceObj;
+        if (priceTrans == null)
+        {
+            priceObj = new GameObject("PriceText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            priceObj.transform.SetParent(header, false);
+            RectTransform priceRt = priceObj.GetComponent<RectTransform>();
+            priceRt.anchorMin = new Vector2(0.7f, 0f);
+            priceRt.anchorMax = new Vector2(1f, 0.35f);
+            priceRt.offsetMin = Vector2.zero;
+            priceRt.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            priceObj = priceTrans.gameObject;
+        }
+
+        TextMeshProUGUI priceTMP = priceObj.GetComponent<TextMeshProUGUI>();
+        priceTMP.text = "$1.99";
+        priceTMP.fontSize = 42; // Increased size to make it bigger and readable
+        priceTMP.alignment = TextAlignmentOptions.MidlineRight;
+        priceTMP.color = new Color(0.9f, 0.22f, 0.27f, 1f);
+        priceTMP.fontStyle = FontStyles.Bold;
+
+        SerializedObject so = new SerializedObject(controller);
+        SerializedProperty priceProp = so.FindProperty("priceText");
+        if (priceProp != null)
+        {
+            priceProp.objectReferenceValue = priceTMP;
+            so.ApplyModifiedProperties();
+        }
+
+        PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
+        PrefabUtility.UnloadPrefabContents(prefabRoot);
+        Debug.Log("Successfully added and configured PriceText on 2D Card Prefab!");
     }
 
     public static void CreatePokemonCardPrefab(float width, float height, float thickness, float cornerRadius, int cornerSegments, CardDefaultFacing defaultFacing, CardCanvasSide canvasSide, Texture2D customBackTexture, PokemonCardData selectedCardData, bool spawnInScene = true)
@@ -449,6 +496,24 @@ public class CardEditorHelper : EditorWindow
         pokedexClassTMP.color = new Color(0.12f, 0.14f, 0.18f, 1f); // #1E222B - premium dark slate for high visibility
         pokedexClassTMP.fontStyle = FontStyles.Italic; // Changed to Italic style for authentic Pokedex classification look
 
+        // Price text on the bottom right of the header (directly under HP)
+        GameObject priceTextObj = new GameObject("PriceText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        // Use recursive helper to set parent to HeaderPanel
+        Transform headerPanel = FindChildRecursive(canvasObj.transform, "HeaderPanel");
+        priceTextObj.transform.SetParent(headerPanel ?? headerObj.transform, false);
+        RectTransform priceTextRect = priceTextObj.GetComponent<RectTransform>();
+        priceTextRect.anchorMin = new Vector2(0.7f, 0f);
+        priceTextRect.anchorMax = new Vector2(1f, 0.35f);
+        priceTextRect.offsetMin = Vector2.zero;
+        priceTextRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI priceTMP = priceTextObj.GetComponent<TextMeshProUGUI>();
+        priceTMP.text = "$1.99";
+        priceTMP.fontSize = 38; // Increased size to make it bigger and readable
+        priceTMP.alignment = TextAlignmentOptions.MidlineRight;
+        priceTMP.color = new Color(0.9f, 0.22f, 0.27f, 1f); // Accent crimson
+        priceTMP.fontStyle = FontStyles.Bold;
+
         // HPText on the top right
         GameObject hpTextObj = new GameObject("HPText", typeof(RectTransform), typeof(TextMeshProUGUI));
         hpTextObj.transform.SetParent(headerObj.transform, false);
@@ -646,13 +711,12 @@ public class CardEditorHelper : EditorWindow
         TextMeshProUGUI atk2NameTMP = CreateTextElement(atk2Obj, "Atk2Name", "Attack Two", new Vector2(0, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(180, 22), new Vector2(280, 45), 32, TextAlignmentOptions.Left);
         TextMeshProUGUI atk2DmgTMP = CreateTextElement(atk2Obj, "Atk2Damage", "70", new Vector2(0.5f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-50, 22), new Vector2(110, 45), 32, TextAlignmentOptions.Right);
         TextMeshProUGUI atk2DescTMP = CreateTextElement(atk2Obj, "Atk2Description", "Discard an energy card.", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(25, 14), new Vector2(530, 70), 22, TextAlignmentOptions.Left, FontStyles.Bold);
-        atk2DescTMP.rectTransform.pivot = new Vector2(0f, 1f);
-
-        // 8. Bind UI components to UI Controller
+        atk2DescTMP.rectTransform.pivot = new Vector2(0f, 1f);        // 8. Bind UI components to UI Controller
         var nameTextField = typeof(CardUIController).GetField("nameText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var hpTextField = typeof(CardUIController).GetField("hpText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var typeTextField = typeof(CardUIController).GetField("typeText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var pokedexClassTextField = typeof(CardUIController).GetField("pokedexClassText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var priceTextField = typeof(CardUIController).GetField("priceText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var pokemonImageField = typeof(CardUIController).GetField("pokemonImage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         
         var attack1NameField = typeof(CardUIController).GetField("attack1Name", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -676,6 +740,7 @@ public class CardEditorHelper : EditorWindow
         hpTextField?.SetValue(uiController, hpTMP);
         typeTextField?.SetValue(uiController, typeTMP);
         pokedexClassTextField?.SetValue(uiController, pokedexClassTMP);
+        priceTextField?.SetValue(uiController, priceTMP);
         pokemonImageField?.SetValue(uiController, artImg);
 
         attack1NameField?.SetValue(uiController, atk1NameTMP);
@@ -755,6 +820,9 @@ public class CardEditorHelper : EditorWindow
             }
             EditorUtility.SetDirty(poc);
         }
+
+        // Automatically sync and configure 2D template card price tag elements
+        Setup2DPrefabPriceText();
 
         Debug.Log($"Successfully created Card materials, Charmander/Bulbasaur/Squirtle Data assets, local Baked Mesh asset, and complete 3D Pokemon Card Prefab at: {cardPrefabPath}!");
     }

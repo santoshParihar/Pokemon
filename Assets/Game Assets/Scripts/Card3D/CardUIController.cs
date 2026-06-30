@@ -74,6 +74,8 @@ public class CardUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI badgeResistTmp;
     [SerializeField] private TextMeshProUGUI badgeRarityTmp;
 
+    [SerializeField] private TextMeshProUGUI priceText;
+
     private MeshRenderer meshRenderer;
 
     private Material instancedFrontMaterial;
@@ -118,6 +120,7 @@ public class CardUIController : MonoBehaviour
         if (hpText != null) hpText.text = $"{cardData.hp} HP";
         if (typeText != null) typeText.text = cardData.cardType.ToString();
         if (pokedexClassText != null) pokedexClassText.text = cardData.pokedexClass;
+        if (priceText != null) priceText.text = $"${cardData.marketPrice:F2}";
 
         if (pokemonImage != null)
         {
