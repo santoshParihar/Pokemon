@@ -34,6 +34,7 @@ public class MainUIManager : MonoBehaviour
     [SerializeField] private Transform gridContentContainer;
     [SerializeField] private List<PokemonCardData> cardsData = new List<PokemonCardData>();
     [SerializeField] private TMP_InputField searchInputField;
+    [SerializeField] private TMP_Dropdown sortDropdown;
 
     [Header("Empty Collection State")]
     [Tooltip("Optional label shown when the player owns no cards yet.")]
@@ -73,6 +74,14 @@ public class MainUIManager : MonoBehaviour
             {
                 searchInputField.onValueChanged.RemoveAllListeners();
                 searchInputField.onValueChanged.AddListener((val) => {
+                    EnsureSubComponents();
+                    collectionGrid.Spawn2DCardGrid();
+                });
+            }
+            if (sortDropdown != null)
+            {
+                sortDropdown.onValueChanged.RemoveAllListeners();
+                sortDropdown.onValueChanged.AddListener((val) => {
                     EnsureSubComponents();
                     collectionGrid.Spawn2DCardGrid();
                 });
@@ -326,6 +335,7 @@ public class MainUIManager : MonoBehaviour
             gridContentContainer,
             cardsData,
             searchInputField,
+            sortDropdown,
             emptyCollectionHint,
             ShowInspectOverlay
         );

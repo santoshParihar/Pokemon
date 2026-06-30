@@ -9,6 +9,7 @@ public class CollectionGridManager : MonoBehaviour
     private Transform gridContentContainer;
     private List<PokemonCardData> cardsData;
     private TMP_InputField searchInputField;
+    private TMP_Dropdown sortDropdown;
     private GameObject emptyCollectionHint;
     private System.Action<PokemonCardData> onCardClicked;
 
@@ -19,6 +20,7 @@ public class CollectionGridManager : MonoBehaviour
         Transform gridContentContainer,
         List<PokemonCardData> cardsData,
         TMP_InputField searchInputField,
+        TMP_Dropdown sortDropdown,
         GameObject emptyCollectionHint,
         System.Action<PokemonCardData> onCardClicked)
     {
@@ -26,6 +28,7 @@ public class CollectionGridManager : MonoBehaviour
         this.gridContentContainer = gridContentContainer;
         this.cardsData = cardsData;
         this.searchInputField = searchInputField;
+        this.sortDropdown = sortDropdown;
         this.emptyCollectionHint = emptyCollectionHint;
         this.onCardClicked = onCardClicked;
     }
@@ -59,6 +62,30 @@ public class CollectionGridManager : MonoBehaviour
         {
             string query = searchInputField.text.ToLower();
             displayCards = displayCards.FindAll(c => c.pokemonName.ToLower().Contains(query));
+        }
+
+        // Sort displayCards based on dropdown value:
+        // 0: Name (A-Z)
+        // 1: Name (Z-A)
+        // 2: Price (Low to High)
+        // 3: Price (High to Low)
+        if (sortDropdown != null)
+        {
+            switch (sortDropdown.value)
+            {
+                case 0: // Name (A-Z)
+                    displayCards.Sort((a, b) => string.Compare(a.pokemonName, b.pokemonName, System.StringComparison.OrdinalIgnoreCase));
+                    break;
+                case 1: // Name (Z-A)
+                    displayCards.Sort((a, b) => string.Compare(b.pokemonName, a.pokemonName, System.StringComparison.OrdinalIgnoreCase));
+                    break;
+                case 2: // Price (Low to High)
+                    displayCards.Sort((a, b) => a.marketPrice.CompareTo(b.marketPrice));
+                    break;
+                case 3: // Price (High to Low)
+                    displayCards.Sort((a, b) => b.marketPrice.CompareTo(a.marketPrice));
+                    break;
+            }
         }
 
         if (displayCards.Count == 0) return;

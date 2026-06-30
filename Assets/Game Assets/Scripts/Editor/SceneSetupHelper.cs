@@ -230,20 +230,211 @@ public class SceneSetupHelper
         colPanelImg.sprite = null;
         colPanelImg.color = new Color(1f, 1f, 1f, 0.5f);
 
-        // Create Search Input Field
+        // Create Search Input Field (Left 60% of width)
         GameObject searchBarObj = new GameObject("SearchInputField", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
         searchBarObj.transform.SetParent(colPanelObj.transform, false);
         RectTransform searchBarRect = searchBarObj.GetComponent<RectTransform>();
-        searchBarRect.anchorMin = new Vector2(0, 1);
-        searchBarRect.anchorMax = new Vector2(1, 1);
-        searchBarRect.pivot = new Vector2(0.5f, 1f);
-        searchBarRect.anchoredPosition = new Vector2(0, 0);
-        searchBarRect.sizeDelta = new Vector2(-40, 80);
+        searchBarRect.anchorMin = new Vector2(0f, 1f);
+        searchBarRect.anchorMax = new Vector2(0.60f, 1f); // Reduced to 60% to make margin space
+        searchBarRect.pivot = new Vector2(0f, 1f);
+        searchBarRect.anchoredPosition = new Vector2(20f, -10f); // 20px padding from left, 10px from top
+        searchBarRect.sizeDelta = new Vector2(0f, 80f);
 
         Image searchBarImg = searchBarObj.GetComponent<Image>();
         searchBarImg.material = AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
         searchBarImg.type = Image.Type.Sliced;
         searchBarImg.color = new Color(0.12f, 0.15f, 0.22f, 1f);
+
+        // Create Sort Dropdown (Right 36% of width, leaving a 4% gap for margin)
+        GameObject sortDropdownObj = null;
+        
+        // 1. Create standard legacy dropdown layout as the base structure
+        DefaultControls.Resources resources = new DefaultControls.Resources();
+        resources.standard = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd");
+        resources.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+        resources.inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd");
+        resources.knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+        resources.checkmark = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
+        resources.dropdown = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd");
+        resources.mask = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UIMask.psd");
+
+        sortDropdownObj = DefaultControls.CreateDropdown(resources);
+        sortDropdownObj.name = "SortDropdown";
+        sortDropdownObj.transform.SetParent(colPanelObj.transform, false);
+
+        // 2. Convert text components to TextMeshPro
+        Transform labelTrans = sortDropdownObj.transform.Find("Label");
+        Transform itemLabelTrans = sortDropdownObj.transform.Find("Template/Viewport/Content/Item/Item Label");
+
+        if (labelTrans != null)
+        {
+            var txt = labelTrans.GetComponent<Text>();
+            if (txt != null) Object.DestroyImmediate(txt);
+            labelTrans.gameObject.AddComponent<TextMeshProUGUI>();
+        }
+
+        if (itemLabelTrans != null)
+        {
+            var txt = itemLabelTrans.GetComponent<Text>();
+            if (txt != null) Object.DestroyImmediate(txt);
+            itemLabelTrans.gameObject.AddComponent<TextMeshProUGUI>();
+        }
+
+        // 3. Swap the Dropdown component for TMP_Dropdown
+        var legacyDropdown = sortDropdownObj.GetComponent<Dropdown>();
+        if (legacyDropdown != null) Object.DestroyImmediate(legacyDropdown);
+
+        TMP_Dropdown dropdownComponent = sortDropdownObj.AddComponent<TMP_Dropdown>();
+
+        // 4. Link TMPro dropdown references
+        var templateRt = sortDropdownObj.transform.Find("Template") as RectTransform;
+        var captionTextTmp = labelTrans != null ? labelTrans.GetComponent<TextMeshProUGUI>() : null;
+        var itemTextTmp = itemLabelTrans != null ? itemLabelTrans.GetComponent<TextMeshProUGUI>() : null;
+
+        dropdownComponent.template = templateRt;
+        dropdownComponent.captionText = captionTextTmp;
+        dropdownComponent.itemText = itemTextTmp;
+
+        // FIX 1: Canvas override sorting — forces dropdown list to render on top of all other UI
+        // Without this, the list renders BEHIND card grid elements and text is invisible
+        if (templateRt != null)
+        {
+            Canvas templateCanvas = templateRt.gameObject.GetComponent<Canvas>();
+            if (templateCanvas == null)
+                templateCanvas = templateRt.gameObject.AddComponent<Canvas>();
+            templateCanvas.overrideSorting = true;
+            templateCanvas.sortingOrder = 100;
+
+            // GraphicRaycaster needed so clicks inside the list register
+            if (templateRt.gameObject.GetComponent<GraphicRaycaster>() == null)
+                templateRt.gameObject.AddComponent<GraphicRaycaster>();
+
+            // FIX 2: Position Template to open BELOW the dropdown button
+            // anchorMin/Max at bottom edge of parent, pivot at top = drops downward
+            templateRt.anchorMin = new Vector2(0f, 0f);
+            templateRt.anchorMax = new Vector2(1f, 0f);
+            templateRt.pivot = new Vector2(0.5f, 1f);
+            templateRt.anchoredPosition = new Vector2(0f, -15f);
+            templateRt.sizeDelta = new Vector2(0f, 360f); // 4 items × 90px each
+
+            // Template must be inactive at edit-time (Unity requirement)
+            templateRt.gameObject.SetActive(false);
+
+            // FIX 3: Replace Mask with RectMask2D on the Viewport.
+            // Mask uses the stencil buffer, which breaks when inside an overrideSorting Canvas.
+            // RectMask2D clips purely by rect bounds — no stencil, no conflict.
+            Transform viewportTrans = templateRt.Find("Viewport");
+            if (viewportTrans != null)
+            {
+                // Remove the stencil-based Mask (and its required Image) 
+                Mask oldMask = viewportTrans.GetComponent<Mask>();
+                if (oldMask != null) Object.DestroyImmediate(oldMask);
+
+                // Remove the Image that was used as the mask shape (not needed for RectMask2D)
+                Image maskImage = viewportTrans.GetComponent<Image>();
+                if (maskImage != null) Object.DestroyImmediate(maskImage);
+
+                // Add RectMask2D — clips children to rect, works perfectly with nested Canvas
+                if (viewportTrans.GetComponent<RectMask2D>() == null)
+                    viewportTrans.gameObject.AddComponent<RectMask2D>();
+            }
+        }
+
+        // 5. CRITICAL: Add and configure TMP_Dropdown.DropdownItem on the Item GameObject!
+        Transform itemTrans = sortDropdownObj.transform.Find("Template/Viewport/Content/Item");
+        if (itemTrans != null)
+        {
+            // Remove legacy DropdownItem if it exists
+            var legacyItemComponent = itemTrans.GetComponent("DropdownItem");
+            if (legacyItemComponent != null) Object.DestroyImmediate(legacyItemComponent);
+
+            System.Type dropdownItemType = typeof(TMP_Dropdown).GetNestedType("DropdownItem", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static);
+            if (dropdownItemType != null)
+            {
+                var tmpDropdownItem = itemTrans.gameObject.AddComponent(dropdownItemType);
+                
+                // Assign 'text' via reflection
+                var textProp = dropdownItemType.GetProperty("text", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (textProp != null) textProp.SetValue(tmpDropdownItem, itemTextTmp);
+                else dropdownItemType.GetField("m_Text", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tmpDropdownItem, itemTextTmp);
+
+                // Assign 'image' via reflection
+                Transform checkmarkTrans = itemTrans.Find("Item Checkmark");
+                Image checkmarkImg = checkmarkTrans != null ? checkmarkTrans.GetComponent<Image>() : null;
+                var imageProp = dropdownItemType.GetProperty("image", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (imageProp != null) imageProp.SetValue(tmpDropdownItem, checkmarkImg);
+                else dropdownItemType.GetField("m_Image", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tmpDropdownItem, checkmarkImg);
+
+                // Assign 'toggle' via reflection
+                var toggleComp = itemTrans.GetComponent<Toggle>();
+                var toggleProp = dropdownItemType.GetProperty("toggle", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (toggleProp != null) toggleProp.SetValue(tmpDropdownItem, toggleComp);
+                else dropdownItemType.GetField("m_Toggle", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tmpDropdownItem, toggleComp);
+
+                // Assign 'rectTransform' via reflection to avoid UnassignedReferenceException
+                var rectTransComp = itemTrans.GetComponent<RectTransform>();
+                var rectTransProp = dropdownItemType.GetProperty("rectTransform", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (rectTransProp != null) rectTransProp.SetValue(tmpDropdownItem, rectTransComp);
+                else dropdownItemType.GetField("m_RectTransform", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tmpDropdownItem, rectTransComp);
+
+                // Make each item row 90px tall — large enough to tap comfortably
+                if (rectTransComp != null)
+                    rectTransComp.sizeDelta = new Vector2(rectTransComp.sizeDelta.x, 90f);
+            }
+        }
+
+        // Configure options
+        if (dropdownComponent != null)
+        {
+            dropdownComponent.options.Clear();
+            dropdownComponent.options.Add(new TMP_Dropdown.OptionData("Name: A-Z"));
+            dropdownComponent.options.Add(new TMP_Dropdown.OptionData("Name: Z-A"));
+            dropdownComponent.options.Add(new TMP_Dropdown.OptionData("Price: Low to High"));
+            dropdownComponent.options.Add(new TMP_Dropdown.OptionData("Price: High to Low"));
+        }
+
+        if (sortDropdownObj != null)
+        {
+            RectTransform sortDropdownRect = sortDropdownObj.GetComponent<RectTransform>();
+            sortDropdownRect.anchorMin = new Vector2(0.64f, 1f); // Starts at 64% (leaving a 4% gap!)
+            sortDropdownRect.anchorMax = new Vector2(1f, 1f);
+            sortDropdownRect.pivot = new Vector2(1f, 1f);
+            sortDropdownRect.anchoredPosition = new Vector2(-20f, -10f); // 20px padding from right, 10px from top
+            sortDropdownRect.sizeDelta = new Vector2(0f, 80f);
+
+            // Style the dropdown image background
+            Image dropdownImg = sortDropdownObj.GetComponent<Image>();
+            if (dropdownImg != null)
+            {
+                dropdownImg.color = new Color(0.12f, 0.15f, 0.22f, 1f); // Same dark slate background
+            }
+
+            // Find a valid font to apply
+            TMP_FontAsset defaultFont = titleTMP != null ? titleTMP.font : null;
+            if (defaultFont == null)
+            {
+                string[] fontGuids = AssetDatabase.FindAssets("t:TMP_FontAsset");
+                if (fontGuids.Length > 0)
+                {
+                    defaultFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(AssetDatabase.GUIDToAssetPath(fontGuids[0]));
+                }
+            }
+
+            if (captionTextTmp != null)
+            {
+                if (defaultFont != null) captionTextTmp.font = defaultFont;
+                captionTextTmp.color = Color.white;
+                captionTextTmp.fontSize = 28;
+                captionTextTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            }
+            if (itemTextTmp != null)
+            {
+                if (defaultFont != null) itemTextTmp.font = defaultFont;
+                itemTextTmp.color = Color.black;
+                itemTextTmp.fontSize = 34; // Large — easy to read and tap
+                itemTextTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            }
+        }
 
         TMP_InputField inputComponent = searchBarObj.GetComponent<TMP_InputField>();
 
@@ -439,6 +630,7 @@ public class SceneSetupHelper
         var card3DPrefabsField = typeof(MainUIManager).GetField("card3DPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var inspectOverlayCloseButtonField = typeof(MainUIManager).GetField("inspectOverlayCloseButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var searchInputFieldField = typeof(MainUIManager).GetField("searchInputField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var sortDropdownField = typeof(MainUIManager).GetField("sortDropdown", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
  
         mainCanvasField?.SetValue(uiManager, canvas);
         appTitleField?.SetValue(uiManager, titleTMP);
@@ -455,6 +647,7 @@ public class SceneSetupHelper
         inspect3DAnchorField?.SetValue(uiManager, inspectAnchorObj.transform);
         inspectOverlayCloseButtonField?.SetValue(uiManager, closeBtn);
         searchInputFieldField?.SetValue(uiManager, inputComponent);
+        sortDropdownField?.SetValue(uiManager, dropdownComponent);
 
         // Attach and wire up CollectionSearchField script dynamically
         CollectionSearchField searchField = searchBarObj.GetComponent<CollectionSearchField>();
