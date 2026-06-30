@@ -61,6 +61,7 @@ public class MainUIManager : MonoBehaviour
     private GameObject loadingOverlayInstance;
     private RectTransform loadingProgressBarFill;
     private TextMeshProUGUI loadingProgressText;
+    private TextMeshProUGUI loadingStatusText;
 
     private void Start()
     {
@@ -100,18 +101,53 @@ public class MainUIManager : MonoBehaviour
                 }
                 if (loadingProgressText != null)
                 {
-                    loadingProgressText.text = $"Loading Game Assets... {Mathf.RoundToInt(progress * 100)}%";
+                    loadingProgressText.text = $"{Mathf.RoundToInt(progress * 100)}%";
+                }
+                if (loadingStatusText != null && cardsData != null && cardsData.Count > 0)
+                {
+                    int index = Mathf.Clamp(Mathf.FloorToInt(progress * cardsData.Count), 0, cardsData.Count - 1);
+                    if (cardsData[index] != null)
+                    {
+                        loadingStatusText.text = $"Syncing card data: {cardsData[index].pokemonName}...";
+                    }
                 }
             },
             onComplete: () =>
             {
                 if (loadingOverlayInstance != null)
                 {
-                    Destroy(loadingOverlayInstance);
+                    CanvasGroup cg = loadingOverlayInstance.GetComponent<CanvasGroup>();
+                    if (cg != null)
+                    {
+                        #if PRIME_TWEEN_INSTALLED
+                        PrimeTween.Tween.Alpha(cg, 0f, 0.5f, PrimeTween.Ease.OutCubic).OnComplete(() =>
+                        {
+                            if (loadingOverlayInstance != null) Destroy(loadingOverlayInstance);
+                            if (collectionTabButton != null) collectionTabButton.interactable = true;
+                            if (storeTabButton != null) storeTabButton.interactable = true;
+                            SwitchToTab(activeTab);
+                        });
+                        #else
+                        Destroy(loadingOverlayInstance);
+                        if (collectionTabButton != null) collectionTabButton.interactable = true;
+                        if (storeTabButton != null) storeTabButton.interactable = true;
+                        SwitchToTab(activeTab);
+                        #endif
+                    }
+                    else
+                    {
+                        Destroy(loadingOverlayInstance);
+                        if (collectionTabButton != null) collectionTabButton.interactable = true;
+                        if (storeTabButton != null) storeTabButton.interactable = true;
+                        SwitchToTab(activeTab);
+                    }
                 }
-                if (collectionTabButton != null) collectionTabButton.interactable = true;
-                if (storeTabButton != null) storeTabButton.interactable = true;
-                SwitchToTab(activeTab);
+                else
+                {
+                    if (collectionTabButton != null) collectionTabButton.interactable = true;
+                    if (storeTabButton != null) storeTabButton.interactable = true;
+                    SwitchToTab(activeTab);
+                }
             }
         );
     }
@@ -121,7 +157,8 @@ public class MainUIManager : MonoBehaviour
         if (mainCanvas == null) mainCanvas = FindObjectOfType<Canvas>();
         if (mainCanvas == null) return;
 
-        loadingOverlayInstance = new GameObject("LoadingOverlay", typeof(RectTransform), typeof(Image));
+        // 1. Create Loading Overlay Panel
+        loadingOverlayInstance = new GameObject("LoadingOverlay", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
         loadingOverlayInstance.transform.SetParent(mainCanvas.transform, false);
         
         RectTransform overlayRt = loadingOverlayInstance.GetComponent<RectTransform>();
@@ -131,43 +168,84 @@ public class MainUIManager : MonoBehaviour
         overlayRt.offsetMax = Vector2.zero;
         
         Image bgImage = loadingOverlayInstance.GetComponent<Image>();
-        bgImage.color = new Color(0.07f, 0.08f, 0.1f, 1f);
+        bgImage.color = new Color(0.06f, 0.08f, 0.11f, 1f); // Deep graphite (#0F141C)
 
+        // 2. Create Centered Container for items
         GameObject container = new GameObject("Container", typeof(RectTransform));
         container.transform.SetParent(loadingOverlayInstance.transform, false);
         RectTransform containerRt = container.GetComponent<RectTransform>();
         containerRt.anchorMin = new Vector2(0.5f, 0.5f);
         containerRt.anchorMax = new Vector2(0.5f, 0.5f);
         containerRt.pivot = new Vector2(0.5f, 0.5f);
-        containerRt.anchoredPosition = Vector2.zero;
-        containerRt.sizeDelta = new Vector2(600, 300);
+        containerRt.anchoredPosition = new Vector2(0f, -50f);
+        containerRt.sizeDelta = new Vector2(700, 450);
 
+        // 3. Brand Logo Title
+        GameObject titleObj = new GameObject("BrandTitle", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(container.transform, false);
+        RectTransform titleRt = titleObj.GetComponent<RectTransform>();
+        titleRt.anchorMin = new Vector2(0f, 0.72f);
+        titleRt.anchorMax = new Vector2(1f, 0.95f);
+        titleRt.offsetMin = Vector2.zero;
+        titleRt.offsetMax = Vector2.zero;
+        
+        TextMeshProUGUI titleTMP = titleObj.GetComponent<TextMeshProUGUI>();
+        titleTMP.text = "CARD OUTPOST";
+        titleTMP.fontSize = 62f;
+        titleTMP.alignment = TextAlignmentOptions.Center;
+        titleTMP.color = Color.white;
+        titleTMP.fontStyle = FontStyles.Bold;
+
+        // 4. Subtitle
+        GameObject subtitleObj = new GameObject("BrandSubtitle", typeof(RectTransform), typeof(TextMeshProUGUI));
+        subtitleObj.transform.SetParent(container.transform, false);
+        RectTransform subtitleRt = subtitleObj.GetComponent<RectTransform>();
+        subtitleRt.anchorMin = new Vector2(0f, 0.60f);
+        subtitleRt.anchorMax = new Vector2(1f, 0.72f);
+        subtitleRt.offsetMin = Vector2.zero;
+        subtitleRt.offsetMax = Vector2.zero;
+        
+        TextMeshProUGUI subtitleTMP = subtitleObj.GetComponent<TextMeshProUGUI>();
+        subtitleTMP.text = "TCG COLLECTION COMPANION";
+        subtitleTMP.fontSize = 22f;
+        subtitleTMP.alignment = TextAlignmentOptions.Center;
+        subtitleTMP.color = new Color(0.9f, 0.22f, 0.27f, 1f); // Theme crimson
+        subtitleTMP.fontStyle = FontStyles.Bold;
+
+        // 5. Progress Percentage Text
         GameObject textObj = new GameObject("ProgressText", typeof(RectTransform), typeof(TextMeshProUGUI));
         textObj.transform.SetParent(container.transform, false);
         RectTransform textRt = textObj.GetComponent<RectTransform>();
-        textRt.anchorMin = new Vector2(0f, 0.6f);
-        textRt.anchorMax = new Vector2(1f, 1f);
+        textRt.anchorMin = new Vector2(0f, 0.42f);
+        textRt.anchorMax = new Vector2(1f, 0.55f);
         textRt.offsetMin = Vector2.zero;
         textRt.offsetMax = Vector2.zero;
         
         loadingProgressText = textObj.GetComponent<TextMeshProUGUI>();
-        loadingProgressText.text = "Loading Game Assets... 0%";
+        loadingProgressText.text = "0%";
         loadingProgressText.fontSize = 32f;
         loadingProgressText.alignment = TextAlignmentOptions.Center;
-        loadingProgressText.color = Color.white;
+        loadingProgressText.color = new Color(0.7f, 0.75f, 0.8f, 0.95f);
         loadingProgressText.fontStyle = FontStyles.Bold;
 
+        // Create a custom runtime rounded slice sprite
+        Sprite barSprite = CreateRuntimeRoundedRectSprite(128, 32, 12f);
+
+        // 6. Progress Bar Background
         GameObject barBg = new GameObject("ProgressBarBg", typeof(RectTransform), typeof(Image));
         barBg.transform.SetParent(container.transform, false);
         RectTransform barBgRt = barBg.GetComponent<RectTransform>();
-        barBgRt.anchorMin = new Vector2(0.1f, 0.35f);
-        barBgRt.anchorMax = new Vector2(0.9f, 0.45f);
+        barBgRt.anchorMin = new Vector2(0.08f, 0.28f);
+        barBgRt.anchorMax = new Vector2(0.92f, 0.35f);
         barBgRt.offsetMin = Vector2.zero;
         barBgRt.offsetMax = Vector2.zero;
         
         Image barBgImg = barBg.GetComponent<Image>();
-        barBgImg.color = new Color(0.2f, 0.22f, 0.25f, 1f);
+        barBgImg.sprite = barSprite;
+        barBgImg.type = Image.Type.Sliced;
+        barBgImg.color = new Color(0.12f, 0.15f, 0.20f, 1f);
 
+        // 7. Progress Bar Fill
         GameObject barFill = new GameObject("ProgressBarFill", typeof(RectTransform), typeof(Image));
         barFill.transform.SetParent(barBg.transform, false);
         loadingProgressBarFill = barFill.GetComponent<RectTransform>();
@@ -177,7 +255,57 @@ public class MainUIManager : MonoBehaviour
         loadingProgressBarFill.offsetMax = Vector2.zero;
         
         Image barFillImg = barFill.GetComponent<Image>();
-        barFillImg.color = new Color(0.9f, 0.15f, 0.25f, 1f);
+        barFillImg.sprite = barSprite;
+        barFillImg.type = Image.Type.Sliced;
+        barFillImg.color = new Color(0.9f, 0.22f, 0.27f, 1f); // Vibrant red fill
+
+        // 8. Dynamic Status Text
+        GameObject statusObj = new GameObject("StatusText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        statusObj.transform.SetParent(container.transform, false);
+        RectTransform statusRt = statusObj.GetComponent<RectTransform>();
+        statusRt.anchorMin = new Vector2(0f, 0.05f);
+        statusRt.anchorMax = new Vector2(1f, 0.20f);
+        statusRt.offsetMin = Vector2.zero;
+        statusRt.offsetMax = Vector2.zero;
+
+        loadingStatusText = statusObj.GetComponent<TextMeshProUGUI>();
+        loadingStatusText.text = "Syncing card database...";
+        loadingStatusText.fontSize = 20f;
+        loadingStatusText.alignment = TextAlignmentOptions.Center;
+        loadingStatusText.color = new Color(0.55f, 0.6f, 0.65f, 0.8f);
+        loadingStatusText.fontStyle = FontStyles.Italic;
+    }
+
+    private Sprite CreateRuntimeRoundedRectSprite(int width, int height, float radius)
+    {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        Color transparent = new Color(0f, 0f, 0f, 0f);
+        Color white = Color.white;
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                float cx = x < radius ? radius : (x > width - radius ? width - radius : x);
+                float cy = y < radius ? radius : (y > height - radius ? height - radius : y);
+                
+                float dx = x - cx;
+                float dy = y - cy;
+                
+                if (dx * dx + dy * dy > radius * radius)
+                {
+                    tex.SetPixel(x, y, transparent);
+                }
+                else
+                {
+                    tex.SetPixel(x, y, white);
+                }
+            }
+        }
+        tex.Apply();
+        
+        float border = radius;
+        return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.Tight, new Vector4(border, border, border, border));
     }
 
     private void EnsureSubComponents()
