@@ -34,7 +34,9 @@ public class PokemonCardData : ScriptableObject
     public string pokedexClass = "Seed Pokémon";
     public PokemonType cardType = PokemonType.Grass;
     public Sprite pokemonSprite;
+    public string imageUrl;
     public Sprite customBackgroundSprite;
+    public string customBackgroundUrl;
 
     [Header("Attack 1")]
     public string attack1Name = "Tackle";

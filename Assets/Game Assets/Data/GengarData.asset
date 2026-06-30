@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Shadow Pok\xE9mon"
   cardType: 4
   pokemonSprite: {fileID: 21300000, guid: e8648731d861343909ad983734d86079, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/liasr71jgysn5s8l057gv/Gengar.png?rlkey=zvlxhk2or7pznfs6315jbbzsy&st=osf6lybb&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: 7d975011a5695456cadd1163a819a17d, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/age52h3htead44bddf86v/Property-1-Metal.png?rlkey=9jxmior03ftu1k30tlqdcgq0w&st=dz61op8x&dl=1
   attack1Name: Shadow Pain
   attack1CostText: P P
   attack1Damage: 60

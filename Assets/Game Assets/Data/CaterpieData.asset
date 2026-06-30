@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Worm Pok\xE9mon"
   cardType: 0
   pokemonSprite: {fileID: 21300000, guid: 0f3bafdc0ae0f41839f3cfd63ef93e32, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/cqhi70b1jjj8dsdnti2gk/Caterpie.png?rlkey=xaewh3ijsyego7m2am4ziodru&st=os4i65mr&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: f26afd2414cec4d378e0298eb8274e62, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/l9z1vxbbj7dvajzc7xfha/Property-1-Darkness.png?rlkey=zycm5qpxjjkdrqfgiuf28nngu&st=c1e9hqn7&dl=1
   attack1Name: Tackle
   attack1CostText: C
   attack1Damage: 10

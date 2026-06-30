@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Genetic Pok\xE9mon"
   cardType: 4
   pokemonSprite: {fileID: 21300000, guid: 6cf2376e9b9434e51a769dcb1f1aaedc, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/i7qeiaecvilcxsmwgrk2e/Mewtwo.png?rlkey=yqbk1swayx6y2282e5ewjxcw5&st=pr5edemi&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: 2134e11edd3224d979f4edce886a906b, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/ff2qhbgeg84bybub1ob37/Property-1-Water.png?rlkey=hrpzg5mhf74mx03qilz5gxzrz&st=2qfc9ebw&dl=1
   attack1Name: Psyburn
   attack1CostText: P P C
   attack1Damage: 110

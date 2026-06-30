@@ -58,6 +58,10 @@ public class MainUIManager : MonoBehaviour
         SetupUI();
     }
 
+    private GameObject loadingOverlayInstance;
+    private RectTransform loadingProgressBarFill;
+    private TextMeshProUGUI loadingProgressText;
+
     private void Start()
     {
         EnsureSubComponents();
@@ -72,8 +76,108 @@ public class MainUIManager : MonoBehaviour
                     collectionGrid.Spawn2DCardGrid();
                 });
             }
+            StartPreloadingSequence();
         }
-        SwitchToTab(activeTab);
+        else
+        {
+            SwitchToTab(activeTab);
+        }
+    }
+
+    private void StartPreloadingSequence()
+    {
+        if (collectionTabButton != null) collectionTabButton.interactable = false;
+        if (storeTabButton != null) storeTabButton.interactable = false;
+
+        CreateLoadingOverlay();
+
+        ImageCacheManager.Instance.PreloadImages(cardsData, 
+            onProgress: (progress) =>
+            {
+                if (loadingProgressBarFill != null)
+                {
+                    loadingProgressBarFill.anchorMax = new Vector2(progress, 1f);
+                }
+                if (loadingProgressText != null)
+                {
+                    loadingProgressText.text = $"Loading Game Assets... {Mathf.RoundToInt(progress * 100)}%";
+                }
+            },
+            onComplete: () =>
+            {
+                if (loadingOverlayInstance != null)
+                {
+                    Destroy(loadingOverlayInstance);
+                }
+                if (collectionTabButton != null) collectionTabButton.interactable = true;
+                if (storeTabButton != null) storeTabButton.interactable = true;
+                SwitchToTab(activeTab);
+            }
+        );
+    }
+
+    private void CreateLoadingOverlay()
+    {
+        if (mainCanvas == null) mainCanvas = FindObjectOfType<Canvas>();
+        if (mainCanvas == null) return;
+
+        loadingOverlayInstance = new GameObject("LoadingOverlay", typeof(RectTransform), typeof(Image));
+        loadingOverlayInstance.transform.SetParent(mainCanvas.transform, false);
+        
+        RectTransform overlayRt = loadingOverlayInstance.GetComponent<RectTransform>();
+        overlayRt.anchorMin = Vector2.zero;
+        overlayRt.anchorMax = Vector2.one;
+        overlayRt.offsetMin = Vector2.zero;
+        overlayRt.offsetMax = Vector2.zero;
+        
+        Image bgImage = loadingOverlayInstance.GetComponent<Image>();
+        bgImage.color = new Color(0.07f, 0.08f, 0.1f, 1f);
+
+        GameObject container = new GameObject("Container", typeof(RectTransform));
+        container.transform.SetParent(loadingOverlayInstance.transform, false);
+        RectTransform containerRt = container.GetComponent<RectTransform>();
+        containerRt.anchorMin = new Vector2(0.5f, 0.5f);
+        containerRt.anchorMax = new Vector2(0.5f, 0.5f);
+        containerRt.pivot = new Vector2(0.5f, 0.5f);
+        containerRt.anchoredPosition = Vector2.zero;
+        containerRt.sizeDelta = new Vector2(600, 300);
+
+        GameObject textObj = new GameObject("ProgressText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObj.transform.SetParent(container.transform, false);
+        RectTransform textRt = textObj.GetComponent<RectTransform>();
+        textRt.anchorMin = new Vector2(0f, 0.6f);
+        textRt.anchorMax = new Vector2(1f, 1f);
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+        
+        loadingProgressText = textObj.GetComponent<TextMeshProUGUI>();
+        loadingProgressText.text = "Loading Game Assets... 0%";
+        loadingProgressText.fontSize = 32f;
+        loadingProgressText.alignment = TextAlignmentOptions.Center;
+        loadingProgressText.color = Color.white;
+        loadingProgressText.fontStyle = FontStyles.Bold;
+
+        GameObject barBg = new GameObject("ProgressBarBg", typeof(RectTransform), typeof(Image));
+        barBg.transform.SetParent(container.transform, false);
+        RectTransform barBgRt = barBg.GetComponent<RectTransform>();
+        barBgRt.anchorMin = new Vector2(0.1f, 0.35f);
+        barBgRt.anchorMax = new Vector2(0.9f, 0.45f);
+        barBgRt.offsetMin = Vector2.zero;
+        barBgRt.offsetMax = Vector2.zero;
+        
+        Image barBgImg = barBg.GetComponent<Image>();
+        barBgImg.color = new Color(0.2f, 0.22f, 0.25f, 1f);
+
+        GameObject barFill = new GameObject("ProgressBarFill", typeof(RectTransform), typeof(Image));
+        barFill.transform.SetParent(barBg.transform, false);
+        loadingProgressBarFill = barFill.GetComponent<RectTransform>();
+        loadingProgressBarFill.anchorMin = Vector2.zero;
+        loadingProgressBarFill.anchorMax = new Vector2(0f, 1f);
+        loadingProgressBarFill.offsetMin = Vector2.zero;
+        loadingProgressBarFill.offsetMax = Vector2.zero;
+        
+        Image barFillImg = barFill.GetComponent<Image>();
+        barFillImg.color = new Color(0.9f, 0.15f, 0.25f, 1f);
     }
 
     private void EnsureSubComponents()

@@ -106,9 +106,31 @@ public class PackSummaryBuilder : MonoBehaviour
         iconLE.preferredWidth  = 76f;
         iconLE.flexibleWidth   = 0f;
         Image iconImg          = iconObj.GetComponent<Image>();
-        iconImg.sprite         = card.pokemonSprite;
         iconImg.preserveAspect = true;
-        iconImg.color          = card.pokemonSprite != null ? Color.white : new Color(0f, 0f, 0f, 0f);
+
+        if (Application.isPlaying && !string.IsNullOrEmpty(card.imageUrl))
+        {
+            iconImg.color = new Color(0f, 0f, 0f, 0f); // Hidden/placeholder while loading
+            ImageCacheManager.Instance.LoadImage(card.imageUrl, (Sprite downloadedSprite) =>
+            {
+                if (iconImg == null) return;
+                if (downloadedSprite != null)
+                {
+                    iconImg.sprite = downloadedSprite;
+                    iconImg.color = Color.white;
+                }
+                else
+                {
+                    iconImg.sprite = card.pokemonSprite;
+                    iconImg.color = card.pokemonSprite != null ? Color.white : new Color(0f, 0f, 0f, 0f);
+                }
+            });
+        }
+        else
+        {
+            iconImg.sprite = card.pokemonSprite;
+            iconImg.color  = card.pokemonSprite != null ? Color.white : new Color(0f, 0f, 0f, 0f);
+        }
 
         // ── Name (flexible — fills remaining space) ──────────────────────────
         GameObject nameObj       = new GameObject("Name", typeof(RectTransform), typeof(TextMeshProUGUI));

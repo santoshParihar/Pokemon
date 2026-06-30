@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Mouse Pok\xE9mon"
   cardType: 3
   pokemonSprite: {fileID: 21300000, guid: d8be33a2decfb49bfa8e8a370df8cde6, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/cdiunytje4jo4ktb39meo/pikachu.png?rlkey=1uqckutzmhcxls5d6ifpa3kda&st=ioicy0ym&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: 9e1893fc8a89d4774a715ad3a2d9e232, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/jhx2py8ejvh5rwsafa2xr/Property-1-Lightning.png?rlkey=1enhz8ddjjq4qhfd6cb7o37eh&st=a1e96dqy&dl=1
   attack1Name: Pika Bolt
   attack1CostText: L C
   attack1Damage: 30

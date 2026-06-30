@@ -208,189 +208,11 @@ public class CardEditorHelper : EditorWindow
             edgeMat.shader = edgeShader;
         }
 
-        // 2. Create Sample Pokemon Card Data assets
-        PokemonCardData charmanderData = AssetDatabase.LoadAssetAtPath<PokemonCardData>($"{dataFolder}/CharmanderData.asset");
-        if (charmanderData == null)
-        {
-            charmanderData = ScriptableObject.CreateInstance<PokemonCardData>();
-            charmanderData.pokemonName = "Charmander";
-            charmanderData.hp = 60;
-            charmanderData.stage = "Basic";
-            charmanderData.pokedexNo = "#004";
-            charmanderData.pokedexClass = "Lizard Pokémon";
-            charmanderData.cardType = PokemonType.Fire;
-            charmanderData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
-            
-            charmanderData.attack1Name = "Ember";
-            charmanderData.attack1CostText = "F C";
-            charmanderData.attack1Damage = 30;
-            charmanderData.attack1Description = "Discard 1 Fire Energy attached to this Pokemon.";
-            
-            charmanderData.ability.hasAbility = true;
-            charmanderData.ability.abilityName = "Roaring Resolve";
-            charmanderData.ability.abilityDescription = "Once during your turn, you may attach a Fire Energy card from your hand to this Pokémon.";
-            
-            charmanderData.weakness = PokemonType.Water;
-            charmanderData.weaknessValue = "×2";
-            charmanderData.resistance = PokemonType.Normal;
-            charmanderData.resistanceValue = "";
-            charmanderData.hasResistance = false;
-            charmanderData.retreatCost = 1;
-            charmanderData.rarityStars = 1;
-            
-            AssetDatabase.CreateAsset(charmanderData, $"{dataFolder}/CharmanderData.asset");
-        }
-        else
-        {
-            charmanderData.pokemonName = "Charizard";
-            charmanderData.hp = 60;
-            charmanderData.stage = "Basic";
-            charmanderData.pokedexNo = "#004";
-            charmanderData.pokedexClass = "Lizard Pokémon";
-            charmanderData.cardType = PokemonType.Fire;
-
-            charmanderData.attack1Name = "Ember";
-            charmanderData.attack1CostText = "F C";
-            charmanderData.attack1Damage = 30;
-            charmanderData.attack1Description = "Discard 1 Fire Energy attached to this Pokemon.";
-            
-            charmanderData.ability.hasAbility = true;
-            charmanderData.ability.abilityName = "Roaring Resolve";
-            charmanderData.ability.abilityDescription = "Once during your turn, you may attach a Fire Energy card from your hand to this Pokémon.";
-
-            charmanderData.weakness = PokemonType.Water;
-            charmanderData.weaknessValue = "×2";
-            charmanderData.resistance = PokemonType.Normal;
-            charmanderData.resistanceValue = "";
-            charmanderData.hasResistance = false;
-            charmanderData.retreatCost = 1;
-            charmanderData.rarityStars = 1;
-            EditorUtility.SetDirty(charmanderData);
-        }
-
-        PokemonCardData bulbasaurData = AssetDatabase.LoadAssetAtPath<PokemonCardData>($"{dataFolder}/BulbasaurData.asset");
-        if (bulbasaurData == null)
-        {
-            bulbasaurData = ScriptableObject.CreateInstance<PokemonCardData>();
-            bulbasaurData.pokemonName = "Bulbasaur";
-            bulbasaurData.hp = 70;
-            bulbasaurData.stage = "Basic";
-            bulbasaurData.pokedexNo = "#001";
-            bulbasaurData.pokedexClass = "Seed Pokémon";
-            bulbasaurData.cardType = PokemonType.Grass;
-            bulbasaurData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
-            
-            bulbasaurData.attack1Name = "Vine Whip";
-            bulbasaurData.attack1CostText = "G C";
-            bulbasaurData.attack1Damage = 30;
-            bulbasaurData.attack1Description = "Whips the opponent with thin vines.";
-            
-            bulbasaurData.ability.hasAbility = true;
-            bulbasaurData.ability.abilityName = "Photosynthesis";
-            bulbasaurData.ability.abilityDescription = "Once during your turn, you may attach a Grass Energy card from your hand to this Pokémon.";
-            
-            bulbasaurData.weakness = PokemonType.Fire;
-            bulbasaurData.weaknessValue = "×2";
-            bulbasaurData.resistance = PokemonType.Water;
-            bulbasaurData.resistanceValue = "-30";
-            bulbasaurData.hasResistance = true;
-            bulbasaurData.retreatCost = 1;
-            bulbasaurData.rarityStars = 2;
-            
-            AssetDatabase.CreateAsset(bulbasaurData, $"{dataFolder}/BulbasaurData.asset");
-        }
-        else
-        {
-            bulbasaurData.pokemonName = "Bulbasaur";
-            bulbasaurData.hp = 70;
-            bulbasaurData.stage = "Basic";
-            bulbasaurData.pokedexNo = "#001";
-            bulbasaurData.pokedexClass = "Seed Pokémon";
-            bulbasaurData.cardType = PokemonType.Grass;
-
-            bulbasaurData.attack1Name = "Vine Whip";
-            bulbasaurData.attack1CostText = "G C";
-            bulbasaurData.attack1Damage = 30;
-            bulbasaurData.attack1Description = "Whips the opponent with thin vines.";
-            
-            bulbasaurData.ability.hasAbility = true;
-            bulbasaurData.ability.abilityName = "Photosynthesis";
-            bulbasaurData.ability.abilityDescription = "Once during your turn, you may attach a Grass Energy card from your hand to this Pokémon.";
-
-            bulbasaurData.weakness = PokemonType.Fire;
-            bulbasaurData.weaknessValue = "×2";
-            bulbasaurData.resistance = PokemonType.Water;
-            bulbasaurData.resistanceValue = "-30";
-            bulbasaurData.hasResistance = true;
-            bulbasaurData.retreatCost = 1;
-            bulbasaurData.rarityStars = 2;
-            EditorUtility.SetDirty(bulbasaurData);
-        }
-
-        PokemonCardData squirtleData = AssetDatabase.LoadAssetAtPath<PokemonCardData>($"{dataFolder}/SquirtleData.asset");
-        if (squirtleData == null)
-        {
-            squirtleData = ScriptableObject.CreateInstance<PokemonCardData>();
-            squirtleData.pokemonName = "Squirtle";
-            squirtleData.hp = 60;
-            squirtleData.stage = "Basic";
-            squirtleData.pokedexNo = "#007";
-            squirtleData.pokedexClass = "Tiny Turtle Pokémon";
-            squirtleData.cardType = PokemonType.Water;
-            squirtleData.pokemonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game Assets/Textures/pokemon.png");
-            
-            squirtleData.attack1Name = "Water Gun";
-            squirtleData.attack1CostText = "W C";
-            squirtleData.attack1Damage = 30;
-            squirtleData.attack1Description = "Shoots a burst of high pressure water.";
-            
-            squirtleData.ability.hasAbility = true;
-            squirtleData.ability.abilityName = "Shell Shield";
-            squirtleData.ability.abilityDescription = "As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks.";
-            
-            squirtleData.weakness = PokemonType.Lightning;
-            squirtleData.weaknessValue = "×2";
-            squirtleData.resistance = PokemonType.Normal;
-            squirtleData.resistanceValue = "";
-            squirtleData.hasResistance = false;
-            squirtleData.retreatCost = 1;
-            squirtleData.rarityStars = 1;
-            
-            AssetDatabase.CreateAsset(squirtleData, $"{dataFolder}/SquirtleData.asset");
-        }
-        else
-        {
-            squirtleData.pokemonName = "Squirtle";
-            squirtleData.hp = 60;
-            squirtleData.stage = "Basic";
-            squirtleData.pokedexNo = "#007";
-            squirtleData.pokedexClass = "Tiny Turtle Pokémon";
-            squirtleData.cardType = PokemonType.Water;
-
-            squirtleData.attack1Name = "Water Gun";
-            squirtleData.attack1CostText = "W C";
-            squirtleData.attack1Damage = 30;
-            squirtleData.attack1Description = "Shoots a burst of high pressure water.";
-            
-            squirtleData.ability.hasAbility = true;
-            squirtleData.ability.abilityName = "Shell Shield";
-            squirtleData.ability.abilityDescription = "As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks.";
-
-            squirtleData.weakness = PokemonType.Lightning;
-            squirtleData.weaknessValue = "×2";
-                squirtleData.resistance = PokemonType.Normal;
-            squirtleData.resistanceValue = "";
-            squirtleData.hasResistance = false;
-            squirtleData.retreatCost = 1;
-            squirtleData.rarityStars = 1;
-            EditorUtility.SetDirty(squirtleData);
-        }
-
-        AssetDatabase.SaveAssets();
-
-        // Determine which Pokémon data to use for naming
-        PokemonCardData dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
-        string pokemonNameSanitized = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");
+        // 2. Resolve Card Data to use
+        PokemonCardData dataToUse = selectedCardData;
+        string pokemonNameSanitized = dataToUse != null && !string.IsNullOrEmpty(dataToUse.pokemonName) 
+            ? dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "") 
+            : "template";
 
         // 3. Bake and Save the Mesh Asset Locally (checks and reuses the Pokémon's own specific mesh asset if dimensions match)
         Mesh savedMesh = null;
@@ -424,7 +246,7 @@ public class CardEditorHelper : EditorWindow
         }
 
         // 5. Create the Main Card GameObject named uniquely
-        GameObject cardObj = new GameObject($"{pokemonNameSanitized} Card");
+        GameObject cardObj = new GameObject("PokemonCard3d");
         
         // Attach Components
         MeshFilter meshFilter = cardObj.AddComponent<MeshFilter>();
@@ -873,8 +695,10 @@ public class CardEditorHelper : EditorWindow
         badgeResistField?.SetValue(uiController, badgeResistTmp);
         badgeRarityField?.SetValue(uiController, badgeRarityTmp);
 
-        dataToUse = selectedCardData != null ? selectedCardData : charmanderData;
-        uiController.SetCardData(dataToUse);
+        if (dataToUse != null)
+        {
+            uiController.SetCardData(dataToUse);
+        }
 
         // Force default UI material assignment on all Canvas Images to prevent missing material/pink bugs
         foreach (var img in cardObj.GetComponentsInChildren<Image>(true))
@@ -885,19 +709,24 @@ public class CardEditorHelper : EditorWindow
         // Make sure all values set via reflection are serialized when saving the prefab
         EditorUtility.SetDirty(uiController);
 
-        // 9. Save Card Prefab (uniquely named based on Pokemon name)
-        string pokemonPrefabName = string.IsNullOrEmpty(dataToUse.pokemonName) ? "Pokemon" : dataToUse.pokemonName.Replace(" ", "").Replace(":", "").Replace("/", "");
-        string cardPrefabPath = $"{prefabsFolder}/{pokemonPrefabName}Card.prefab";
+        // 9. Save Card Prefab (replacing the template prefab directly)
+        string templateFolder = "Assets/Game Assets/Prefabs/template";
+        if (!Directory.Exists(templateFolder))
+        {
+            Directory.CreateDirectory(templateFolder);
+            AssetDatabase.Refresh();
+        }
+        string cardPrefabPath = $"{templateFolder}/PokemonCard3d.prefab";
         GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardObj, cardPrefabPath);
         DestroyImmediate(cardObj);
 
         if (spawnInScene)
         {
-            // Destroy existing instances of THIS specific card in the active scene to avoid duplicate spawns of the same Pokemon card
+            // Destroy existing instances of PokemonCard3d in the active scene
             GameObject[] existingCards = GameObject.FindObjectsOfType<GameObject>();
             foreach (var card in existingCards)
             {
-                if (card.name == $"{pokemonPrefabName} Card" && card.scene.IsValid())
+                if (card.name == "PokemonCard3d" && card.scene.IsValid())
                 {
                     Undo.DestroyObjectImmediate(card);
                 }
@@ -905,6 +734,7 @@ public class CardEditorHelper : EditorWindow
 
             // Instantiate in active scene for user
             GameObject sceneInstance = PrefabUtility.InstantiatePrefab(cardPrefab) as GameObject;
+            sceneInstance.name = "PokemonCard3d";
             Selection.activeGameObject = sceneInstance;
         }
 

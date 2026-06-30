@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -22,8 +23,30 @@ public static class Card2DTextHandler
 
         if (pokemonImage != null)
         {
-            pokemonImage.sprite  = cardData.pokemonSprite;
-            pokemonImage.enabled = cardData.pokemonSprite != null;
+            if (Application.isPlaying && !string.IsNullOrEmpty(cardData.imageUrl))
+            {
+                pokemonImage.enabled = false; // Temporary off or placeholder state
+                ImageCacheManager.Instance.LoadImage(cardData.imageUrl, (Sprite downloadedSprite) =>
+                {
+                    if (pokemonImage == null) return;
+                    if (downloadedSprite != null)
+                    {
+                        pokemonImage.sprite = downloadedSprite;
+                        pokemonImage.enabled = true;
+                    }
+                    else
+                    {
+                        // Fallback to local sprite if download fails
+                        pokemonImage.sprite = cardData.pokemonSprite;
+                        pokemonImage.enabled = cardData.pokemonSprite != null;
+                    }
+                });
+            }
+            else
+            {
+                pokemonImage.sprite  = cardData.pokemonSprite;
+                pokemonImage.enabled = cardData.pokemonSprite != null;
+            }
         }
     }
 }

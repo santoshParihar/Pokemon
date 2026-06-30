@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Flame Pok\xE9mon"
   cardType: 1
   pokemonSprite: {fileID: 21300000, guid: a704d46a4c386487da64c49f9dfb9a16, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/6jiuwz0s675elgtreeqwg/charizard.png?rlkey=038z0v2fk1tpo3nwhug0swnmk&st=wt7abit7&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: 7ca27d436118c43a0b38ed2921b9c85e, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/1qnj9wxbjhwvgtz46tnmv/Property-1-Fighting.png?rlkey=qyen98d4lk0b4kzkxdtqz1lp6&st=lklmih4n&dl=1
   attack1Name: Fire Blast
   attack1CostText: F F C
   attack1Damage: 130

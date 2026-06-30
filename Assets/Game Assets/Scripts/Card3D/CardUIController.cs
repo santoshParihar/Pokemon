@@ -121,8 +121,32 @@ public class CardUIController : MonoBehaviour
 
         if (pokemonImage != null)
         {
-            pokemonImage.sprite = cardData.pokemonSprite;
-            pokemonImage.enabled = cardData.pokemonSprite != null;
+            if (Application.isPlaying && !string.IsNullOrEmpty(cardData.imageUrl))
+            {
+                pokemonImage.enabled = false;
+                string expectedUrl = cardData.imageUrl;
+                ImageCacheManager.Instance.LoadImage(expectedUrl, (Sprite downloadedSprite) =>
+                {
+                    if (pokemonImage == null) return;
+                    if (cardData == null || cardData.imageUrl != expectedUrl) return;
+
+                    if (downloadedSprite != null)
+                    {
+                        pokemonImage.sprite = downloadedSprite;
+                        pokemonImage.enabled = true;
+                    }
+                    else
+                    {
+                        pokemonImage.sprite = cardData.pokemonSprite;
+                        pokemonImage.enabled = cardData.pokemonSprite != null;
+                    }
+                });
+            }
+            else
+            {
+                pokemonImage.sprite = cardData.pokemonSprite;
+                pokemonImage.enabled = cardData.pokemonSprite != null;
+            }
         }
 
         // Setup Auto-sizing for cost fields to prevent wrapping/overlapping
@@ -478,28 +502,6 @@ public class CardUIController : MonoBehaviour
     {
         if (meshRenderer == null) return;
 
-        // Find the correct texture for the card type (override with custom background or default front texture if assigned)
-        Texture2D frontTex = null;
-        if (cardData.customBackgroundSprite != null)
-        {
-            frontTex = cardData.customBackgroundSprite.texture;
-        }
-        else if (defaultFrontTexture != null)
-        {
-            frontTex = defaultFrontTexture;
-        }
-        else
-        {
-            foreach (var mapping in typeBackgrounds)
-            {
-                if (mapping.type == cardData.cardType)
-                {
-                    frontTex = mapping.backgroundTexture;
-                    break;
-                }
-            }
-        }
-
         // Setup instanced materials to prevent overriding scene asset materials
         if (instancedFrontMaterial == null && baseFrontMaterial != null)
         {
@@ -515,12 +517,6 @@ public class CardUIController : MonoBehaviour
         }
 
         // Apply Textures to instances
-        if (instancedFrontMaterial != null && frontTex != null)
-        {
-            instancedFrontMaterial.mainTexture = frontTex;
-            if (instancedFrontMaterial.HasProperty("_BaseMap")) instancedFrontMaterial.SetTexture("_BaseMap", frontTex);
-            if (instancedFrontMaterial.HasProperty("_MainTex")) instancedFrontMaterial.SetTexture("_MainTex", frontTex);
-        }
         if (instancedBackMaterial != null && cardBackTexture != null)
         {
             instancedBackMaterial.mainTexture = cardBackTexture;
@@ -535,6 +531,63 @@ public class CardUIController : MonoBehaviour
         mats.Add(instancedEdgeMaterial != null ? instancedEdgeMaterial : baseEdgeMaterial);   // Index 2: Edge
 
         meshRenderer.sharedMaterials = mats.ToArray();
+
+        // Retrieve and Apply Front Texture (async or fallback)
+        if (Application.isPlaying && !string.IsNullOrEmpty(cardData.customBackgroundUrl))
+        {
+            string expectedBgUrl = cardData.customBackgroundUrl;
+            ImageCacheManager.Instance.LoadImage(expectedBgUrl, (Sprite downloadedSprite) =>
+            {
+                if (this == null || meshRenderer == null) return;
+                if (cardData == null || cardData.customBackgroundUrl != expectedBgUrl) return;
+
+                if (downloadedSprite != null && downloadedSprite.texture != null)
+                {
+                    SetFrontTexture(downloadedSprite.texture);
+                }
+                else
+                {
+                    SetFrontTexture(GetFallbackFrontTexture());
+                }
+            });
+        }
+        else
+        {
+            SetFrontTexture(GetFallbackFrontTexture());
+        }
+    }
+
+    private Texture2D GetFallbackFrontTexture()
+    {
+        if (cardData.customBackgroundSprite != null)
+        {
+            return cardData.customBackgroundSprite.texture;
+        }
+        else if (defaultFrontTexture != null)
+        {
+            return defaultFrontTexture;
+        }
+        else
+        {
+            foreach (var mapping in typeBackgrounds)
+            {
+                if (mapping.type == cardData.cardType)
+                {
+                    return mapping.backgroundTexture;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void SetFrontTexture(Texture2D tex)
+    {
+        if (instancedFrontMaterial != null && tex != null)
+        {
+            instancedFrontMaterial.mainTexture = tex;
+            if (instancedFrontMaterial.HasProperty("_BaseMap")) instancedFrontMaterial.SetTexture("_BaseMap", tex);
+            if (instancedFrontMaterial.HasProperty("_MainTex")) instancedFrontMaterial.SetTexture("_MainTex", tex);
+        }
     }
 
     private void AlignCanvas()

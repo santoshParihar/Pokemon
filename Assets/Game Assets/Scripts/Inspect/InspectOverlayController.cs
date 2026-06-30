@@ -73,13 +73,14 @@ public class InspectOverlayController : MonoBehaviour
         if (inspect3DAnchor != null && card3DPrefabs != null && card3DPrefabs.Count > 0)
         {
             GameObject matchingPrefab = null;
+
+            // Step A: Attempt exact name match
             foreach (var prefab in card3DPrefabs)
             {
                 if (prefab == null) continue;
                 CardUIController controller = prefab.GetComponent<CardUIController>();
                 if (controller != null)
                 {
-                    // Match by name
                     var dataField = typeof(CardUIController).GetField("cardData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     PokemonCardData prefabData = dataField?.GetValue(controller) as PokemonCardData;
                     if (prefabData != null && prefabData.pokemonName == data.pokemonName)
@@ -88,6 +89,32 @@ public class InspectOverlayController : MonoBehaviour
                         break;
                     }
                 }
+            }
+
+            // Step B: Fallback to matching by Card Type (Grass, Fire, Water, etc.)
+            if (matchingPrefab == null)
+            {
+                foreach (var prefab in card3DPrefabs)
+                {
+                    if (prefab == null) continue;
+                    CardUIController controller = prefab.GetComponent<CardUIController>();
+                    if (controller != null)
+                    {
+                        var dataField = typeof(CardUIController).GetField("cardData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        PokemonCardData prefabData = dataField?.GetValue(controller) as PokemonCardData;
+                        if (prefabData != null && prefabData.cardType == data.cardType)
+                        {
+                            matchingPrefab = prefab;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Step C: Fallback to the first available prefab
+            if (matchingPrefab == null)
+            {
+                matchingPrefab = card3DPrefabs[0];
             }
 
             if (matchingPrefab != null)
@@ -111,6 +138,13 @@ public class InspectOverlayController : MonoBehaviour
                     spawned3DInspectCard.transform.localRotation = Quaternion.identity;
                     // Scale up slightly for close-up inspection
                     spawned3DInspectCard.transform.localScale = new Vector3(inspectCardScale, inspectCardScale, inspectCardScale);
+
+                    // Inject the selected card's data so it updates dynamically
+                    CardUIController ctrl = spawned3DInspectCard.GetComponent<CardUIController>();
+                    if (ctrl != null)
+                    {
+                        ctrl.SetCardData(data);
+                    }
 
                     // Add/Configure CardRotator for slow auto-spinning
                     CardRotator rotator = spawned3DInspectCard.GetComponent<CardRotator>();

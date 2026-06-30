@@ -16,6 +16,33 @@ public static class Card2DBackgroundHandler
     {
         if (bgImage == null) return;
 
+        if (Application.isPlaying && !string.IsNullOrEmpty(cardData.customBackgroundUrl))
+        {
+            ImageCacheManager.Instance.LoadImage(cardData.customBackgroundUrl, (Sprite downloadedSprite) =>
+            {
+                if (bgImage == null) return;
+                if (downloadedSprite != null)
+                {
+                    bgImage.sprite = downloadedSprite;
+                }
+                else
+                {
+                    ApplyFallback(cardData, bgImage, typeBackgrounds, defaultFrontSprite);
+                }
+            });
+        }
+        else
+        {
+            ApplyFallback(cardData, bgImage, typeBackgrounds, defaultFrontSprite);
+        }
+    }
+
+    private static void ApplyFallback(
+        PokemonCardData cardData,
+        Image bgImage,
+        List<Card2DUIController.TypeSpriteMapping> typeBackgrounds,
+        Sprite defaultFrontSprite)
+    {
         Sprite bgSprite = null;
 
         // 1. Custom override wins

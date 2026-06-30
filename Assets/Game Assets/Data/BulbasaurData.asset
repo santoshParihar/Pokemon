@@ -19,7 +19,9 @@ MonoBehaviour:
   pokedexClass: "Seed Pok\xE9mon"
   cardType: 0
   pokemonSprite: {fileID: 21300000, guid: f167bb5b1c6824749bc9e6dc7ce2a482, type: 3}
+  imageUrl: https://www.dropbox.com/scl/fi/l56imejebdmifxmg8jqd6/bulbasaur.png?rlkey=em71sjabal4007swb5we1tauz&st=wgs7f8xl&dl=1
   customBackgroundSprite: {fileID: 21300000, guid: 7e4b76c0d6230451f8fa2c703c87a349, type: 3}
+  customBackgroundUrl: https://www.dropbox.com/scl/fi/7t38iet3pvvzixgheuppp/Property-1-Grass.png?rlkey=47kwnx2665d7r5kmfnci3ips6&st=c7ecbaab&dl=1
   attack1Name: Vine Whip
   attack1CostText: G C
   attack1Damage: 30
