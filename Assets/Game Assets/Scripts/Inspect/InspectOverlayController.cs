@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-[ExecuteAlways]
 public class InspectOverlayController : MonoBehaviour
 {
     private GameObject inspectOverlay;

@@ -11,7 +11,6 @@ using TMPro;
 ///   Card2DAttackHandler      — attack &amp; ability slot layout + cost formatting
 ///   Card2DBadgeHandler       — stage / CP / retreat / weakness / resist / rarity badges
 /// </summary>
-[ExecuteAlways]
 public class Card2DUIController : MonoBehaviour
 {
     // ── Data ─────────────────────────────────────────────────────────────────

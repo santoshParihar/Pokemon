@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 
-[ExecuteAlways]
 public class CollectionGridManager : MonoBehaviour
 {
     private GameObject card2DPrefab;

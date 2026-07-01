@@ -7,7 +7,6 @@ using TMPro;
 using UnityEditor;
 #endif
 
-[ExecuteAlways]
 public class MainUIManager : MonoBehaviour
 {
     // Public so PackOpeningController can reference Tab.Collection

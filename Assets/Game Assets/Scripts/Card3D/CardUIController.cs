@@ -9,7 +9,6 @@ public enum CardCanvasSide
     BackSide
 }
 
-[ExecuteAlways]
 public class CardUIController : MonoBehaviour
 {
     [Header("Card Data")]
