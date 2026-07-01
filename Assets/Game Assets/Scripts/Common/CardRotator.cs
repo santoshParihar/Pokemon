@@ -32,8 +32,15 @@ public class CardRotator : MonoBehaviour
         Vector2 mousePos = Vector2.zero;
 
 #if ENABLE_INPUT_SYSTEM
+        var touch = Touchscreen.current;
         var mouse = Mouse.current;
-        if (mouse != null)
+        if (touch != null && touch.primaryTouch.press.isPressed)
+        {
+            mousePressed = true;
+            mousePressedThisFrame = touch.primaryTouch.press.wasPressedThisFrame;
+            mousePos = touch.primaryTouch.position.ReadValue();
+        }
+        else if (mouse != null)
         {
             mousePressed = mouse.leftButton.isPressed;
             mousePressedThisFrame = mouse.leftButton.wasPressedThisFrame;
