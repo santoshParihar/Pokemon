@@ -58,7 +58,7 @@ Below is a detailed breakdown of the technical features and the algorithms behin
   * Sorting is performed on the in-memory card list using C#'s native `List<T>.Sort()` (which implements IntroSort, a hybrid of QuickSort, HeapSort, and Insertion Sort).
   * After sorting the data, we update the UI order in real-time by rearranging the sibling indices of the UI cards using `transform.SetSiblingIndex()`. This utilizes Unity’s Auto-Layout Group to reposition the grid layout instantly with zero layout rebuilding overhead.
 
-### 4. Smart Multi-Tier Image Caching
+### 4.  Image Caching
 * **Feature:** Loads card images asynchronously from URLs without blocking the main thread or causing network bottlenecks.
 * **Algorithm:** **Multi-Tier Cached Remote Loading**.
   * **Memory Cache (Tier 1 - RAM):** Fast lookups using a C# `Dictionary<string, Sprite>`.
@@ -81,22 +81,25 @@ Below is a detailed breakdown of the technical features and the algorithms behin
 
 ---
 
-## ⏳ Time Spent & Project Walkthrough
+## ➕ How to Add a New Pokémon
 
-Refer to [project_timesheet.md](project_timesheet.md) for the full day-by-day progress log.
+To add a new Pokémon card to the game, you only need to create and register a single data asset:
 
-* **Total Time Spent:** 75 Hours (over 4 weeks, averaging ~20 hours per week).
-* **Core Focus Areas:**
-  * **Week 1:** Core 3D/2D card prefab structure, double-sided render logic, and texture processing.
-  * **Week 2:** Game loop integration, PrimeTween packs animations, search filtering, and layouts.
-  * **Week 3:** Custom Editor Helper tools, local player collection saves, and responsive grid layouts.
-  * **Week 4:** Sound system integration, build stabilization for mobile Qualcomm GPUs, and edge-case bug fixing.
+1. **Create the Data File:**
+   * In the Unity Project window, navigate to `Assets/Game Assets/Data/`.
+   * Right-click and choose **Create > Pokemon TCG > Pokemon Card Data**.
+   * Name the new asset file (e.g., `MewtwoData.asset`).
+2. **Configure Card Details:**
+   * Select the created asset file and fill in the card parameters in the Inspector window:
+     * Basic info (Name, HP, Stage, Pokedex No, Pokedex Class, Card Type).
+     * Attack information (Name, energy cost formatting string, Damage, Description).
+     * Ability (if applicable).
+     * Card stats (Weakness type & multiplier, Resistance type & value, Retreat cost, Rarity stars, Market price, Drop probability weight).
+3. **Provide Image URLs:**
+   * Enter the dynamic loading web links in the `ImageUrl` and `CustomBackgroundUrl` fields. The game will automatically handle remote downloading, baking, and disk/RAM caching.
+4. **Register the Card:**
+   * Locate the main scene controller object (e.g., `MainUIManager` or the database container) in your scene hierarchy.
+   * Drag your new `PokemonCardData` asset into the **Cards Data** list.
 
----
+*The game automatically processes the new card data asset, making it available in booster packs, showing it in the collection store, and rendering it in high detail without writing any extra code.*
 
-## 🔮 Future Roadmap (If We Had 40 More Hours)
-
-1. **Online Multiplayer Trades:** Replace local saves with a secure Firebase/PlayFab backend to support 1v1 trades and real-time multiplayer card exchanges.
-2. **Physical Camera Scanning:** Integrate OpenCV or Google ML Kit into Unity to scan physical Pokémon cards directly from a device camera.
-3. **Advanced Stats Dashboard:** Add analytics dashboards (e.g., historical price charts, collection completion percentages, and rare card distribution heatmaps).
-4. **Enhanced 3D Holo Shaders:** Add custom holographic and foil shader effects to card meshes that react to device gyroscope rotation sensors.
