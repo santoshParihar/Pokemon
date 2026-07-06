@@ -110,7 +110,11 @@ The project relies on these libraries for performance and UI quality:
 
 * **Data-Driven Architecture:** We chose Unity `ScriptableObjects` (`PokemonCardData`) to store card specifications. This allows designers to add new cards via the Inspector without modifying code.
 * **Decoupled Handlers (SOLID):** We split the 2D Card UI controller into dedicated handlers (`Card2DBackgroundHandler`, `Card2DTextHandler`, `Card2DAttackHandler`, `Card2DBadgeHandler`) to prevent the "God Class" anti-pattern.
-* **Save State Persistence:** Local persistence is handled by JSON-serializing the collection dictionary of `cardId` and duplicate counts, saving it securely in `PlayerPrefs`.
+* **Save State Persistence (Local Save System):** 
+  * The game automatically saves your card collection directly to the device's local memory.
+  * Your collection (all owned cards and the count of duplicates) is serialized into a simple JSON text format and saved using Unity's native `PlayerPrefs`.
+  * This ensures your inventory is preserved even if you close or reboot the application.
+  * **Reset Tool:** Developers can reset the collection to empty by clicking **Pokemon TCG > Clear PlayerPrefs** in the top Unity menu bar.
 
 ---
 
