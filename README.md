@@ -73,6 +73,37 @@ Below is a detailed breakdown of the technical features and the algorithms behin
 
 ---
 
+## 📁 Project Directory Structure
+
+Below is the directory tree showing where the key assets and files of the project are located:
+
+```text
+Assets/
+├── Game Assets/
+│   ├── Audio/              # Sound effects (card flips, pack tearing, bg music)
+│   ├── Data/               # ScriptableObject card data assets (.asset)
+│   ├── Materials/          # Render materials (Card front, back, borders)
+│   ├── Meshes/             # Baked 3D card geometry meshes
+│   ├── Prefabs/            # 3D and 2D card UI templates
+│   ├── Scenes/             # Core gameplay scene (Game.unity)
+│   ├── Scripts/            # C# logic, handlers, and editor tools
+│   └── Textures/           # Card UI sprites and energy icon textures
+└── Plugins/
+    └── PrimeTween/         # High-performance tweening animation library
+```
+
+---
+
+## 📦 Third-Party Dependencies
+
+The project relies on these libraries for performance and UI quality:
+
+* **PrimeTween:** A highly optimized, zero-garbage-collection tweening library used to handle animations (card flipping, pack shaking, UI movement) smoothly on mobile hardware.
+* **TextMeshPro:** Used for clean, sharp, and pixel-perfect card text rendering at any resolution.
+* **Universal Render Pipeline (URP):** Serves as the primary rendering engine to support lightweight mobile-optimized graphics and custom shaders.
+
+---
+
 ## 📐 Architectural Decisions
 
 * **Data-Driven Architecture:** We chose Unity `ScriptableObjects` (`PokemonCardData`) to store card specifications. This allows designers to add new cards via the Inspector without modifying code.
