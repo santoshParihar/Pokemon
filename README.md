@@ -24,11 +24,11 @@ Follow these steps to run the project in your local development environment:
    * Open the project using **Unity 6** (or your active LTS version).
 3. **Open the Gameplay Scene:**
    * In the Project view, navigate to [Assets/Game Assets/Scenes/Game.unity](file:///Users/santosh-parihar/PokemonNew/Assets/Game%20Assets/Scenes/Game.unity) and open it.
-4. **Setup UI Layouts (Automated Editor Script):**
-   * In the top Unity menu bar, go to **Pokemon TCG > Setup Main Scene UI**. This automatically instantiates the collection scroll view, builds UI elements, updates the card template prefabs, and binds all references.
+4. **Card Creator Window (Editor Script):**
+   * In the top Unity menu bar, go to **Pokemon TCG > Card Creator Window** to open the interactive interface where you can configure parameters (Width, Height, Thickness, Corner Radius, Rarity, etc.) and bake 3D card meshes or generate Card templates.
 5. **Run the Project:**
    * Click the **Play** button in the Unity Editor to start.
-   * Toggle **Simulator** mode in the Game view to test various mobile screen aspect ratios.
+   * Toggle **Simulator** mode in the Game view to test the mobile layout.
 
 ---
 
