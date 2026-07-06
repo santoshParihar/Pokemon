@@ -37,7 +37,7 @@ Follow these steps to run the project in your local development environment:
 Below is a detailed breakdown of the technical features and the algorithms behind them:
 
 ### 1. Booster Pack Opening (Probability-Weighted Drop Algorithm)
-* **Feature:** Opens booster packs and awards 5 randomized cards to the player's collection.
+* **Feature:** Opens booster packs and awards 3 randomized cards to the player's collection.
 * **Algorithm:** **Cumulative Weight Selection Algorithm**. 
   * Rather than picking cards purely at random, each card ScriptableObject has a `dropProbability` (weight).
   * We sum the weights of all cards to calculate a `totalWeight`. 
