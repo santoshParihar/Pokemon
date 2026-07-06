@@ -60,10 +60,12 @@ Below is a detailed breakdown of the technical features and the algorithms behin
 
 ### 4.  Image Caching
 * **Feature:** Loads card images asynchronously from URLs without blocking the main thread or causing network bottlenecks.
+* **Hosting & Remote Sync:** Pokémon artwork and custom background textures are hosted on **Dropbox**. At first-time app launch, these assets are fetched and saved to the device.
 * **Algorithm:** **Multi-Tier Cached Remote Loading**.
   * **Memory Cache (Tier 1 - RAM):** Fast lookups using a C# `Dictionary<string, Sprite>`.
   * **Disk Cache (Tier 2 - Storage):** Files are saved locally using an MD5 hash of the card URL as the filename.
   * **Network Fetch (Tier 3 - Fallback):** Fetches the texture using `UnityWebRequestTexture`, bakes the sprite, updates Tier 1 and Tier 2 caches, and renders the image.
+
 
 ### 5. High-Performance Animations
 * **Feature:** Smooth card packs shaking, tearing, and flipping in 3D.
