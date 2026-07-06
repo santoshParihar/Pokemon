@@ -1,6 +1,6 @@
-# Pokémon TCG Pocket Clone - Companion App (Card Outpost)
+# Pokémon TCG Pocket  - Companion App (Card Outpost)
 
-A high-performance, polished Pokémon Trading Card Game (TCG) companion MVP built in Unity. This project simulates booster pack openings, collection tracking, real-time search/filter/sort capabilities, 3D/2D card inspection, and persistent local storage.
+A polished Pokémon Trading Card Game (TCG) companion MVP built in Unity. This project simulates booster pack openings, collection tracking, real-time search/filter/sort capabilities, 3D/2D card inspection, and persistent local storage.
 
 ---
 
@@ -11,7 +11,7 @@ Follow these steps to run the project in your local development environment:
 ### Prerequisites
 * **Unity Version:** Unity 6 LTS (or Unity 2022.3+).
 * **Render Pipeline:** Universal Render Pipeline (URP).
-* **Target Platform:** Android (APK built and tested on physical devices) or iOS.
+* **Target Platform:** Android (APK built and tested on physical devices).
 
 ### Setup Steps
 1. **Clone the Repository:**
@@ -23,7 +23,7 @@ Follow these steps to run the project in your local development environment:
    * Open Unity Hub, click **Add > Add project from disk**, and select the cloned `Pokemon` folder.
    * Open the project using **Unity 6** (or your active LTS version).
 3. **Open the Gameplay Scene:**
-   * In the Project view, navigate to [Assets/Game Assets/Scenes/Game.unity](file:///Users/santosh-parihar/PokemonNew/Assets/Game%20Assets/Scenes/Game.unity) and open it.
+   * In the Project view, navigate to `Assets/Game Assets/Scenes/Game.unity` and open it.
 4. **Card Creator Window (Editor Script):**
    * In the top Unity menu bar, go to **Pokemon TCG > Card Creator Window** to open the interactive interface where you can configure parameters (Width, Height, Thickness, Corner Radius, Rarity, etc.) and bake 3D card meshes or generate Card templates.
 5. **Run the Project:**
@@ -83,7 +83,7 @@ Below is a detailed breakdown of the technical features and the algorithms behin
 
 ## ⏳ Time Spent & Project Walkthrough
 
-Refer to [project_timesheet.md](file:///Users/santosh-parihar/PokemonNew/project_timesheet.md) for the full day-by-day progress log.
+Refer to [project_timesheet.md](project_timesheet.md) for the full day-by-day progress log.
 
 * **Total Time Spent:** 75 Hours (over 4 weeks, averaging ~20 hours per week).
 * **Core Focus Areas:**
